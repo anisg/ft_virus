@@ -30,20 +30,14 @@ size_t call(size_t num, size_t a1, size_t a2, size_t a3, size_t a4, size_t a5, s
 #define CALL5(X,a1,a2,a3,a4,a5) call(X,a1,a2,a3,a4,a5,0)
 #define CALL6(X,a1,a2,a3,a4,a5,a6) call(X,a1,a2,a3,a4,a5,a6)
 
-enum syscall{READ = 0, WRITE = 1, MMAP = 9, MUNMAP = 11, EXIT = 60};
+enum syscall{READ = 0, WRITE = 1, OPEN = 2,
+    MMAP = 9, MUNMAP = 11, EXIT = 60};
 
-//==================== LIB / UTILS =====================
+//==================== LOW FUNCTIONS =====================
 
-int leave(int n){ CALL1(EXIT, n); }
-
-
-size_t slen(char *s){
-        int i;for(i=0;s[i];i++);return i;
+int exit(int n){
+  CALL1(EXIT, n);
 }
-
-void print(char *s){ CALL3(WRITE, 1, (size_t)s, slen(s)); }
-
-void println(char *s){ print(s); print("\n"); }
 
 void *malloc(size_t size){
 	size_t *p = CALL6(MMAP, NULL, sizeof(size_t)+size, 6,34,-1,0)
@@ -52,8 +46,54 @@ void *malloc(size_t size){
 }
 
 void *free(void *p){
-	return CALL2(MUNMAP, ((size_t)p)-sizeof(size_t), ((size_t*)(p-1))[0]);}
+	return CALL2(MUNMAP, ((size_t)p)-sizeof(size_t), ((size_t*)(p-1))[0]);
+}
 
+size_t write(int fd, void *s, size_t n){
+  CALL3(WRITE, fd, (size_t)s, n);
+}
+
+size_t open(char *filename, int flag){  
+  return CALL2(OPEN, filename, flag);
+}
 
 //==================== HIGHER FUNCTIONS =====================
 
+size_t slen(char *s){
+  int i;for(i=0;s[i];i++);return i;
+}
+
+void print(char *s){
+  write(1, s, slen(s));
+}
+
+void println(char *s){
+  print(s);
+  print("\n");
+}
+
+int fget(char *filename, char **ptr, size_t *l){
+  struct stat   buf;
+  int       fd;
+
+  if ((fd = open(filename, O_RDONLY)) < 0)
+    return FALSE;
+  if (fstat(fd, &buf) < 0)
+    return FALSE;
+  if (((*ptr) = mmap(NULL, buf.st_size, PROT_READ|PROT_WRITE, MAP_PRIVATE, fd, 0))
+    == MAP_FAILED)
+    return FALSE;
+  (*l) = buf.st_size;
+  close(fd);
+  return TRUE;
+}
+
+int fput(char *filename, char *ptr, size_t l){
+  int fd;
+
+  if ((fd = open(filename, O_WRONLY | O_CREAT, 0755)) < 0)
+    return FALSE;
+  write(fd, ptr, l);
+  close(fd);
+  return TRUE;
+}

