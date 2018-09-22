@@ -1,5 +1,7 @@
 int main(void) asm ("entry");
 
+#include "lib/lib.c"
+
 /*
 //extern size_t memaddr;
 //extern size_t size;
@@ -9,9 +11,6 @@ int main(void) asm ("entry");
 		infect("other_file", (void*)memaddr, size);
 	}
 */
-
-#include <lib.h>
-
 
 int main(){
 	println("Hello World!");

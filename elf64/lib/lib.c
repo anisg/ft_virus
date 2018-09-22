@@ -1,3 +1,7 @@
+#ifndef NULL
+ #define NULL 0x0
+#endif
+
 #ifndef TRUE
  #define TRUE 1
 #endif
@@ -7,6 +11,27 @@
 #endif
 
 typedef long long unsigned int size_t;
+
+
+typedef unsigned char u_char;
+typedef unsigned short  u_short;
+typedef unsigned int  u_int;
+typedef unsigned long u_long;
+typedef unsigned short  ushort;   /* Sys V compatibility */
+
+typedef char *  caddr_t;    /* core address */
+typedef long  daddr_t;    /* disk address */
+typedef short dev_t;      /* device number */
+typedef u_long  ino_t;      /* inode number */
+typedef long  off_t;      /* file offset (should be a quad) */
+typedef u_short nlink_t;    /* link count */
+typedef long  swblk_t;    /* swap offset */
+typedef long  segsz_t;    /* segment size */
+typedef u_short uid_t;      /* user id */
+typedef u_short gid_t;      /* group id */
+typedef short pid_t;      /* process id */
+typedef u_short mode_t;     /* permissions */
+typedef u_long  fixpt_t;    /* fixed point number */
 
 //====================================================
 
@@ -30,7 +55,7 @@ size_t call(size_t num, size_t a1, size_t a2, size_t a3, size_t a4, size_t a5, s
 #define CALL5(X,a1,a2,a3,a4,a5) call(X,a1,a2,a3,a4,a5,0)
 #define CALL6(X,a1,a2,a3,a4,a5,a6) call(X,a1,a2,a3,a4,a5,a6)
 
-enum syscall{READ = 0, WRITE = 1, OPEN = 2,
+enum syscall{READ = 0, WRITE = 1, OPEN = 2, CLOSE = 3, LSEEK = 8,
     MMAP = 9, MUNMAP = 11, EXIT = 60};
 
 //==================== LOW FUNCTIONS =====================
@@ -40,21 +65,29 @@ int exit(int n){
 }
 
 void *malloc(size_t size){
-	size_t *p = CALL6(MMAP, NULL, sizeof(size_t)+size, 6,34,-1,0)
+	size_t *p = (void*)CALL6(MMAP, NULL, sizeof(size_t)+size, 6,34,-1,0);
 	p[0] = size; //storing the size
 	return p+sizeof(size_t);
 }
 
-void *free(void *p){
-	return CALL2(MUNMAP, ((size_t)p)-sizeof(size_t), ((size_t*)(p-1))[0]);
+void free(void *p){
+	CALL2(MUNMAP, ((size_t)p)-sizeof(size_t), ((size_t*)(p-1))[0]);
 }
 
 size_t write(int fd, void *s, size_t n){
   CALL3(WRITE, fd, (size_t)s, n);
 }
 
-size_t open(char *filename, int flag){  
-  return CALL2(OPEN, filename, flag);
+int close(int fd){
+  return CALL1(CLOSE, fd);
+}
+
+size_t open(char *filename, int flag, int mode){  
+  return CALL3(OPEN, (size_t)filename, flag, mode);
+}
+
+size_t lseek(unsigned int fd, size_t offset, unsigned int whence){
+  return CALL3(LSEEK, fd, offset, whence);
 }
 
 //==================== HIGHER FUNCTIONS =====================
@@ -73,17 +106,15 @@ void println(char *s){
 }
 
 int fget(char *filename, char **ptr, size_t *l){
-  struct stat   buf;
   int       fd;
 
-  if ((fd = open(filename, O_RDONLY)) < 0)
+  if ((fd = open(filename, 0, 0755)) < 0)
     return FALSE;
-  if (fstat(fd, &buf) < 0)
+  //get 
+  (*l) = lseek(fd, 0, 2);
+  if (((*ptr) = CALL6(MMAP, NULL, *l, 3, 2, fd, 0))
+    == (void*)-1)
     return FALSE;
-  if (((*ptr) = mmap(NULL, buf.st_size, PROT_READ|PROT_WRITE, MAP_PRIVATE, fd, 0))
-    == MAP_FAILED)
-    return FALSE;
-  (*l) = buf.st_size;
   close(fd);
   return TRUE;
 }
@@ -91,7 +122,7 @@ int fget(char *filename, char **ptr, size_t *l){
 int fput(char *filename, char *ptr, size_t l){
   int fd;
 
-  if ((fd = open(filename, O_WRONLY | O_CREAT, 0755)) < 0)
+  if ((fd = open(filename, 65, 0755)) < 0)
     return FALSE;
   write(fd, ptr, l);
   close(fd);

