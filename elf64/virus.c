@@ -14,5 +14,5 @@ int main(void) asm ("entry");
 
 int main(){
 	println("Hello World!");
-	exit(0);
+	//exit(0);
 }

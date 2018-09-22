@@ -247,6 +247,7 @@ int elf_set_off_entry(char *s, uint64_t n, uint64_t off_entry){
 	Elf64_Ehdr *h = (void*)s;
 
 	h->e_entry = elf_offset_to_addr(s,n,off_entry);
+	printf("addr:%zu\n", h->e_entry);
 	return TRUE;
 }
 

