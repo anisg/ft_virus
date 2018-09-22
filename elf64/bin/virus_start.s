@@ -6,8 +6,8 @@ extern entry
 
 _infect:
 jmp begin
-size: db `00000000`
 memaddr: db `00000000`
+size: db `00000000`
 
 begin:
 	push rax

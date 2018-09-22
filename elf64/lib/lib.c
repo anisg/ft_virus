@@ -141,3 +141,34 @@ int     str_equal(char *s1, char *s2)
                 i++;
         return (s1[i] - s2[i]) == 0;
 }
+
+void  snbr(size_t nb, char *sn)
+{
+  int   i;
+  int   j;
+  char  tmp;
+
+  i = 0;
+  while (nb)
+  {
+    sn[i++] = (nb % 10) + '0';
+    nb /= 10;
+  }
+  sn[i] = 0;
+  i -= 1;
+  j = 0;
+  while (j <= i)
+  {
+    tmp = sn[j];
+    sn[j] = sn[i];
+    sn[i] = tmp;
+    j += 1;
+    i -= 1;
+  }
+}
+
+void printnb(size_t nb){
+  char s[64];
+  snbr(nb, s);
+  print(s);
+}

