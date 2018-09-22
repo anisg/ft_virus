@@ -50,7 +50,7 @@ $(VIRUS_WRAPPER_END):
 
 
 $(VIRUS_C):
-	gcc -fPIC -c $(VIRUS_C_TEMPLATE) -o $@
+	gcc -fno-stack-protector -fPIC -c $(VIRUS_C_TEMPLATE) -o $@
 
 $(OBJ): | $(OBJ_DIR)
 

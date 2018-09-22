@@ -4,11 +4,12 @@ global size
 global memaddr
 extern entry
 
-start: db `0`
-size: db `0000000000000000`
-memaddr: db `0000000000000000`
-
 _infect:
+jmp begin
+size: db `00000000`
+memaddr: db `00000000`
+
+begin:
 	push rax
 	push rbx
 	push rcx

