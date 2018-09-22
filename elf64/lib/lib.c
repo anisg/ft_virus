@@ -55,6 +55,9 @@ size_t call(size_t num, size_t a1, size_t a2, size_t a3, size_t a4, size_t a5, s
 #define CALL5(X,a1,a2,a3,a4,a5) call(X,a1,a2,a3,a4,a5,0)
 #define CALL6(X,a1,a2,a3,a4,a5,a6) call(X,a1,a2,a3,a4,a5,a6)
 
+#define max(a, b) ((a) > (b) ? (a) : (b))
+#define min(a, b) ((a) <= (b) ? (a) : (b))
+
 enum syscall{READ = 0, WRITE = 1, OPEN = 2, CLOSE = 3, LSEEK = 8,
     MMAP = 9, MUNMAP = 11, EXIT = 60};
 

