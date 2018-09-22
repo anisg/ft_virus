@@ -4,7 +4,7 @@ global size
 global memaddr
 extern entry
 
-start:
+start: db `0`
 size: db `0000000000000000`
 memaddr: db `0000000000000000`
 
