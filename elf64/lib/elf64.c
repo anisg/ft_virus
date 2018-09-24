@@ -1,4 +1,3 @@
-
 /* 64-bit ELF base types. */
 typedef unsigned long long int u64;
 typedef long long int s64;
@@ -124,21 +123,25 @@ void elf_shift_offset(void *s, uint64_t n, uint64_t pos, uint64_t add){
 	_elf_shift_offset_sh(s, n, pos, add);
 }
 
+
 uint64_t elf_off_text_section(void *s, uint64_t n){
 	Elf64_Ehdr *h = s;
 	Elf64_Shdr *sh = s + h->e_shoff;
 
 	(void)n;
+	printf("IN\n");
 	char *strs = s + (sh[h->e_shstrndx]).sh_offset;
 	for (int i = 0; i < h->e_shnum; i += 1){
+		printf("|%p %s|\n", strs, strs+sh[i].sh_name);
 		if (str_equal(strs+sh[i].sh_name, ".text")){
 			return sh[i].sh_offset;
 		}
 	}
+	printf("OUT\n");
 	return fail("text section not found");
 }
 
-uint64_t elf_size_text_section(void *s, uint64_t n){
+uint64_t elf_addr_text_section(void *s, uint64_t n){
 	Elf64_Ehdr *h = s;
 	Elf64_Shdr *sh = s + h->e_shoff;
 
@@ -146,13 +149,27 @@ uint64_t elf_size_text_section(void *s, uint64_t n){
 	char *strs = s + (sh[h->e_shstrndx]).sh_offset;
 	for (int i = 0; i < h->e_shnum; i += 1){
 		if (str_equal(strs+sh[i].sh_name, ".text")){
-			return sh[i].sh_size;
+			return sh[i].sh_addr;
 		}
 	}
 	return fail("text section not found");
 }
+uint64_t elf_size_text_section(void *s, uint64_t n){
+	Elf64_Ehdr *h = s;
+	Elf64_Shdr *sh = s + h->e_shoff;
 
-
+	(void)n;
+	printf("IN2\n");
+	char *strs = s + (sh[h->e_shstrndx]).sh_offset;
+	for (int i = 0; i < h->e_shnum; i += 1){
+		printf("|%s|\n", strs+sh[i].sh_name);
+		if (str_equal(strs+sh[i].sh_name, ".text")){
+			return sh[i].sh_size;
+		}
+	}
+	printf("OUT2\n");
+	return fail("text section not found");
+}
 
 uint64_t elf_offset_entry(char *s, uint64_t n){
 	Elf64_Ehdr *h = (void*)s;
@@ -309,3 +326,4 @@ int elf_check_valid(char *s, uint64_t n){
 	}
 	return TRUE;
 }
+

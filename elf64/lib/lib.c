@@ -1,3 +1,4 @@
+#include <stddef.h>
 #ifndef NULL
  #define NULL 0x0
 #endif
@@ -10,7 +11,7 @@
  #define FALSE 0
 #endif
 
-typedef long long unsigned int size_t;
+//typedef long long unsigned int size_t;
 
 typedef unsigned char u_char;
 typedef unsigned short  u_short;

