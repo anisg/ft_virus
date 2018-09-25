@@ -44,15 +44,15 @@ uint64_t elf_off_text_section(void *s, uint64_t n){
 	Elf64_Shdr *sh = s + h->e_shoff;
 
 	(void)n;
-	printf("IN\n");
+	//printf("IN\n");
 	char *strs = s + (sh[h->e_shstrndx]).sh_offset;
 	for (int i = 0; i < h->e_shnum; i += 1){
-		printf("|%p %s|\n", strs, strs+sh[i].sh_name);
+		//printf("|%p %s|\n", strs, strs+sh[i].sh_name);
 		if (str_equal(strs+sh[i].sh_name, ".text")){
 			return sh[i].sh_offset;
 		}
 	}
-	printf("OUT\n");
+	//printf("OUT\n");
 	return fail("text section not found");
 }
 
@@ -74,15 +74,15 @@ uint64_t elf_size_text_section(void *s, uint64_t n){
 	Elf64_Shdr *sh = s + h->e_shoff;
 
 	(void)n;
-	printf("IN2\n");
+	//printf("IN2\n");
 	char *strs = s + (sh[h->e_shstrndx]).sh_offset;
 	for (int i = 0; i < h->e_shnum; i += 1){
-		printf("|%s|\n", strs+sh[i].sh_name);
+		//printf("|%s|\n", strs+sh[i].sh_name);
 		if (str_equal(strs+sh[i].sh_name, ".text")){
 			return sh[i].sh_size;
 		}
 	}
-	printf("OUT2\n");
+	//printf("OUT2\n");
 	return fail("text section not found");
 }
 

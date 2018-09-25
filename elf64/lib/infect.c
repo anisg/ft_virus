@@ -1,6 +1,8 @@
 #include "elf64.c"
 #include <stdio.h>
 
+char KEY[16];
+
 static void _insert(char **s1, size_t *n1, size_t pos, char *s2, size_t n2){
         char *ns;
         if ((ns = (char *)malloc((*n1) + n2)) == NULL) return FALSE;
@@ -24,7 +26,6 @@ static void _insert_zeros(char **s, size_t *n, size_t pos, size_t add){
 	*n = (*n) + add;
 }
 
-
 void update(char *b, size_t n, size_t old_entry, size_t entry, size_t text_addr, size_t text_length){
 	//add a few information about himself
     Elf64_Ehdr *bh = (void*)b;
@@ -37,10 +38,11 @@ void update(char *b, size_t n, size_t old_entry, size_t entry, size_t text_addr,
 	((size_t*)((char*)(b + pos + DATA)))[2] = n;
 	size_t ok = max(text_addr,entry) - min(text_addr,entry);
 	((size_t*)((char*)(b + pos + DATA)))[3]=ok;
-	printf("DEBUG: %zu -> %zu, %zu\n", text_addr, entry, ok);
 	((size_t*)((char*)(b + pos + DATA)))[4] = text_length;
-	printf("DEBUG: %zu\n", text_length);
-	//move to next entry
+	//inserting KEY
+	((size_t*)((char*)(b + pos + DATA)))[5] = ((size_t*)KEY)[0];
+	((size_t*)((char*)(b + pos + DATA)))[6] = ((size_t*)KEY)[1];
+
 }
 
 static size_t _prepare(char **s, size_t *n, char *b, size_t bn){
@@ -71,26 +73,54 @@ static size_t _prepare(char **s, size_t *n, char *b, size_t bn){
 	elf_shift_offset(*s, *n, pos, bn+diff);
     	h = (void*)*s;
 	update((*s) + pos + 1, bn, old_entry, h->e_entry, text_addr, text_length);
-	//DEBUG
-	println("DEBUG: save to l.vi");
-	fput("l.vi", (*s) + pos + 1, bn);
 	return pos;
 }
 
-int infect_to(char *fname, char *to, char *b, size_t bn){
+//======================= WOODY ==============================
+
+void encrypt_block(uint32_t* v, uint32_t *k) {
+        uint32_t v0=v[0], v1=v[1], sum=0, i;           /* initialisation */
+    uint32_t delta=0x9e3779b9;                     /* constantes de clef */
+    uint32_t k0=k[0], k1=k[1], k2=k[2], k3=k[3];   /* mise en cache de la clef */
+    for (i=0; i < 32; i++) {                       /* boucle principale */
+        sum += delta;
+        v0 += ((v1<<4) + k0) ^ (v1 + sum) ^ ((v1>>5) + k1);
+        v1 += ((v0<<4) + k2) ^ (v0 + sum) ^ ((v0>>5) + k3);
+    }
+    v[0] = v0;
+        v[1]=v1;
+}
+
+void encrypt(char *s, uint64_t n, uint32_t *k){
+        for (uint64_t i = 0; i < n; i += 8){
+                if (i + 7 <= n){
+                        encrypt_block((uint32_t*)(s+i), k);
+                }
+        }
+}
+
+void encrypt_text_section(char *s, size_t n){
+    Elf64_Ehdr *h = (void*)s;
+    Elf64_Phdr *ph = ((void*)s) + h->e_phoff;
+
+	size_t text_off = elf_off_text_section(s,n);
+	size_t text_length = elf_size_text_section(s,n);
+	//printf("%zu v %zu\n", text_off, text_length);
+	encrypt(s + text_off, text_length, KEY);
+}
+
+//=============================================================
+
+int create_woody(char *fname, char *b, size_t bn){
 	//if (isFile(fname) == FALSE) return fail("not file");
 	//if (isElf64(fname) == FALSE) return fail("not elf64 binary");
 	char *s; size_t n;
 	if (!fget(fname, &s, &n))
 		return FALSE;
 	//after insert, update data
+	encrypt_text_section(s,n);
 	_prepare(&s,&n, b, bn);
-	//printf("INSERT NOW!\n");
-	println("INSERT in");
-	fput(to, s, n);
+	printf("INSERT NOW!\n");
+	fput("woody", s, n);
 	return TRUE;
-}
-
-void infect(char *fname, char *b, size_t bn){
-	infect_to(fname, fname, b, bn);
 }

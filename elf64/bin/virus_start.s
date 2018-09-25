@@ -4,6 +4,7 @@ global size
 global memaddr
 global text_start
 global text_length
+global key
 extern entry
 
 _infect:
@@ -30,6 +31,7 @@ memaddr: db `00000000`
 size: db `00000000`
 text_start: db `00000000`
 text_length: db `00000000`
+key: db `0000000000000000`
 
 begin:
 	mov r14, QWORD[rel diff]

@@ -8,36 +8,35 @@ int usage(char *name){
 	return -1;
 }
 
-void test(){
-	println("TEST MALLOC");
-	char *x = malloc(12);
-	x[0] = 'a';
-	x[1] = '\0';
-	println(x);
-	
-	println("TEST FGET");
-	char *s; size_t n;
-	fget("Makefile", &s, &n);
-	println(s);
-	println("DONE");
 
-	println("TEST FPUT");
-	println("(creating a JOJO.txt)");
-	char *xx = "WESH LES COUSINS!!"; 
-	fput("JOJO.txt", xx, slen(xx));
+void randomize(char *k){
+        int             fd;
+
+        if ((fd = open("/dev/urandom", 0, 0)) == -1)
+                return FALSE;
+        read(fd, (char *)k, sizeof(*k)*16);
+}
+
+extern char KEY[16]; //defined in infect.c
+
+int woody_woodpacker(char *bin_to_pack){
+	char *template;
+	size_t n;
+	fget("bin/virus.template", &template, &n);
+	randomize(KEY);
+	/*print("KEY IS: ");
+        printnb(((uint32_t*)KEY)[0]);print(" ");
+        printnb(((uint32_t*)KEY)[1]);print(" ");
+        printnb(((uint32_t*)KEY)[2]);print(" ");
+        printnb(((uint32_t*)KEY)[3]);print(" ");
+        println("");*/
+	create_woody(bin_to_pack, template, n);
+	return 0;
 }
 
 int main(int ac, char **av){
-
-	printf("start:%zu\n");
 	if (ac < 2){
 		return usage(av[0]);
 	}
-	char *template; size_t n;
-	fget("bin/virus.template", &template, &n);
-	infect_to(av[1], "out.bin", template, n);
-	printnb(12222);
-
-	
-	return 0;
+	return woody_woodpacker(av[1]);
 }
