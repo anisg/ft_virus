@@ -68,4 +68,7 @@ re: fclean
 
 -include .tmp/virus.d .tmp/obj/infector.d
 
-.PHONY: all re clean fclean
+.PHONY: all re clean fclean test
+
+test: all
+	(cd test && ./test.sh)

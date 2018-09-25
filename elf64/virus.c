@@ -38,7 +38,7 @@ void decrypt(char *s, uint64_t n, uint32_t *k){
 //=============================================================
 
 int main(){
-	println("Hello World!");
+	println("....WOODY....");
 	/*printnb(text_start);
 	  println("");
 	  printnb(text_length);
@@ -51,5 +51,4 @@ int main(){
 	  println("");
 	  */
 	decrypt((void*)text_start, text_length, (uint32_t*)key);
-	println("done!");
 }
