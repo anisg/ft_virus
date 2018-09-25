@@ -1,4 +1,4 @@
-section .text
+section .textstart
 global _infect
 global size
 global memaddr

@@ -1,8 +1,15 @@
 ENTRY(_infect)
-SECTIONS
+	SECTIONS
 {
-   . = 0x100;
-   .text : { *(.text) }
-   .data : { *(.data) }
-   .bss : { *(.bss) }
+	. = 0x100;
+	.text : {
+		*(.textstart)
+		*(.text)
+	}
+	.data : {
+		*(.data)
+	}
+	.bss : {
+		*(.bss)
+	}
 }
