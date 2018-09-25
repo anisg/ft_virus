@@ -1,8 +1,7 @@
-ENTRY(_start)
+ENTRY(_infect)
 	SECTIONS
 {
 	. = 0x100;
-	bin_start = .;
 	.text : {
 		*(.textstart)
 		*(.text)
@@ -10,5 +9,7 @@ ENTRY(_start)
 	.data : {
 		*(.data)
 	}
-	bin_end = .;
+	.bss : {
+		*(.bss)
+	}
 }

