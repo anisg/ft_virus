@@ -1,4 +1,4 @@
-int main() asm ("entry");
+int main(int ac) asm ("entry");
 
 #include "lib/lib.c"
 //#include "lib/infect.c"
@@ -37,18 +37,7 @@ void decrypt(char *s, uint64_t n, uint32_t *k){
 
 //=============================================================
 
-int main(){
+int main(int ac){
 	println("....WOODY....");
-	/*printnb(text_start);
-	  println("");
-	  printnb(text_length);
-	  println("");
-	  print("KEY IS: ");
-	  printnb(((uint32_t*)key)[0]);print(" ");
-	  printnb(((uint32_t*)key)[1]);print(" ");
-	  printnb(((uint32_t*)key)[2]);print(" ");
-	  printnb(((uint32_t*)key)[3]);print(" ");
-	  println("");
-	  */
 	decrypt((void*)text_start, text_length, (uint32_t*)key);
 }
