@@ -42,6 +42,16 @@ void *malloc(size_t size){
 	return p+sizeof(size_t);
 }
 
+int execve(const char *fichier, char *const argv[], char *const envp[])
+{
+	return CALL(EXECVE, fichier, argv, envp);
+}
+
+int fork(void)
+{
+	return CALL0(FORK);
+}
+
 void free(void *p){
 	CALL2(MUNMAP, ((size_t)p)-sizeof(size_t), ((size_t*)(p-1))[0]);
 }

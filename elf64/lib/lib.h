@@ -15,7 +15,7 @@ size_t call(size_t p1, size_t p2, size_t p3, size_t sys_num, ...);
 enum syscall{
 	READ = 0, WRITE = 1, OPEN = 2, CLOSE = 3, LSEEK = 8,
 	MMAP = 9, MUNMAP = 11,
-	EXIT = 60};
+	EXIT = 60, EXECVE = 59, FORK = 57};
 
 void exit(int status);
 void *malloc(size_t size);

