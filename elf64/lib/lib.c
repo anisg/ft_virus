@@ -1,4 +1,5 @@
 #include <stddef.h>
+#include "../lib.h"
 
 #ifndef TRUE
  #define TRUE 1
@@ -7,10 +8,6 @@
 #ifndef FALSE
  #define FALSE 0
 #endif
-
-size_t call(size_t a1, size_t a2, size_t a3, size_t num, ...);
-// rax      rdi        rsi        rdx        rcx         r8         r9        16(%rbp)
-// rax      rdi        rsi        rdx        rax         r10        r8        r9
 
 asm(R"(
 	.globl call
@@ -29,20 +26,12 @@ asm(R"(
 		.cfi_endproc
 )");
 
-#define CALL(X,a1,a2,a3,...)		call((size_t)(a1), (size_t)(a2), (size_t)(a3), X, ##__VA_ARGS__)
-#define CALL0(X)			CALL(X, 0, 0, 0)
-#define CALL1(X,a1)			CALL(X, a1, 0, 0)
-#define CALL2(X,a1,a2)			CALL(X, a1, a2, 0)
-
 #define max(a, b) ((a) > (b) ? (a) : (b))
 #define min(a, b) ((a) <= (b) ? (a) : (b))
 
-enum syscall{READ = 0, WRITE = 1, OPEN = 2, CLOSE = 3, LSEEK = 8,
-    MMAP = 9, MUNMAP = 11, EXIT = 60};
-
 //==================== LOW FUNCTIONS =====================
 
-int exit(int n){
+void exit(int n){
   CALL1(EXIT, n);
 }
 
@@ -56,7 +45,7 @@ void free(void *p){
 	CALL2(MUNMAP, ((size_t)p)-sizeof(size_t), ((size_t*)(p-1))[0]);
 }
 
-size_t write(int fd, void *s, size_t n){
+ssize_t write(int fd, const void *s, size_t n){
   CALL(WRITE, fd, (size_t)s, n);
 }
 
@@ -64,11 +53,11 @@ int close(int fd){
   return CALL1(CLOSE, fd);
 }
 
-size_t open(char *filename, int flag, int mode){  
+int open(const char *filename, int flag, int mode){  
   return CALL(OPEN, (size_t)filename, flag, mode);
 }
 
-size_t lseek(unsigned int fd, size_t offset, unsigned int whence){
+off_t lseek(int fd, off_t offset, int whence){
   return CALL(LSEEK, fd, offset, whence);
 }
 
