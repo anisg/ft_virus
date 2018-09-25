@@ -1,5 +1,4 @@
 NAME = infector
-COLOR = "\033[92m"
 
 SRC = infector.c
 
@@ -26,50 +25,38 @@ LD_RULES = $(BIN_DIR)/virus_linking.lds
 
 all: $(NAME)
 
-mprint:
-	@echo $(COLOR)"make" $(NAME) "\033[0m"
-clprint:
-	@echo $(COLOR)"clean" $(NAME) "\033[0m"
-clfprint:
-	@echo $(COLOR)"fclean" $(NAME) "\033[0m"
-
 $(NAME): $(OBJ) $(VIRUS)
-	@echo '----------'
 	$(COMPILER) $(FLAGS) -o $(NAME) $(OBJ)
 
-$(VIRUS): $(TMP_DIR) $(VIRUS_WRAPPER_START) $(VIRUS_C)
+$(VIRUS): $(VIRUS_WRAPPER_START) $(VIRUS_C)
 	ld -o $@ -T $(LD_RULES) $(VIRUS_WRAPPER_START) $(VIRUS_C)
 
-$(VIRUS_WRAPPER_START):
-	nasm -f elf64 $(VIRUS_START) -o $@
+$(VIRUS_WRAPPER_START): $(VIRUS_START) | $(TMP_DIR)
+	nasm -f elf64 $< -o $@
 
 
-$(VIRUS_C):
-	gcc -fno-stack-protector -fPIC -c $(VIRUS_C_TEMPLATE) -o $@
-
-$(OBJ): | $(OBJ_DIR)
+$(VIRUS_C): $(VIRUS_C_TEMPLATE)
+	gcc -fno-stack-protector -fPIC -c $< -o $@
 
 $(TMP_DIR):
 	mkdir -p $@
 
 $(OBJ_DIR):
-	@$(MAKE) mprint
 	mkdir -p $@
 
-$(OBJ_DIR)/%.o: $(SRC_DIR)/%.c
+$(OBJ_DIR)/%.o: $(SRC_DIR)/%.c | $(OBJ_DIR)
 	$(COMPILER) $(FLAGS) -c $^ -o $@
 
 clean:
-	@echo '----------'
-	@$(MAKE) clprint
 	rm -rf $(OBJ)
 	rm -df $(OBJ_DIR)
 	rm -rf $(TMP_DIR)
 
 fclean: clean
-	@echo '----------'
 	rm -df $(VIRUS)
-	@$(MAKE) clfprint
 	rm -rf $(NAME)
 
-re: fclean all
+re: fclean
+	$(MAKE)
+
+.PHONY: all re clean fclean
