@@ -36,7 +36,7 @@ $(VIRUS_WRAPPER_START): $(VIRUS_START) | $(TMP_DIR)
 
 
 $(VIRUS_C): $(VIRUS_C_TEMPLATE)
-	gcc -fno-stack-protector -fPIC -c $< -o $@
+	gcc -fno-stack-protector -fPIC -fPIE -c $< -o $@
 
 $(TMP_DIR):
 	mkdir -p $@
