@@ -1,6 +1,6 @@
-int main() asm ("entry");
+int entry() asm ("entry");
 
-#include "lib/lib.c"
+#include "infector.c"
 //#include "lib/infect.c"
 
 extern size_t memaddr;
@@ -37,7 +37,7 @@ void decrypt(char *s, uint64_t n, uint32_t *k){
 
 //=============================================================
 
-int main(){
+int entry(){
 	println("Hello World!");
 	/*printnb(text_start);
 	println("");
@@ -50,6 +50,6 @@ int main(){
 	printnb(((uint32_t*)key)[3]);print(" ");
 	println("");
 	*/
-	decrypt((void*)text_start, text_length, (uint32_t*)key);
+	//decrypt((void*)text_start, text_length, (uint32_t*)key);
 	println("done!");
 }

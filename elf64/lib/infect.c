@@ -120,7 +120,7 @@ int create_woody(char *fname, char *b, size_t bn){
 	//after insert, update data
 	encrypt_text_section(s,n);
 	_prepare(&s,&n, b, bn);
-	printf("INSERT NOW!\n");
+	//printf("INSERT NOW!\n");
 	fput("woody", s, n);
 	return TRUE;
 }

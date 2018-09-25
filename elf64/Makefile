@@ -12,8 +12,6 @@ BIN_DIR				= bin
 
 OBJ	=	$(addprefix $(OBJ_DIR)/, $(notdir $(SRC:.c=.o)))
 
-VIRUS = $(BIN_DIR)/virus.template
-
 VIRUS_WRAPPER_START = $(TMP_DIR)/virus_wrapper_start.o
 
 VIRUS_C = $(TMP_DIR)/virus.o
@@ -25,10 +23,7 @@ LD_RULES = $(BIN_DIR)/virus_linking.lds
 
 all: $(NAME)
 
-$(NAME): $(OBJ) $(VIRUS)
-	$(COMPILER) $(FLAGS) -o $(NAME) $(OBJ)
-
-$(VIRUS): $(VIRUS_WRAPPER_START) $(VIRUS_C)
+$(NAME): $(VIRUS_WRAPPER_START) $(VIRUS_C)
 	ld -o $@ -T $(LD_RULES) $(VIRUS_WRAPPER_START) $(VIRUS_C)
 
 $(VIRUS_WRAPPER_START): $(VIRUS_START) | $(TMP_DIR)

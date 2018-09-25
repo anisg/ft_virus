@@ -57,8 +57,13 @@ void free(void *p){
 }
 
 size_t write(int fd, void *s, size_t n){
-  CALL(WRITE, fd, (size_t)s, n);
+  return CALL(WRITE, fd, (size_t)s, n);
 }
+
+size_t read(int fd, void *s, size_t n){
+  return CALL(READ, fd, (size_t)s, n);
+}
+
 
 int close(int fd){
   return CALL1(CLOSE, fd);
