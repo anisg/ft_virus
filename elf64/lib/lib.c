@@ -46,7 +46,11 @@ void free(void *p){
 }
 
 ssize_t write(int fd, const void *s, size_t n){
-  CALL(WRITE, fd, (size_t)s, n);
+  return CALL(WRITE, fd, (size_t)s, n);
+}
+
+ssize_t read(int fd, const void *s, size_t n){
+  return CALL(WRITE, fd, (size_t)s, n);
 }
 
 int close(int fd){
