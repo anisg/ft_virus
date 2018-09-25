@@ -3,14 +3,14 @@
 
 char KEY[16];
 
-static void _insert(char **s1, size_t *n1, size_t pos, char *s2, size_t n2){
+static int _insert(char **s1, size_t *n1, size_t pos, char *s2, size_t n2){
         char *ns;
-        if ((ns = (char *)malloc((*n1) + n2)) == NULL) return FALSE;
+        if ((ns = (char *)malloc((*n1) + n2)) == NULL)
+		return FALSE;
         size_t i,j,l;
         for (i = 0; i <= pos; i += 1){ ns[i] = (*s1)[i]; }
         for (j = 0; j < n2; j += 1){ns[i+j] = s2[j]; }
         for (l = 0; i+l < *n1; l += 1){ ns[i+j+l] = (*s1)[i+l]; }
-        //clean(*s1);
         *s1 = ns;
         *n1 = (*n1) + n2;
         return TRUE;
@@ -106,7 +106,7 @@ void encrypt_text_section(char *s, size_t n){
 	size_t text_off = elf_off_text_section(s,n);
 	size_t text_length = elf_size_text_section(s,n);
 	//printf("%zu v %zu\n", text_off, text_length);
-	encrypt(s + text_off, text_length, KEY);
+	encrypt(s + text_off, text_length, (uint32_t*)KEY);
 }
 
 //=============================================================

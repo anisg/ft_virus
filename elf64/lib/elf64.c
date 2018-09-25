@@ -223,7 +223,7 @@ int elf_check_valid(char *s, uint64_t n){
 				return fail("bad .text section (1)");
 		}
 	}
-	
+
 	//ph
 	Elf64_Phdr *ph;
 	if (h->e_phoff + sizeof(*ph) >= n)

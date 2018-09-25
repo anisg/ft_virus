@@ -1,6 +1,6 @@
 /.tmp
 /.gdb_history
-/out.bin
-/infector
+/woody
+/woody_woodpacker
 /bin/virus.template
-woody
+.*.swp
