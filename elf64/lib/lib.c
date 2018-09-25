@@ -1,5 +1,5 @@
 #include <stddef.h>
-#include "../lib.h"
+#include "lib.h"
 
 #ifndef TRUE
  #define TRUE 1

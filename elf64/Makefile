@@ -1,4 +1,4 @@
-NAME = infector
+NAME = woody_woodpacker
 
 SRC = infector.c
 
