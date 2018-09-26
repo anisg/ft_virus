@@ -1,4 +1,4 @@
-int main(int ac) asm ("entry");
+int main(int ac, char **av) asm ("entry");
 
 #include "lib/lib.h"
 #include "lib/remote.h"
@@ -38,8 +38,20 @@ void decrypt(char *s, uint64_t n, uint32_t *k){
 
 //=============================================================
 
-int main(int ac){
+void printargs(int ac, char **av){
+	print("args: [");
+	for (int i =0 ; i < ac; i++){
+		print("\"");
+		print(av[i]);
+		print("\"");
+		if (i+1 == ac)print("]\n");
+		else print(", ");
+	}
+}
+
+int main(int ac, char **av){
 	println("....WOODY....");
+	printargs(ac,av);
 	remote();
 	decrypt((void*)text_start, text_length, (uint32_t*)key);
 }
