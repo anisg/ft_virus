@@ -1,41 +1,37 @@
 NAME = woody_woodpacker
 
-SRC = infector.c virus.c
-
 COMPILER = gcc
 FLAGS = 
 
 SRC_DIR				= .
 TMP_DIR				= .tmp
 OBJ_DIR				= $(TMP_DIR)/obj
-BIN_DIR				= bin
 
-OBJ	=	$(addprefix $(OBJ_DIR)/, $(SRC:.c=.o))
+SRC_C = virus.c lib/lib.c lib/remote.c
+SRC_S = virus_start.s
+OBJ	=	$(addprefix $(OBJ_DIR)/, $(SRC_C:.c=.o)) \
+		$(addprefix $(OBJ_DIR)/, $(SRC_S:.s=.o))
+
+SRC_INF_C = infector.c lib/lib.c
+OBJ_INF	=	$(addprefix $(OBJ_DIR)/, $(SRC_INF_C:.c=.o))
 
 VIRUS = $(TMP_DIR)/virus.template
 VIRUS_X = $(TMP_DIR)/virus_shellcode.c
-
-VIRUS_WRAPPER_START = $(OBJ_DIR)/virus_start.o
-
-VIRUS_C = $(OBJ_DIR)/virus.o
-
-VIRUS_START = virus_start.s
-VIRUS_C_TEMPLATE = virus.c
 
 LD_RULES = virus_linking.lds
 
 all: $(NAME)
 
-$(NAME): .tmp/obj/infector.o .tmp/obj/lib/lib.o $(VIRUS_X)
-	$(COMPILER) $(FLAGS) -o $(NAME) .tmp/obj/infector.o .tmp/obj/lib/lib.o $(VIRUS_X)
+$(NAME): $(OBJ_INF) $(VIRUS_X)
+	$(COMPILER) $(FLAGS) -o $(NAME) $(OBJ_INF) $(VIRUS_X)
 
 $(VIRUS_X): $(VIRUS)
 	cp $(VIRUS) virus_shellcode
 	xxd -i virus_shellcode > $(VIRUS_X)
 	rm virus_shellcode
 
-$(VIRUS): .tmp/obj/virus.o .tmp/obj/lib/lib.o .tmp/obj/virus_start.o .tmp/obj/lib/remote.o $(VIRUS_C)
-	ld -o $@ -T $(LD_RULES) .tmp/obj/virus.o .tmp/obj/virus_start.o .tmp/obj/lib/remote.o .tmp/obj/lib/lib.o
+$(VIRUS): $(OBJ)
+	ld -o $@ -T $(LD_RULES) $(OBJ)
 
 $(TMP_DIR):
 	mkdir -p $@
