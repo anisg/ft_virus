@@ -68,7 +68,7 @@ re: fclean
 
 -include $(DEP)
 
-.PHONY: all re clean fclean test
+.PHONY: all re clean fclean test unit_test
 
 test: all
 	(cd test && ./test.sh)

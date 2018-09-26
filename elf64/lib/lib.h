@@ -39,6 +39,7 @@ void print(const char *s);
 void println(const char *s);
 void printnb(size_t nb);
 
+int     sncmp(const char *s1, const char *s2, size_t n);
 int fget(const char *filename, char **ptr, size_t *l);
 int fput(const char *filename, char *ptr, size_t l);
 int str_equal(const char *s1, const char *s2);

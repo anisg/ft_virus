@@ -3,6 +3,7 @@
 
 char KEY[16];
 char OLD_KEY[16];
+int DATA = 0x02;
 
 //======================= WOODY ==============================
 
@@ -67,7 +68,6 @@ void update(char *b, size_t n, size_t old_entry, size_t entry, size_t text_addr,
 	//add a few information about himself
 	Elf64_Ehdr *bh = (void*)b;
 	size_t pos = elf_offset_entry(b, n);
-	int DATA = 0x02;
 	//modifying 2bit after
 	size_t *p = ((size_t *)(char*)(b + pos + DATA));
 	p[0] = max(old_entry,entry) - min(old_entry,entry);
@@ -117,11 +117,22 @@ static size_t _prepare(char **s, size_t *n, char *b, size_t bn){
 
 //=============================================================
 
-int create_woody(char *fname, char *b, size_t bn){
+int is_already_packed(char *s, size_t n){
+	char *sig = "Woody version 1.0 (c)oded by ndombre-agadhgad";
+	Elf64_Ehdr *h = (void*)s;
+	size_t entry = elf_addr_to_offset(s,n,h->e_entry);
+	//check if size is enough
+	size_t *p = ((size_t *)(char*)(s + entry + DATA));
+	return sncmp((char*)(p+8), sig, slen(sig)-1) == 0;
+}
+
+int create_woody(char *fname, char *b, size_t bn, int force){
 	char *s; size_t n;
 	if (!fget(fname, &s, &n))
-		return FALSE;
+		return fail("failed to open the file");
 	if (elf_check_valid(s, n) == FALSE) return FALSE;
+	if (!force && is_already_packed(s, n) == TRUE) return fail("already packed");
+
 	//after insert, update data
 	encrypt_text_section(s,n);
 	_prepare(&s,&n, b, bn);

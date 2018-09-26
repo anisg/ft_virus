@@ -149,6 +149,19 @@ uint64_t elf_offset_to_addr(void *s, uint64_t n, uint64_t off){
 	return fail("wasn\'t able to convert an offset to an memory address.");
 }
 
+uint64_t elf_addr_to_offset(void *s, uint64_t n, uint64_t addr){
+	Elf64_Ehdr *h = s;
+	Elf64_Phdr *ph = s + h->e_phoff;
+
+	(void)n;
+	for (int i = 0; i < h->e_phnum; i += 1){
+		if (ph[i].p_type == PT_LOAD &&
+				addr >= ph[i].p_vaddr && addr <= ph[i].p_vaddr + ph[i].p_memsz){
+			return ph[i].p_offset + (addr - ph[i].p_vaddr);
+		}
+	}
+	return fail("wasn\'t able to convert an offset to an memory address.");
+}
 uint64_t elf_offset_after_last_load_segment(void *s, uint64_t n){
 	int x;
 	Elf64_Ehdr *h = (void*)s;

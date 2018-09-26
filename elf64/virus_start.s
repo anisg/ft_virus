@@ -14,6 +14,8 @@ global key
 global environ
 extern entry
 
+global environ
+
 _infect:
 	jmp begin
 data:
@@ -23,8 +25,8 @@ size: db `00000000`
 text_start: db `00000000`
 text_length: db `00000000`
 key: db `0000000000000000`
-
 test_area: db `AAAAAAAA`
+signature: db `Woody version 1.0 (c)oded by ndombre-agadhgad`
 
 environ: db `00000000`
 

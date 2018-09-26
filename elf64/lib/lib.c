@@ -89,9 +89,9 @@ long ptrace(long request, long pid, unsigned long addr){
 
 size_t slen(char const *s)
 {
-	size_t i;
-	for (i=0; s[i]; i++)
-		;
+	size_t i = 0;
+	while (s[i])
+		i++;
 	return i;
 }
 
@@ -167,7 +167,7 @@ int     sncmp(const char *s1, const char *s2, size_t n)
     while (i < n && (unsigned char)s1[i] && (unsigned char)s2[i]
             && ((unsigned char)s1[i] == (unsigned char)s2[i]))
         i++;
-    return (i < n || (unsigned char)s1[i] - (unsigned char)s2[i]);
+    return ((unsigned char)s1[i] - (unsigned char)s2[i]);
 }
 
 
