@@ -1,7 +1,7 @@
 int main(int ac) asm ("entry");
 
-#include "lib/lib.c"
-#include "lib/remote.c"
+#include "lib/lib.h"
+#include "lib/remote.h"
 //#include "lib/infect.c"
 
 extern size_t memaddr;

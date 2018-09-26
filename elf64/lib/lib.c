@@ -1,14 +1,6 @@
 #include <stddef.h>
 #include "lib.h"
 
-#ifndef TRUE
-#define TRUE 1
-#endif
-
-#ifndef FALSE
-#define FALSE 0
-#endif
-
 asm(R"(
 	.globl call
 	.type func, @function
@@ -26,20 +18,21 @@ asm(R"(
 		.cfi_endproc
 )");
 
-#define max(a, b) ((a) > (b) ? (a) : (b))
-#define min(a, b) ((a) <= (b) ? (a) : (b))
-
 //==================== LOW FUNCTIONS =====================
 
-void exit(int n){
+void exit(int n)
+{
 	CALL1(EXIT, n);
 	__builtin_unreachable();
 }
 
-void *malloc(size_t size){
+void *malloc(size_t size)
+{
 	size_t *p = (void*)CALL(MMAP, NULL, sizeof(size_t)+size, 6, 34, -1, 0);
+	if (p == NULL)
+		return NULL;
 	p[0] = size; //storing the size
-	return p+sizeof(size_t);
+	return p + sizeof(size_t);
 }
 
 int execve(const char *fichier, char *const argv[], char *const envp[])
@@ -47,51 +40,65 @@ int execve(const char *fichier, char *const argv[], char *const envp[])
 	return CALL(EXECVE, fichier, argv, envp);
 }
 
-int fork(void)
+pid_t fork(void)
 {
 	return CALL0(FORK);
 }
 
-void free(void *p){
-	CALL2(MUNMAP, ((size_t)p)-sizeof(size_t), ((size_t*)(p-1))[0]);
+void free(void *p)
+{
+	size_t *tab = p;
+	CALL2(MUNMAP, &tab[-1], tab[-1]);
 }
 
-ssize_t write(int fd, const void *s, size_t n){
+ssize_t write(int fd, const void *s, size_t n)
+{
 	return CALL(WRITE, fd, (size_t)s, n);
 }
 
-ssize_t read(int fd, const void *s, size_t n){
-	return CALL(WRITE, fd, (size_t)s, n);
+ssize_t read(int fd, void *s, size_t n)
+{
+	return CALL(READ, fd, (size_t)s, n);
 }
 
-int close(int fd){
+int close(int fd)
+{
 	return CALL1(CLOSE, fd);
 }
 
-int open(const char *filename, int flag, int mode){  
+int open(const char *filename, int flag, int mode)
+{
 	return CALL(OPEN, (size_t)filename, flag, mode);
 }
 
-off_t lseek(int fd, off_t offset, int whence){
+off_t lseek(int fd, off_t offset, int whence)
+{
 	return CALL(LSEEK, fd, offset, whence);
 }
 
 //==================== HIGHER FUNCTIONS =====================
 
-size_t slen(char *s){
-	int i;for(i=0;s[i];i++);return i;
+size_t slen(char const *s)
+{
+	size_t i;
+	for (i=0;s[i];i++)
+		;
+	return i;
 }
 
-void print(char *s){
+void print(const char *s)
+{
 	write(1, s, slen(s));
 }
 
-void println(char *s){
+void println(const char *s)
+{
 	print(s);
 	print("\n");
 }
 
-int fget(char *filename, char **ptr, size_t *l){
+int fget(const char *filename, char **ptr, size_t *l)
+{
 	int       fd;
 
 	if ((fd = open(filename, 0, 0755)) < 0)
@@ -104,7 +111,8 @@ int fget(char *filename, char **ptr, size_t *l){
 	return TRUE;
 }
 
-int fput(char *filename, char *ptr, size_t l){
+int fput(const char *filename, char *ptr, size_t l)
+{
 	int fd;
 
 	if ((fd = open(filename, 65, 0755)) < 0)
@@ -114,7 +122,7 @@ int fput(char *filename, char *ptr, size_t l){
 	return TRUE;
 }
 
-int     str_equal(char *s1, char *s2)
+int     str_equal(const char *s1, const char *s2)
 {
 	int i;
 
@@ -152,7 +160,8 @@ void  snbr(size_t nb, char *sn)
 	}
 }
 
-void printnb(size_t nb){
+void printnb(size_t nb)
+{
 	char s[64];
 	snbr(nb, s);
 	print(s);

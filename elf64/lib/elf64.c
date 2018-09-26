@@ -1,4 +1,7 @@
 #include <elf.h>
+#include <stddef.h>
+#include "bool.h"
+#include "lib.h"
 
 uint64_t fail(char *s){
 	//printf("ERROR:%s\n", s);

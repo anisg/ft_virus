@@ -1,6 +1,8 @@
 #ifndef REMOTE_H
 # define REMOTE_H
 
+#include <stddef.h>
+
 /*
  * Use the commande and wait
  * nc -l REMOTE_TARGET -p REMOTE_PORT

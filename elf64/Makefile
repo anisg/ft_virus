@@ -1,6 +1,6 @@
 NAME = woody_woodpacker
 
-SRC = infector.c
+SRC = infector.c virus.c
 
 COMPILER = gcc
 FLAGS = 
@@ -10,63 +10,60 @@ TMP_DIR				= .tmp
 OBJ_DIR				= $(TMP_DIR)/obj
 BIN_DIR				= bin
 
-OBJ	=	$(addprefix $(OBJ_DIR)/, $(notdir $(SRC:.c=.o)))
+OBJ	=	$(addprefix $(OBJ_DIR)/, $(SRC:.c=.o))
 
 VIRUS = $(TMP_DIR)/virus.template
 VIRUS_X = $(TMP_DIR)/virus_shellcode.c
 
-VIRUS_WRAPPER_START = $(TMP_DIR)/virus_wrapper_start.o
+VIRUS_WRAPPER_START = $(OBJ_DIR)/virus_start.o
 
-VIRUS_C = $(TMP_DIR)/virus.o
+VIRUS_C = $(OBJ_DIR)/virus.o
 
-VIRUS_START = $(BIN_DIR)/virus_start.s
+VIRUS_START = virus_start.s
 VIRUS_C_TEMPLATE = virus.c
 
-LD_RULES = $(BIN_DIR)/virus_linking.lds
+LD_RULES = virus_linking.lds
 
 all: $(NAME)
 
-$(NAME): $(OBJ) $(VIRUS_X)
-	$(COMPILER) $(FLAGS) -o $(NAME) $(OBJ) $(VIRUS_X)
+$(NAME): .tmp/obj/infector.o .tmp/obj/lib/lib.o $(VIRUS_X)
+	$(COMPILER) $(FLAGS) -o $(NAME) .tmp/obj/infector.o .tmp/obj/lib/lib.o $(VIRUS_X)
 
 $(VIRUS_X): $(VIRUS)
 	cp $(VIRUS) virus_shellcode
 	xxd -i virus_shellcode > $(VIRUS_X)
 	rm virus_shellcode
 
-$(VIRUS): $(VIRUS_WRAPPER_START) $(VIRUS_C)
-	ld -o $@ -T $(LD_RULES) $(VIRUS_WRAPPER_START) $(VIRUS_C)
-
-$(VIRUS_WRAPPER_START): $(VIRUS_START) | $(TMP_DIR)
-	nasm -f elf64 $< -o $@
-
-
-$(VIRUS_C): $(VIRUS_C_TEMPLATE)
-	gcc -MD -fno-stack-protector -fPIC -fPIE -c $< -o $@
+$(VIRUS): .tmp/obj/virus.o .tmp/obj/lib/lib.o .tmp/obj/virus_start.o .tmp/obj/lib/remote.o $(VIRUS_C)
+	ld -o $@ -T $(LD_RULES) .tmp/obj/virus.o .tmp/obj/virus_start.o .tmp/obj/lib/remote.o .tmp/obj/lib/lib.o
 
 $(TMP_DIR):
 	mkdir -p $@
 
 $(OBJ_DIR):
 	mkdir -p $@
+	mkdir -p .tmp/obj/lib
 
 $(OBJ_DIR)/%.o: $(SRC_DIR)/%.c | $(OBJ_DIR)
-	$(COMPILER) -MD $(FLAGS) -c $< -o $@
+	$(COMPILER) -MD -fno-stack-protector -fPIC -fPIE $(FLAGS) -c $< -o $@
+
+$(OBJ_DIR)/%.o: $(SRC_DIR)/%.s | $(OBJ_DIR)
+	nasm -f elf64 $< -o $@
 
 clean:
-	rm -rf .tmp/virus.d .tmp/obj/infector.d
+	rm -rf .tmp/obj/virus.d .tmp/obj/infector.d
 	rm -rf $(OBJ)
-	rm -df $(OBJ_DIR)
+	rm -rf $(OBJ_DIR)
 	rm -rf $(TMP_DIR)
 
 fclean: clean
-	rm -df $(VIRUS)
+	rm -rf $(VIRUS)
 	rm -rf $(NAME)
 
 re: fclean
 	$(MAKE)
 
--include .tmp/virus.d .tmp/obj/infector.d
+-include .tmp/obj/virus.d .tmp/obj/infector.d .tmp/obj/lib/lib.d .tmp/obj/lib/remote.d .tmp/obj/lib/infect.d
 
 .PHONY: all re clean fclean test
 

@@ -2,6 +2,7 @@
 # define LIB_H
 
 #include <sys/types.h>
+#include "bool.h"
 
 size_t call(size_t p1, size_t p2, size_t p3, size_t sys_num, ...);
 // rax      rdi        rsi        rdx        rcx         r8         r9        16(%rbp)
@@ -17,12 +18,29 @@ enum syscall{
 	MMAP = 9, MUNMAP = 11,
 	EXIT = 60, EXECVE = 59, FORK = 57};
 
+#define max(a, b) ((a) > (b) ? (a) : (b))
+#define min(a, b) ((a) <= (b) ? (a) : (b))
+
 void exit(int status);
 void *malloc(size_t size);
+int execve(const char *fichier, char *const argv[], char *const envp[]);
+pid_t fork(void);
 void free(void *p);
 ssize_t write(int fd, const void *buf, size_t count);
+ssize_t read(int fd, void *buf, size_t count);
 int close(int fd);
 int open(const char *pathname, int flags, int mode);
 off_t lseek(int fd, off_t offset, int whence);
+
+size_t slen(const char *s);
+void snbr(size_t nbr, char *sn);
+
+void print(const char *s);
+void println(const char *s);
+void printnb(size_t nb);
+
+int fget(const char *filename, char **ptr, size_t *l);
+int fput(const char *filename, char *ptr, size_t l);
+int str_equal(const char *s1, const char *s2);
 
 #endif

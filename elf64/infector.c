@@ -1,4 +1,4 @@
-#include "lib/lib.c"
+#include "lib/lib.h"
 #include "lib/infect.c"
 
 int usage(char *name){
