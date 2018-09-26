@@ -53,7 +53,7 @@ $(OBJ_DIR)/%.o: $(SRC_DIR)/%.s | $(OBJ_DIR) $(OBJ_LIB_DIR)
 	nasm -f elf64 $< -o $@
 
 clean:
-	rm -rf .tmp/obj/virus.d .tmp/obj/infector.d
+	rm -rf $(DEP)
 	rm -rf $(OBJ)
 	rm -rf $(OBJ_DIR)
 	rm -rf $(TMP_DIR)
