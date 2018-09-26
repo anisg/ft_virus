@@ -28,15 +28,18 @@ void encrypt(char *s, uint64_t n, uint32_t *k){
 	}
 }
 
-void encrypt_text_section(char *s, size_t n){
+int encrypt_text_section(char *s, size_t n){
 	Elf64_Ehdr *h = (void*)s;
 	Elf64_Phdr *ph = ((void*)s) + h->e_phoff;
 	char key_double[16];
 
 	size_t text_off = elf_off_text_section(s,n);
+	if (text_off == 0) return FALSE;
 	size_t text_length = elf_size_text_section(s,n);
+	if (text_length == 0) return FALSE;
 	//printf("%zu v %zu\n", text_off, text_length);
 	encrypt(s + text_off, text_length, (uint32_t*)KEY);
+	return TRUE;
 }
 
 //=============================================================
@@ -83,14 +86,16 @@ void update(char *b, size_t n, size_t old_entry, size_t entry, size_t text_addr,
 	encrypt((char*)(p+7), 8, (uint32_t*)KEY);
 }
 
-static size_t _prepare(char **s, size_t *n, char *b, size_t bn){
+static int _prepare(char **s, size_t *n, char *b, size_t bn){
 	Elf64_Ehdr *h = (void*)*s;
 	Elf64_Phdr *ph = (*(void**)s) + h->e_phoff;
 
 	size_t old_entry = h->e_entry;
 	int x = elf_last_load_segment(*s, *n);
 	size_t text_addr = elf_addr_text_section(*s,*n);
+	if (text_addr == 0) return FALSE;
 	size_t text_length = elf_size_text_section(*s,*n);
+	if (text_length == 0) return FALSE;
 	size_t diff = ph[x].p_memsz - ph[x].p_filesz;
 	if (diff > 0){
 		//it means the segment will get bigger in mem, but we don't need that so we make it bigger in the file
@@ -112,7 +117,7 @@ static size_t _prepare(char **s, size_t *n, char *b, size_t bn){
 	elf_shift_offset(*s, *n, pos, bn);
 	h = (void*)*s;
 	update((*s) + pos + 1, bn, old_entry, h->e_entry, text_addr, text_length);
-	return pos;
+	return TRUE;
 }
 
 //=============================================================
@@ -139,8 +144,10 @@ int create_woody(char *fname, char *b, size_t bn, int force){
 	if (!force && !check_already_packed(s, n) == TRUE) return FALSE;
 
 	//after insert, update data
-	encrypt_text_section(s,n);
-	_prepare(&s,&n, b, bn);
+	if (!encrypt_text_section(s,n))
+		return FALSE;
+	if (!_prepare(&s,&n, b, bn))
+		return FALSE;
 	if (!fput("woody", s, n))
 		return fail("failed to save to woody");
 	return TRUE;
