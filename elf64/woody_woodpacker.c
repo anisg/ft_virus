@@ -4,7 +4,7 @@
 int usage(char *name){
 	print("usage: ./");
 	print(name);
-	print("[--key YOUR_PRIVATE_KEY] binary\n\nnote: the binary must be in elf64\n");
+	print(" [--force] [--key YOUR_PRIVATE_KEY] binary\n\nnote: the binary must be in elf64\n");
 	return -1;
 }
 

@@ -50,6 +50,11 @@ pid_t fork(void)
 	return CALL0(FORK);
 }
 
+pid_t getpid(void)
+{
+	return CALL0(GETPID);
+}
+
 void free(void *p)
 {
 	size_t *tab = p;
@@ -81,8 +86,8 @@ off_t lseek(int fd, off_t offset, int whence)
 	return CALL(LSEEK, fd, offset, whence);
 }
 
-long ptrace(long request, long pid, unsigned long addr){
-	return CALL(PTRACE, request, pid, addr);
+long ptrace(long request, long pid, unsigned long addr, void *data){
+	return CALL(PTRACE, request, pid, addr, data);
 }
 
 //==================== HIGHER FUNCTIONS =====================
@@ -239,10 +244,12 @@ int is_debbuger_on(){
 	//return FALSE;
 
 #define PTRACE_TRACEME 0
+#define PTRACE_ATTACH 16
 #define PTRACE_DETACH 17
 
-	int x = (ptrace(PTRACE_TRACEME, 0, 1) == -1);
-	ptrace(PTRACE_DETACH, 0, 0);
+	printnb(getpid());
+	int x = (ptrace(PTRACE_ATTACH, getpid(), 1, 0) != 0);
+	//ptrace(PTRACE_DETACH, getpid(), 0, 0);
 	return x;
 }
 

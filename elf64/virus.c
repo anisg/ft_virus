@@ -47,10 +47,8 @@ void cant_decrypt(){
 void decrypt_with_key(){
 	char *user_key = getenv("KEY");
 	if (user_key != NULL){
-		print("got KEY: ");
-		println(user_key);	
 		for (int i = 0; i < 16 && user_key[i]; i++)
-                        key[i] = user_key[i];
+			key[i] = user_key[i];
 	}
 	decrypt((void*)text_start, text_length, (uint32_t*)key);
 	decrypt(&test_area, 8, (uint32_t*)key);
@@ -75,13 +73,7 @@ void printargs(int ac, char **av){
 }
 
 int main(int ac, char **av){
-	if (is_debbuger_on()){
-		println("I SEE YOU! DEBUGGER IS ON");
-	}
-	else
-		remote();
-	println("....WOODY....");
-	printargs(ac,av);
 	remote();
+	println("....WOODY....");
 	decrypt_with_key();
 }
