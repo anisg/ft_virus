@@ -2,6 +2,43 @@
 #include <stdio.h>
 
 char KEY[16];
+char OLD_KEY[16];
+
+//======================= WOODY ==============================
+
+void encrypt_block(uint32_t* v, uint32_t *k) {
+        uint32_t v0=v[0], v1=v[1], sum=0, i;           /* initialisation */
+    uint32_t delta=0x9e3779b9;                     /* constantes de clef */
+    uint32_t k0=k[0], k1=k[1], k2=k[2], k3=k[3];   /* mise en cache de la clef */
+    for (i=0; i < 32; i++) {                       /* boucle principale */
+        sum += delta;
+        v0 += ((v1<<4) + k0) ^ (v1 + sum) ^ ((v1>>5) + k1);
+        v1 += ((v0<<4) + k2) ^ (v0 + sum) ^ ((v0>>5) + k3);
+    }
+    v[0] = v0;
+        v[1]=v1;
+}
+
+void encrypt(char *s, uint64_t n, uint32_t *k){
+        for (uint64_t i = 0; i < n; i += 8){
+                if (i + 7 <= n){
+                        encrypt_block((uint32_t*)(s+i), k);
+                }
+        }
+}
+
+void encrypt_text_section(char *s, size_t n){
+    Elf64_Ehdr *h = (void*)s;
+    Elf64_Phdr *ph = ((void*)s) + h->e_phoff;
+	char key_double[16];
+
+	size_t text_off = elf_off_text_section(s,n);
+	size_t text_length = elf_size_text_section(s,n);
+	//printf("%zu v %zu\n", text_off, text_length);
+	encrypt(s + text_off, text_length, (uint32_t*)KEY);
+}
+
+//=============================================================
 
 static int _insert(char **s1, size_t *n1, size_t pos, char *s2, size_t n2){
         char *ns;
@@ -32,17 +69,18 @@ void update(char *b, size_t n, size_t old_entry, size_t entry, size_t text_addr,
 	size_t pos = elf_offset_entry(b, n);
 	int DATA = 0x02;
 	//modifying 2bit after
-	((size_t*)((char*)(b + pos + DATA)))[0] = max(old_entry,entry) - min(old_entry,entry);
-	((size_t*)((char*)(b + pos + DATA)))[1] = entry - pos;
+	size_t *p = ((size_t *)(char*)(b + pos + DATA));
+	p[0] = max(old_entry,entry) - min(old_entry,entry);
+	p[1] = entry - pos;
 	//printf("diff: %zx, size: %zx\n", entry - pos, n);
-	((size_t*)((char*)(b + pos + DATA)))[2] = n;
+	p[2] = n;
 	size_t ok = max(text_addr,entry) - min(text_addr,entry);
-	((size_t*)((char*)(b + pos + DATA)))[3]=ok;
-	((size_t*)((char*)(b + pos + DATA)))[4] = text_length;
+	p[3]=ok;
+	p[4] = text_length;
 	//inserting KEY
-	((size_t*)((char*)(b + pos + DATA)))[5] = ((size_t*)KEY)[0];
-	((size_t*)((char*)(b + pos + DATA)))[6] = ((size_t*)KEY)[1];
-
+	p[5] = ((size_t*)OLD_KEY)[0];
+	p[6] = ((size_t*)OLD_KEY)[1];
+	encrypt((char*)(p+7), 8, (uint32_t*)KEY);
 }
 
 static size_t _prepare(char **s, size_t *n, char *b, size_t bn){
@@ -75,39 +113,6 @@ static size_t _prepare(char **s, size_t *n, char *b, size_t bn){
     	h = (void*)*s;
 	update((*s) + pos + 1, bn, old_entry, h->e_entry, text_addr, text_length);
 	return pos;
-}
-
-//======================= WOODY ==============================
-
-void encrypt_block(uint32_t* v, uint32_t *k) {
-        uint32_t v0=v[0], v1=v[1], sum=0, i;           /* initialisation */
-    uint32_t delta=0x9e3779b9;                     /* constantes de clef */
-    uint32_t k0=k[0], k1=k[1], k2=k[2], k3=k[3];   /* mise en cache de la clef */
-    for (i=0; i < 32; i++) {                       /* boucle principale */
-        sum += delta;
-        v0 += ((v1<<4) + k0) ^ (v1 + sum) ^ ((v1>>5) + k1);
-        v1 += ((v0<<4) + k2) ^ (v0 + sum) ^ ((v0>>5) + k3);
-    }
-    v[0] = v0;
-        v[1]=v1;
-}
-
-void encrypt(char *s, uint64_t n, uint32_t *k){
-        for (uint64_t i = 0; i < n; i += 8){
-                if (i + 7 <= n){
-                        encrypt_block((uint32_t*)(s+i), k);
-                }
-        }
-}
-
-void encrypt_text_section(char *s, size_t n){
-    Elf64_Ehdr *h = (void*)s;
-    Elf64_Phdr *ph = ((void*)s) + h->e_phoff;
-
-	size_t text_off = elf_off_text_section(s,n);
-	size_t text_length = elf_size_text_section(s,n);
-	//printf("%zu v %zu\n", text_off, text_length);
-	encrypt(s + text_off, text_length, (uint32_t*)KEY);
 }
 
 //=============================================================

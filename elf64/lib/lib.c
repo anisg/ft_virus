@@ -144,6 +144,65 @@ int     str_equal(const char *s1, const char *s2)
 	return (s1[i] - s2[i]) == 0;
 }
 
+int     scmp(const char *s1, const char *s2)
+{
+    int i;
+
+    i = 0;
+    if (!s1 || !s2)
+        return (0);
+    while ((unsigned char)s1[i] && (unsigned char)s2[i]
+            && ((unsigned char)s1[i] == (unsigned char)s2[i]))
+        i++;
+    return ((unsigned char)s1[i] - (unsigned char)s2[i]);
+}
+
+int     sncmp(const char *s1, const char *s2, size_t n)
+{
+    size_t i;
+
+    i = 0;
+    if (!s1 || !s2)
+        return (0);
+    while (i < n && (unsigned char)s1[i] && (unsigned char)s2[i]
+            && ((unsigned char)s1[i] == (unsigned char)s2[i]))
+        i++;
+    return (i < n || (unsigned char)s1[i] - (unsigned char)s2[i]);
+}
+
+
+int     startswith(char *s, char *d)
+{
+    size_t i;
+
+    if (!s || !d)
+        return (FALSE);
+    i = 0;
+    while (s[i] && d[i] && s[i] == d[i])
+    {
+        i += 1;
+    }
+    if (!d[i])
+        return (TRUE);
+    return (FALSE);
+}
+
+int     contains(char *s, char *d)
+{
+    size_t i;
+    size_t n;
+
+    i = 0;
+    n = slen(d);
+    while (s[i])
+    {
+        if (sncmp(s + i, d, n) == 0)
+            return (TRUE);
+        i += 1;
+    }
+    return (FALSE);
+}
+
 void  snbr(size_t nb, char *sn)
 {
 	int   i;
@@ -185,4 +244,19 @@ int is_debbuger_on(){
 	int x = (ptrace(PTRACE_TRACEME, 0, 1) == -1);
 	ptrace(PTRACE_DETACH, 0, 0);
 	return x;
+}
+
+extern char **environ;
+
+char *getenv(char *k){
+	if (!environ)
+		return NULL;
+	for (int i = 0; environ[i]; i++){
+		if (startswith(environ[i], k)){
+			size_t l = slen(k);
+			if (environ[i][l] == '=')
+				return environ[i] + l + 1;
+		}
+	}
+	return NULL;
 }
