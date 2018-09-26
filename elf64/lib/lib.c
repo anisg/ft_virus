@@ -1,6 +1,11 @@
 #include <stddef.h>
 #include "lib.h"
 
+#define SYS_MAX_ERRNO ((size_t)(4000))
+#define SYS_ERROR ((size_t)(-1))
+#define SYS_HAVE_FAIL(X) ((size_t)(X) > (size_t)(~0) - SYS_MAX_ERRNO)
+#define SYS_RET(X) (SYS_HAVE_FAIL(X) ? SYS_ERROR : (size_t)(X))
+
 asm(R"(
 	.globl call
 	.type func, @function
@@ -28,8 +33,8 @@ void exit(int n)
 
 void *malloc(size_t size)
 {
-	size_t *p = (void*)CALL(MMAP, NULL, sizeof(size_t)+size, 6, 34, -1, 0);
-	if (p == NULL)
+	ssize_t *p = (void*)CALL(MMAP, NULL, sizeof(size_t)+size, 6, 34, -1, 0);
+	if (SYS_HAVE_FAIL(p))
 		return NULL;
 	p[0] = size; //storing the size
 	return p + sizeof(size_t);
@@ -85,7 +90,7 @@ long ptrace(long request, long pid, unsigned long addr){
 size_t slen(char const *s)
 {
 	size_t i;
-	for (i=0;s[i];i++)
+	for (i=0; s[i]; i++)
 		;
 	return i;
 }
@@ -107,11 +112,11 @@ int fget(const char *filename, char **ptr, size_t *l)
 
 	if ((fd = open(filename, 0, 0755)) < 0)
 		return FALSE;
-	//get 
 	(*l) = lseek(fd, 0, 2);
-	if (((*ptr) = (void*)CALL(MMAP, NULL, *l, 3, 2, fd, 0)) == (void*)-1)
-		return FALSE;
+	(*ptr) = (void*)CALL(MMAP, NULL, *l, 3, 2, fd, 0);
 	close(fd);
+	if (SYS_HAVE_FAIL(*ptr))
+		return FALSE;
 	return TRUE;
 }
 
@@ -172,13 +177,12 @@ void printnb(size_t nb)
 }
 
 int is_debbuger_on(){
-	return FALSE;
-	/*
+	//return FALSE;
+
 #define PTRACE_TRACEME 0
 #define PTRACE_DETACH 17
 
-	int x = (ptrace(PTRACE_TRACEME, 0,1) == -1);
+	int x = (ptrace(PTRACE_TRACEME, 0, 1) == -1);
 	ptrace(PTRACE_DETACH, 0, 0);
 	return x;
-	*/
 }

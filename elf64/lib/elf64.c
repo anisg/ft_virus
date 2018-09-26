@@ -242,4 +242,3 @@ int elf_check_valid(char *s, uint64_t n){
 	}
 	return TRUE;
 }
-
