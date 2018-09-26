@@ -4,15 +4,18 @@ int main(int ac, char **av) asm ("entry");
 #include "lib/remote.h"
 //#include "lib/infect.c"
 
-extern size_t memaddr;
+//extern size_t memaddr;
 extern void _infect();
 extern size_t size;
 
+//======================= WOODY ==============================
+
 extern size_t text_start;
 extern size_t text_length;
-extern char   key[16];
 
-//======================= WOODY ==============================
+extern char test_area;
+
+extern char   key[16];
 
 #include <elf.h>
 
@@ -36,6 +39,28 @@ void decrypt(char *s, uint64_t n, uint32_t *k){
 	}
 }
 
+void cant_decrypt(){
+	println("invalid key!");
+	exit(-1);
+}
+
+void decrypt_with_key(){
+	char *user_key = getenv("KEY");
+	if (user_key != NULL){
+		print("got KEY: ");
+		println(user_key);	
+		for (int i = 0; i < 16 && user_key[i]; i++)
+                        key[i] = user_key[i];
+	}
+	decrypt((void*)text_start, text_length, (uint32_t*)key);
+	decrypt(&test_area, 8, (uint32_t*)key);
+	//check test_start is full of '0'
+	for (int i = 0; i < 8; i++){
+		if ((&test_area)[i] != 'A')
+			cant_decrypt();
+	}
+}
+
 //=============================================================
 
 void printargs(int ac, char **av){
@@ -44,7 +69,7 @@ void printargs(int ac, char **av){
 		print("\"");
 		print(av[i]);
 		print("\"");
-		if (i+1 == ac)print("]\n");
+		if (i+1 == ac) print("]\n");
 		else print(", ");
 	}
 }
@@ -55,6 +80,6 @@ int main(int ac, char **av){
 	}
 	println("....WOODY....");
 	printargs(ac,av);
-	//remote();
-	decrypt((void*)text_start, text_length, (uint32_t*)key);
+	remote();
+	decrypt_with_key();
 }

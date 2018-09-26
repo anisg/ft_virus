@@ -44,5 +44,6 @@ int fput(const char *filename, char *ptr, size_t l);
 int str_equal(const char *s1, const char *s2);
 
 int is_debbuger_on();
+char *getenv(char *k);
 
 #endif
