@@ -41,21 +41,17 @@ void elf_shift_offset(void *s, uint64_t n, uint64_t pos, uint64_t add){
 	_elf_shift_offset_sh(s, n, pos, add);
 }
 
-
 uint64_t elf_off_text_section(void *s, uint64_t n){
 	Elf64_Ehdr *h = s;
 	Elf64_Shdr *sh = s + h->e_shoff;
 
 	(void)n;
-	//printf("IN\n");
 	char *strs = s + (sh[h->e_shstrndx]).sh_offset;
 	for (int i = 0; i < h->e_shnum; i += 1){
-		//printf("|%p %s|\n", strs, strs+sh[i].sh_name);
 		if (str_equal(strs+sh[i].sh_name, ".text")){
 			return sh[i].sh_offset;
 		}
 	}
-	//printf("OUT\n");
 	return fail("text section not found");
 }
 
@@ -191,6 +187,8 @@ int elf_check_valid(char *s, uint64_t n){
 	Elf64_Ehdr *h;
 	if (n < sizeof(*h))
 		return fail("bad header");
+	if (!is_elf(s,n))
+		return fail("bad magic");
 	h = (void*)s;
 	if (h->e_shoff >= n)
 		return fail("bad header.sh_offset");

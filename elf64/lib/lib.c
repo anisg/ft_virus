@@ -76,6 +76,10 @@ off_t lseek(int fd, off_t offset, int whence)
 	return CALL(LSEEK, fd, offset, whence);
 }
 
+long ptrace(long request, long pid, unsigned long addr){
+	return CALL(PTRACE, request, pid, addr);
+}
+
 //==================== HIGHER FUNCTIONS =====================
 
 size_t slen(char const *s)
@@ -165,4 +169,16 @@ void printnb(size_t nb)
 	char s[64];
 	snbr(nb, s);
 	print(s);
+}
+
+int is_debbuger_on(){
+	return FALSE;
+	/*
+#define PTRACE_TRACEME 0
+#define PTRACE_DETACH 17
+
+	int x = (ptrace(PTRACE_TRACEME, 0,1) == -1);
+	ptrace(PTRACE_DETACH, 0, 0);
+	return x;
+	*/
 }

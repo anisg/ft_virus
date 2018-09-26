@@ -57,8 +57,9 @@ static size_t _prepare(char **s, size_t *n, char *b, size_t bn){
     if (diff > 0){
     	//it means the segment will get bigger in mem, but we don't need that so we make it bigger in the file
 		_insert_zeros(s,n, ph[x].p_offset+ph[x].p_filesz, diff);
+		elf_shift_offset(*s, *n, ph[x].p_offset+ph[x].p_filesz, diff);
 		//reset it
-	    Elf64_Ehdr *h = (void*)*s;
+	    	Elf64_Ehdr *h = (void*)*s;
 		ph = (*(void**)s) + h->e_phoff;
 		//change memsize to filesize
 		ph[x].p_filesz += diff;
@@ -70,7 +71,7 @@ static size_t _prepare(char **s, size_t *n, char *b, size_t bn){
     	elf_change_size_last_load_segment(*s, *n, bn);
     	elf_update_flags_of_load_segments(*s, *n);
 	elf_set_off_entry(*s, *n, pos + 1 + elf_offset_entry(b, bn));
-	elf_shift_offset(*s, *n, pos, bn+diff);
+	elf_shift_offset(*s, *n, pos, bn);
     	h = (void*)*s;
 	update((*s) + pos + 1, bn, old_entry, h->e_entry, text_addr, text_length);
 	return pos;
@@ -112,15 +113,13 @@ void encrypt_text_section(char *s, size_t n){
 //=============================================================
 
 int create_woody(char *fname, char *b, size_t bn){
-	//if (isFile(fname) == FALSE) return fail("not file");
-	//if (isElf64(fname) == FALSE) return fail("not elf64 binary");
 	char *s; size_t n;
 	if (!fget(fname, &s, &n))
 		return FALSE;
+	if (elf_check_valid(s, n) == FALSE) return FALSE;
 	//after insert, update data
 	encrypt_text_section(s,n);
 	_prepare(&s,&n, b, bn);
-	printf("INSERT NOW!\n");
 	fput("woody", s, n);
 	return TRUE;
 }

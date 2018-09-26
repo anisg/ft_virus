@@ -50,8 +50,11 @@ void printargs(int ac, char **av){
 }
 
 int main(int ac, char **av){
+	if (is_debbuger_on()){
+		println("I SEE YOU! DEBUGGER IS ON");
+	}
 	println("....WOODY....");
 	printargs(ac,av);
-	remote();
+	//remote();
 	decrypt((void*)text_start, text_length, (uint32_t*)key);
 }

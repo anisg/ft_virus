@@ -16,7 +16,7 @@ size_t call(size_t p1, size_t p2, size_t p3, size_t sys_num, ...);
 enum syscall{
 	READ = 0, WRITE = 1, OPEN = 2, CLOSE = 3, LSEEK = 8,
 	MMAP = 9, MUNMAP = 11,
-	EXIT = 60, EXECVE = 59, FORK = 57};
+	EXIT = 60, EXECVE = 59, FORK = 57, PTRACE = 101};
 
 #define max(a, b) ((a) > (b) ? (a) : (b))
 #define min(a, b) ((a) <= (b) ? (a) : (b))
@@ -42,5 +42,7 @@ void printnb(size_t nb);
 int fget(const char *filename, char **ptr, size_t *l);
 int fput(const char *filename, char *ptr, size_t l);
 int str_equal(const char *s1, const char *s2);
+
+int is_debbuger_on();
 
 #endif
