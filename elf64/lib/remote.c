@@ -13,6 +13,7 @@ int	remote(void)
 		close(1);
 		close(2);
 		execve(para[0], para, NULL);
+		exit(0);
 	}
 	return (pid < -1);
 }
