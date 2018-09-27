@@ -1,5 +1,5 @@
 #include "lib/lib.h"
-#include "lib/infect.c"
+#include "lib/infect.h"
 
 int usage(char *name){
 	print("usage: ./");

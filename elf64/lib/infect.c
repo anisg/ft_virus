@@ -1,4 +1,6 @@
-#include "elf64.c"
+#include "elf64.h"
+#include <elf.h>
+#include "infect.h"
 #include <stdio.h>
 
 char KEY[16];

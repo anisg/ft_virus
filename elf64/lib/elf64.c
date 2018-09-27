@@ -2,6 +2,7 @@
 #include <stddef.h>
 #include "bool.h"
 #include "lib.h"
+#include "elf64.h"
 
 uint64_t fail(char *s){
 	//printf("ERROR:%s\n", s);
@@ -11,7 +12,7 @@ uint64_t fail(char *s){
 	return 0;
 }
 
-void _elf_shift_offset_ph(void *s, uint64_t n, uint64_t pos, uint64_t add){
+static void _elf_shift_offset_ph(void *s, uint64_t n, uint64_t pos, uint64_t add){
 	Elf64_Ehdr *h = s;
 	Elf64_Phdr *ph = s + h->e_phoff;
 	(void)n;
@@ -23,7 +24,7 @@ void _elf_shift_offset_ph(void *s, uint64_t n, uint64_t pos, uint64_t add){
 		}
 }
 
-void _elf_shift_offset_sh(void *s, uint64_t n, uint64_t pos, uint64_t add){
+static void _elf_shift_offset_sh(void *s, uint64_t n, uint64_t pos, uint64_t add){
 	Elf64_Ehdr *h = s;
 	Elf64_Shdr *sh = s + h->e_shoff;
 	(void)n;
