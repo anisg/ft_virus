@@ -5,10 +5,13 @@ ENTRY(_infect)
 	bin_start = .;
 	.text : {
 		*(.textstart)
+		*(.textearly)
+		crypt_start = .;
 		*(.text)
 	}
 	.data : {
 		*(.data)
+		crypt_end = .;
 	}
 	bin_end = .;
 	.bss : {

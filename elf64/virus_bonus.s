@@ -1,3 +1,5 @@
+section .textearly
+
 global decrypt_block_asm
 
 decrypt_block_asm:

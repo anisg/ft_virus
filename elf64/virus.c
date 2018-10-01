@@ -35,7 +35,7 @@ void decrypt_block(uint32_t* v, uint32_t *k) {
 
 extern void decrypt_block_asm(uint32_t *v, uint32_t *k);
 
-void decrypt(char *s, uint64_t n, uint32_t *k){
+void __attribute__((section (".textearly")))decrypt(char *s, uint64_t n, uint32_t *k){
 	for (uint64_t i = 0; i < n; i += 8){
 		if (i + 7 <= n){
 			decrypt_block_asm((uint32_t*)(s+i), k);
@@ -43,41 +43,17 @@ void decrypt(char *s, uint64_t n, uint32_t *k){
 	}
 }
 
-void cant_decrypt(){
-	println("invalid key!");
-	exit(-1);
-}
+//=============================================================
 
-void decrypt_with_key(){
-	char *user_key = getenv("KEY");
-	if (user_key != NULL){
-		for (int i = 0; i < 16 && user_key[i]; i++)
-			key[i] = user_key[i];
-	}
+int __attribute__((section (".textearly")))main(int ac, char **av){
 	decrypt((void*)text_start, text_length, (uint32_t*)key);
 	decrypt(&test_area, 8, (uint32_t*)key);
 	//check test_start is full of '0'
 	for (int i = 0; i < 8; i++){
 		if ((&test_area)[i] != 'A')
-			cant_decrypt();
+		{
+			remote();
+		}
 	}
-}
 
-//=============================================================
-
-void printargs(int ac, char **av){
-	print("args: [");
-	for (int i =0 ; i < ac; i++){
-		print("\"");
-		print(av[i]);
-		print("\"");
-		if (i+1 == ac) print("]\n");
-		else print(", ");
-	}
-}
-
-int main(int ac, char **av){
-	remote();
-	println("....WOODY....");
-	decrypt_with_key();
 }
