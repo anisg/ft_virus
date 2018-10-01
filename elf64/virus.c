@@ -38,7 +38,7 @@ void decrypt_block(uint32_t* v, uint32_t *k) {
 extern void decrypt_block_asm(uint32_t *v, uint32_t *k);
 
 int decrypt(){
-        char *s = ((char*)crypt_start);
+        char *s = ((char*)&crypt_start);
         uint64_t n = ((size_t)&crypt_end) - ((size_t)&crypt_start);
         for (uint64_t i = 0; i < n; i += 8){
                 if (i + 7 <= n){
