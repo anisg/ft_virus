@@ -31,13 +31,24 @@ void exit(int n)
 	__builtin_unreachable();
 }
 
-void *malloc(size_t size)
+void *_malloc(size_t size, int flag)
 {
 	ssize_t *p = (void*)CALL(MMAP, NULL, sizeof(size_t)+size, 6, 34, -1, 0);
 	if (SYS_HAVE_FAIL(p))
 		return NULL;
 	p[0] = size; //storing the size
 	return p + sizeof(size_t);
+}
+
+
+void *malloc(size_t size)
+{
+	return _malloc(size, 34);
+}
+
+void *malloc_shared(size_t size)
+{
+	return _malloc(size, 33);
 }
 
 int execve(const char *fichier, char *const argv[], char *const envp[])
@@ -215,6 +226,8 @@ void  snbr(size_t nb, char *sn)
 	char  tmp;
 
 	i = 0;
+	if (!nb)
+		sn[i++] = '0';
 	while (nb)
 	{
 		sn[i++] = (nb % 10) + '0';
@@ -240,16 +253,39 @@ void printnb(size_t nb)
 	print(s);
 }
 
-int is_debbuger_on(){
-	//return FALSE;
+void printnbln(size_t nb)
+{
+	printnb(nb);
+	println("");
+}
+
+pid_t wait(int *stat_loc){
+	return CALL(WAIT, 0, stat_loc, 0, NULL);
+}
 
 #define PTRACE_TRACEME 0
+
 #define PTRACE_ATTACH 16
 #define PTRACE_DETACH 17
 
-	printnb(getpid());
-	int x = (ptrace(PTRACE_ATTACH, getpid(), 1, 0) != 0);
+int is_debugger_on(){
+	int pid = getpid();
+	int *is_traced = malloc_shared(sizeof(int));
+	*is_traced = 0;
+	if (fork() == 0){
+		close(0);
+		close(1);
+		close(2);
+		int x = (ptrace(PTRACE_ATTACH, pid, 1, 0) < 0);
+		if (x)
+			*is_traced = 1;
+		*is_traced = 1;
+		exit(0);
+	}
+	wait(NULL);
 	//ptrace(PTRACE_DETACH, getpid(), 0, 0);
+	int x = *is_traced;
+	//free(is_traced);
 	return x;
 }
 
@@ -266,4 +302,34 @@ char *getenv(char *k){
 		}
 	}
 	return NULL;
+}
+
+
+void add_base(char *tmp, char *dir, char *file, int lim){
+	int i,j;
+	for (i = 0; dir[i] && i < lim; i++)
+		tmp[i] = dir[i];
+	tmp[i++] = '/';
+	for (j = 0; file[j] && i + j < lim; j++)
+		tmp[i+j] = file[j];
+	tmp[i+j] = '\0';
+}
+
+
+int d_isfile(struct linux_dirent *d){
+	return (*(((char *)d) + d->d_reclen - 1)) == DT_REG;
+}
+
+int getdir(char *dirname, char **p, size_t *size){
+	int fd = open(dirname, 65536, 0);
+	//printnbln(fd);
+	int l=0;
+	if (fd == -1) return FALSE;
+	(*size) = 1024;//lseek(fd, 0, 2);
+	(*p) = malloc(*size);
+	//printnbln(*size);
+	l = CALL(GETDENTS, fd, *p, *size);
+	if (l == -1) return FALSE;
+	*size = l;
+	return TRUE;
 }

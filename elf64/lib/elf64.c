@@ -6,9 +6,8 @@
 
 uint64_t fail(char *s){
 	//printf("ERROR:%s\n", s);
-	print("err: ");
+	print("fail: ");
 	println(s);
-	exit(-1);
 	return 0;
 }
 

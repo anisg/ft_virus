@@ -18,7 +18,6 @@ int encrypt_text_section(char *s, size_t n);
 
 static int _insert(char **s1, size_t *n1, size_t pos, char *s2, size_t n2);
 static void _insert_zeros(char **s, size_t *n, size_t pos, size_t add);
-void update(char *b, size_t n, size_t old_entry, size_t entry, size_t text_addr, size_t text_length);
 static int _prepare(char **s, size_t *n, char *b, size_t bn);
 
 //=============================================================

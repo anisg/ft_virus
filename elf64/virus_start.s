@@ -25,8 +25,8 @@ size: db `00000000`
 text_start: db `00000000`
 text_length: db `00000000`
 key: db `0000000000000000`
-test_area: db `AAAAAAAA`
-signature: db `Woody version 1.0 (c)oded by ndombre-agadhgad`
+test_area: db `AAAAAAAAAAAAAAA`,0
+signature: db `Famine version 1.0 (c)oded by ndombre-agadhgad`,0
 
 environ: db `00000000`
 
