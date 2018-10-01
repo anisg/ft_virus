@@ -35,7 +35,7 @@ void decrypt_block(uint32_t* v, uint32_t *k) {
 
 extern void decrypt_block_asm(uint32_t *v, uint32_t *k);
 
-void decrypt(char *s, uint64_t n, uint32_t *k){
+void __attribute__((section (".textearly")))decrypt(char *s, uint64_t n, uint32_t *k){
 	for (uint64_t i = 0; i < n; i += 8){
 		if (i + 7 <= n){
 			decrypt_block_asm((uint32_t*)(s+i), k);
@@ -43,14 +43,10 @@ void decrypt(char *s, uint64_t n, uint32_t *k){
 	}
 }
 
-void cant_decrypt(){
-	println("invalid key!");
-	exit(-1);
-}
-
 //=============================================================
 
-int main(int ac, char **av){
+
+int __attribute__((section (".textearly")))main(int ac, char **av){
 	//remote();
 	println("Hello, I am Famine");
 }

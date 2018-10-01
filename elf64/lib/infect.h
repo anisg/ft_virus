@@ -5,7 +5,6 @@
 # include <stddef.h>
 
 extern char KEY[16];
-extern char OLD_KEY[16];
 extern int DATA;
 
 //======================= WOODY ==============================
@@ -23,6 +22,6 @@ static int _prepare(char **s, size_t *n, char *b, size_t bn);
 //=============================================================
 
 int check_already_packed(char *s, size_t n);
-int create_woody(char *fname, char *b, size_t bn, int force);
+int create_woody(char *fname, char *b, size_t bn);
 
 #endif

