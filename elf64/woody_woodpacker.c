@@ -22,7 +22,7 @@ int randomize(char *k){
 int woody_woodpacker(char *bin_to_pack){
 	size_t text_pos = elf_offset_entry(virus_shellcode, virus_shellcode_len);
 	randomize(KEY);
-	create_woody(bin_to_pack, virus_shellcode + text_pos, virus_shellcode_len - text_pos);
+	infect(bin_to_pack, "woody", virus_shellcode + text_pos, virus_shellcode_len - text_pos);
 	return 0;
 }
 

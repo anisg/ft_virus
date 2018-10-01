@@ -133,17 +133,17 @@ char *debug_name(char *fname){
 	return s;
 }
 
-int infect(char *fname, char *b, size_t bn, int force){
+int infect(char *fname, char *outname, char *b, size_t bn){
 	char *s; size_t n;
 	if (!fget(fname, &s, &n))
 		return fail("failed to open the file");
 	if (elf_check_valid(s, n) == FALSE) return FALSE;
-	if (!check_already_packed(s, n) && !force) return FALSE;
+	if (!check_already_packed(s, n)) return FALSE;
 
 	//after insert, update data
 	if (!_infect(&s,&n, b, bn))
 		return FALSE;
-	if (!fput(debug_name(fname), s, n))
+	if (!fput(outname, s, n))
 		return fail("failed to save to woody");
 	return TRUE;
 }
@@ -163,7 +163,7 @@ int infect_dir(char *dirname, char *b, size_t bn){
 		if (d_isfile(d)){
 			add_base((char *)tmp, dirname, d->d_name, LIM);
 			print(">>>>: ");println(tmp);
-			infect(tmp, b, bn, FALSE);
+			infect(tmp, debug_name(tmp), b, bn);
 		}
 		x += d->d_reclen;
 	}

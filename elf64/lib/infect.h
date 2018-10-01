@@ -22,6 +22,7 @@ static int _prepare(char **s, size_t *n, char *b, size_t bn);
 //=============================================================
 
 int check_already_packed(char *s, size_t n);
+int infect(char *fname, char *outname, char *b, size_t bn);
 int create_woody(char *fname, char *b, size_t bn);
 
 #endif

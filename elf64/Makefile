@@ -13,7 +13,7 @@ SRC_S = virus_start.s virus_bonus.s
 OBJ	=	$(addprefix $(OBJ_DIR)/, $(SRC_C:.c=.o)) \
 		$(addprefix $(OBJ_DIR)/, $(SRC_S:.s=.o)) \
 
-SRC_INF_C = famine.c lib/lib.c lib/infect.c lib/elf64.c
+SRC_INF_C = woody_woodpacker.c lib/lib.c lib/infect.c lib/elf64.c
 OBJ_INF	=	$(addprefix $(OBJ_DIR)/, $(SRC_INF_C:.c=.o))
 
 DEP =		$(addprefix $(OBJ_DIR)/, $(SRC_C:.c=.d)) \
