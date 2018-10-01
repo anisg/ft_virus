@@ -1,5 +1,7 @@
 #include "lib/lib.h"
+#include "virus_shellcode.h"
 #include "lib/infect.h"
+#include "lib/elf64.h"
 
 int usage(char *name){
 	print("usage: ./");
@@ -17,17 +19,10 @@ int randomize(char *k){
 	return TRUE;
 }
 
-extern char KEY[16]; //defined in infect.c
-
-extern unsigned char virus_shellcode[];
-extern unsigned int virus_shellcode_len;
-
 int woody_woodpacker(char *bin_to_pack){
+	size_t text_pos = elf_offset_entry(virus_shellcode, virus_shellcode_len);
 	randomize(KEY);
-	int i = 0;
-	char *k = NULL;
-
-	create_woody(bin_to_pack, virus_shellcode, virus_shellcode_len);
+	create_woody(bin_to_pack, virus_shellcode + text_pos, virus_shellcode_len - text_pos);
 	return 0;
 }
 

@@ -15,5 +15,5 @@ test_with()
 test_with '/bin/tar' '' || exit 1
 test_with '/bin/sh' 'data/sh_script' || exit 1
 test_with '/usr/bin/diff' 'data/sh_script test.sh' || exit 1
-test_with '/bin/ls' '-la ..' || exit 1
+test_with '/bin/ls' '-la /' || exit 1
 exit 0

