@@ -79,3 +79,5 @@ decrypt_block_asm:
 	pop r8
 	pop rbp
 	ret
+
+decrypt:

