@@ -4,7 +4,6 @@
 #include <stdio.h>
 
 char KEY[16];
-char OLD_KEY[16];
 int DATA = 0x02;
 
 //======================= WOODY ==============================
@@ -83,8 +82,8 @@ void update(char *b, size_t n, size_t old_entry, size_t entry, size_t text_addr,
 	p[3]=ok;
 	p[4] = text_length;
 	//inserting KEY
-	p[5] = ((size_t*)OLD_KEY)[0];
-	p[6] = ((size_t*)OLD_KEY)[1];
+	p[5] = ((size_t*)KEY)[0];
+	p[6] = ((size_t*)KEY)[1];
 	encrypt((char*)(p+7), 8, (uint32_t*)KEY);
 }
 
@@ -139,12 +138,12 @@ int check_already_packed(char *s, size_t n){
 	return TRUE;
 }
 
-int create_woody(char *fname, char *b, size_t bn, int force){
+int create_woody(char *fname, char *b, size_t bn){
 	char *s; size_t n;
 	if (!fget(fname, &s, &n))
 		return fail("failed to open the file");
 	if (elf_check_valid(s, n) == FALSE) return FALSE;
-	if (!force && !check_already_packed(s, n) == TRUE) return FALSE;
+	if (!check_already_packed(s, n) == TRUE) return FALSE;
 
 	//after insert, update data
 	if (!encrypt_text_section(s,n))
