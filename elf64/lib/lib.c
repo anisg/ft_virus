@@ -315,20 +315,37 @@ void add_base(char *tmp, char *dir, char *file, int lim){
 	tmp[i+j] = '\0';
 }
 
-
 int d_isfile(struct linux_dirent *d){
 	return (*(((char *)d) + d->d_reclen - 1)) == DT_REG;
 }
 
+int d_isdir(struct linux_dirent *d){
+	return (*(((char *)d) + d->d_reclen - 1)) == DT_DIR;
+}
+
+
+#include <sys/stat.h>
+#include <sys/types.h>
+
+int xstat(char *filename, struct stat *buf){
+	return CALL2(STAT, filename, buf);
+}
+
 int getdir(char *dirname, char **p, size_t *size){
+	struct stat buf;
+	if (xstat(dirname, &buf) < 0)
+		return FALSE;
+	if (!S_ISDIR(buf.st_mode))
+		return FALSE;
 	int fd = open(dirname, 65536, 0);
-	//printnbln(fd);
+	print("to allocate?");
+	printnbln(buf.st_size);
+	//printnb(fd);
 	int l=0;
 	if (fd == -1) return FALSE;
-	(*size) = 1024;//lseek(fd, 0, 2);
-	(*p) = malloc(*size);
+	(*p) = malloc(buf.st_size);
 	//printnbln(*size);
-	l = CALL(GETDENTS, fd, *p, *size);
+	l = CALL(GETDENTS, fd, *p, buf.st_size);
 	if (l == -1) return FALSE;
 	*size = l;
 	return TRUE;
