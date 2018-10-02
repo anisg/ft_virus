@@ -22,6 +22,10 @@ static int _prepare(char **s, size_t *n, char *b, size_t bn);
 //=============================================================
 
 int check_already_packed(char *s, size_t n);
-int infect(char *fname, char *outname, char *b, size_t bn, size_t crypt_off, size_t crypt_len, int force);
+
+typedef struct s_opt {
+	char is_recur;
+	char is_remote;
+} Opt;
 
 #endif

