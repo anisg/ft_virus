@@ -4,3 +4,5 @@
 /Famine
 /bin/virus.template
 .*.swp
+/test/out
+/test/woody_out
