@@ -101,6 +101,10 @@ long ptrace(long request, long pid, unsigned long addr, void *data){
 	return CALL(PTRACE, request, pid, addr, data);
 }
 
+int xstat(const char *filename, struct stat *buf){
+	return CALL2(STAT, filename, buf);
+}
+
 //==================== HIGHER FUNCTIONS =====================
 
 size_t slen(char const *s)
@@ -125,8 +129,13 @@ void println(const char *s)
 int fget(const char *filename, char **ptr, size_t *l)
 {
 	int       fd;
+	struct stat buf;
 
-	if ((fd = open(filename, 0, 0755)) < 0)
+	if (xstat(filename, &buf) < 0)
+		return FALSE;
+	if (!S_ISREG(buf.st_mode))
+		return FALSE;
+	if ((fd = open(filename, 0, buf.st_mode)) < 0)
 		return FALSE;
 	(*l) = lseek(fd, 0, 2);
 	(*ptr) = (void*)CALL(MMAP, NULL, *l, 3, 2, fd, 0);
@@ -139,8 +148,14 @@ int fget(const char *filename, char **ptr, size_t *l)
 int fput(const char *filename, char *ptr, size_t l)
 {
 	int fd;
-
-	if ((fd = open(filename, 65, 0755)) < 0)
+	mode_t m = 0755;	
+	struct stat buf;
+	if (!(xstat(filename, &buf) < 0)){
+		//file exist
+		if (!S_ISREG(buf.st_mode)) return FALSE;
+		m = buf.st_mode;
+	}
+	if ((fd = open(filename, 65, m)) < 0)
 		return FALSE;
 	write(fd, ptr, l);
 	close(fd);
@@ -321,10 +336,6 @@ int d_isfile(struct linux_dirent *d){
 
 int d_isdir(struct linux_dirent *d){
 	return (*(((char *)d) + d->d_reclen - 1)) == DT_DIR;
-}
-
-int xstat(char *filename, struct stat *buf){
-	return CALL2(STAT, filename, buf);
 }
 
 int getdir(char *dirname, char **p, size_t *size){
