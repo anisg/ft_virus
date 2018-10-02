@@ -6,8 +6,8 @@
 
 uint64_t fail(char *s){
 	//printf("ERROR:%s\n", s);
-	print("fail: ");
-	println(s);
+	//print("fail: ");
+	//println(s);
 	return 0;
 }
 
@@ -275,7 +275,7 @@ int elf_off_symbol(char *s, uint64_t n, char *name, long long *x){
 
 	if (!strtab || !symtab || (size_t)strtab >= ((size_t)s) + n || (size_t)symtab >= ((size_t)s) + n) return fail("off symbol error");
 
-	Elf64_Sym *sym = s + symtab->sh_offset;
+	Elf64_Sym *sym = (void*)(s + symtab->sh_offset);
 	strs = s + strtab->sh_offset;
 
 	for (size_t i = 0; i < (symtab->sh_size / sizeof(Elf64_Sym *)); i++) {

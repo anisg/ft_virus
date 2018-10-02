@@ -338,8 +338,8 @@ int getdir(char *dirname, char **p, size_t *size){
 	if (!S_ISDIR(buf.st_mode))
 		return FALSE;
 	int fd = open(dirname, 65536, 0);
-	print("to allocate?");
-	printnbln(buf.st_size);
+	//print("to allocate?");
+	//printnbln(buf.st_size);
 	//printnb(fd);
 	int l=0;
 	if (fd == -1) return FALSE;
