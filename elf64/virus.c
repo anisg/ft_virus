@@ -1,4 +1,5 @@
 #include <elf.h>
+#include "lib/infect.h"
 #include "lib/lib.h"
 #include "lib/remote.h"
 #include "lib/infect.h"
@@ -35,7 +36,7 @@ int decrypt(){
 	//check test area
 	for (int i = 0; i < n; i++)
 		if ((&test_area)[i] != 'A')
-			return (FALSE);
+			return FALSE;
 	
 	return TRUE;
 }
