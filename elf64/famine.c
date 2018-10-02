@@ -44,11 +44,10 @@ int main(int ac, char **av){
 	size_t virus_len;
 	size_t crypt_off;
 	size_t crypt_len;
-	struct s_opt opt = {0,0};
+	struct s_opt opt = {FALSE,FALSE};
 	if (get_virus_info(&virus, &virus_len, &crypt_off, &crypt_len) == FALSE)
 		return 1;
 	randomize(KEY);
-
 	for (int i = 1; i < ac; i ++){
 		if (str_equal(av[i], "--recur"))
 			opt.is_recur = TRUE;
