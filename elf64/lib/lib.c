@@ -323,10 +323,6 @@ int d_isdir(struct linux_dirent *d){
 	return (*(((char *)d) + d->d_reclen - 1)) == DT_DIR;
 }
 
-
-#include <sys/stat.h>
-#include <sys/types.h>
-
 int xstat(char *filename, struct stat *buf){
 	return CALL2(STAT, filename, buf);
 }

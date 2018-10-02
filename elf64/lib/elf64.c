@@ -258,7 +258,7 @@ int elf_check_valid(char *s, uint64_t n){
 	return TRUE;
 }
 
-int elf_off_symbol(char *s, uint64_t n, char *name, long long *x){
+int elf_off_symbol(char *s, uint64_t n, char *name, int64_t *x){
 	Elf64_Ehdr *h = (void*)s;
 	Elf64_Shdr *sh = (void*)(s + h->e_shoff);
 	

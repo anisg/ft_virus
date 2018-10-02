@@ -48,6 +48,8 @@ int is_debbuger_on();
 char *getenv(char *k);
 #include <dirent.h>
 
+void add_base(char *tmp, char *dir, char *file, int lim);
+
 struct linux_dirent {
     long           d_ino;
     off_t          d_off;
@@ -55,5 +57,11 @@ struct linux_dirent {
     char           d_name[];
 };
 int getdir(char *dirname, char **p, size_t *size);
+int d_isfile(struct linux_dirent *d);
+int d_isdir(struct linux_dirent *d);
 
+#include <sys/stat.h>
+
+int xstat(char *filename, struct stat *buf);
+	
 #endif
