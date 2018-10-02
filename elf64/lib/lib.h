@@ -62,6 +62,6 @@ int d_isdir(struct linux_dirent *d);
 
 #include <sys/stat.h>
 
-int xstat(char *filename, struct stat *buf);
+int xstat(const char *filename, struct stat *buf);
 	
 #endif
