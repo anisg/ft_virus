@@ -338,22 +338,7 @@ int d_isdir(struct linux_dirent *d){
 	return (*(((char *)d) + d->d_reclen - 1)) == DT_DIR;
 }
 
-int getdir(char *dirname, char **p, size_t *size){
-	struct stat buf;
-	if (xstat(dirname, &buf) < 0)
-		return FALSE;
-	if (!S_ISDIR(buf.st_mode))
-		return FALSE;
-	int fd = open(dirname, 65536, 0);
-	//print("to allocate?");
-	//printnbln(buf.st_size);
-	//printnb(fd);
-	int l=0;
-	if (fd == -1) return FALSE;
-	(*p) = malloc(buf.st_size);
-	//printnbln(*size);
-	l = CALL(GETDENTS, fd, *p, buf.st_size);
-	if (l == -1) return FALSE;
-	*size = l;
-	return TRUE;
+int getdents(int fd, char *buff, size_t buff_size)
+{
+	return CALL(GETDENTS, fd, buff, buff_size);
 }

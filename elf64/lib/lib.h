@@ -51,12 +51,13 @@ char *getenv(char *k);
 void add_base(char *tmp, char *dir, char *file, int lim);
 
 struct linux_dirent {
-    long           d_ino;
-    off_t          d_off;
-    unsigned short d_reclen;
-    char           d_name[];
+	unsigned long	d_ino;
+	int64_t		d_off;
+	unsigned short	d_reclen;
+	char		d_name[];
 };
-int getdir(char *dirname, char **p, size_t *size);
+
+int getdents(int fd, char *buff, size_t buff_size);
 int d_isfile(struct linux_dirent *d);
 int d_isdir(struct linux_dirent *d);
 
