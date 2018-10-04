@@ -33,11 +33,11 @@ void encrypt(char *s, uint64_t n, uint32_t *k){
 
 static int _insert(char **s1, size_t *n1, size_t pos, char *s2, size_t n2){
 	char *ns;
-	//if ((ns = (char *)malloc((*n1) + n2)) == NULL)
-	//	return FALSE;
-	ns = (void*)CALL(MMAP, NULL, (*n1) + n2, 6, 34, -1, 0);
-	if (SYS_HAVE_FAIL(ns))
+	if ((ns = (char *)malloc((*n1) + n2)) == NULL)
 		return FALSE;
+	//ns = (void*)CALL(MMAP, NULL, (*n1) + n2, 6, 34, -1, 0);
+	//if (SYS_HAVE_FAIL(ns))
+	//	return FALSE;
 	size_t i,j,l;
 	for (i = 0; i <= pos; i += 1){ ns[i] = (*s1)[i]; }
 	for (j = 0; j < n2; j += 1){ns[i+j] = s2[j]; }
@@ -50,10 +50,14 @@ static int _insert(char **s1, size_t *n1, size_t pos, char *s2, size_t n2){
 
 static void _insert_zeros(char **s, size_t *n, size_t pos, size_t add){
 	char *ns = (char *)malloc((*n) + add);
+	//char *ns = (void*)CALL(MMAP, NULL, (*n) + add, 6, 34, -1, 0);
+	//if (SYS_HAVE_FAIL(ns))
+	//	return ; // TODO
 	size_t i,j,l;
 	for (i = 0; i <= pos; i += 1){ ns[i] = (*s)[i]; }
 	for (j = 0; j < add; j += 1){ns[i+j] = 0; }
 	for (l = 0; i+l < *n; l += 1){ ns[i+j+l] = (*s)[i+l]; }
+	ffree(*s, *n);
 	*s = ns;
 	*n = (*n) + add;
 }
