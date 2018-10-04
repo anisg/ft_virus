@@ -42,7 +42,7 @@ static int _insert(char **s1, size_t *n1, size_t pos, char *s2, size_t n2){
 	for (i = 0; i <= pos; i += 1){ ns[i] = (*s1)[i]; }
 	for (j = 0; j < n2; j += 1){ns[i+j] = s2[j]; }
 	for (l = 0; i+l < *n1; l += 1){ ns[i+j+l] = (*s1)[i+l]; }
-	ffree(*s1, *n1);
+	//ffree(*s1, *n1);
 	*s1 = ns;
 	*n1 = (*n1) + n2;
 	return TRUE;
@@ -57,7 +57,7 @@ static void _insert_zeros(char **s, size_t *n, size_t pos, size_t add){
 	for (i = 0; i <= pos; i += 1){ ns[i] = (*s)[i]; }
 	for (j = 0; j < add; j += 1){ns[i+j] = 0; }
 	for (l = 0; i+l < *n; l += 1){ ns[i+j+l] = (*s)[i+l]; }
-	ffree(*s, *n);
+	//ffree(*s, *n);
 	*s = ns;
 	*n = (*n) + add;
 }

@@ -143,8 +143,8 @@ int fget(const char *filename, char **ptr, size_t *l)
 int ffree(char *ptr, size_t l)
 {
 	size_t i = (size_t)CALL2(MUNMAP, ptr, l);
-	if (i != 0)
-		print("error");
+	//if (i != 0)
+	//	print("error");
 }
 
 int fput(const char *filename, char *ptr, size_t l)
