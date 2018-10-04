@@ -1,3 +1,4 @@
+#!/usr/bin/python3
 from pycool import *
 import re
 from math import ceil
@@ -40,18 +41,21 @@ for line in lines:
 
 if len(zones) == 0:
 	print("Warning: No labels found, exit")
-	exit()
+	exit(-1)
 
 
 ###
 # PART 2: add garbage codes
 ###
 
-bef = '\t'
-aft = '\t;junk'
+bef = '\t\t\t'
+aft = ''
 garbage_inst_samples = [
-	'nop',
-	'cmp rax, rax',
+	'mov %rax, %rax',
+        'mov %r9, %r9',
+        'jmp .okok{uniq} ; .byte {nb} ; .okok{uniq}:',
+        'jmp .okok{uniq} ; outsb  %ds:(%rsi),(%dx) ; and    %dh,(%rcx) ; xor    %ah,%cs:(%rax) ; sub    %ah,0x29(%rbx) ; outsl  %ds:(%rsi),(%dx) ; and %ah,%fs:0x79(%rdx) ; and    %ch,0x64(%rsi) ; outsl  %ds:(%rsi),(%dx) ; .okok{uniq}:',
+        'jmp .okok{uniq} ;  and    %ch,0x64(%rsi) ; .byte 0xEB ; .byte 0xcb ; .okok{uniq}:',
 ]
 
 off = 0
@@ -60,9 +64,11 @@ for z in zones:
 	to_add = int(ceil( r-l )*p)
 	for offl in range(to_add):
 		pos = randint(off + l, off + offl + r)
-		choosed = randint(0, len(garbage_inst_samples)-1)
-		lines.insert(pos, bef + garbage_inst_samples[choosed] + aft)
+		r_idx = randint(0, len(garbage_inst_samples)-1)
+		choosed = garbage_inst_samples[r_idx].format(uniq=str(off) + '_' + str(offl), nb=randint(0,255))
+		lines.insert(pos, bef + choosed + aft)
 	off += offl
 
-fput(args.file, '\n'.join(lines))
-print("Success! added garbage ({} lines) to \"{}\"".format(off, args.file))
+f = args.file + '.g.s'
+fput(f, '\n'.join(lines))
+print("Success! added garbage ({} lines) to \"{}\"".format(off, f))
