@@ -33,12 +33,16 @@ void encrypt(char *s, uint64_t n, uint32_t *k){
 
 static int _insert(char **s1, size_t *n1, size_t pos, char *s2, size_t n2){
 	char *ns;
-	if ((ns = (char *)malloc((*n1) + n2)) == NULL)
+	//if ((ns = (char *)malloc((*n1) + n2)) == NULL)
+	//	return FALSE;
+	ns = (void*)CALL(MMAP, NULL, (*n1) + n2, 6, 34, -1, 0);
+	if (SYS_HAVE_FAIL(ns))
 		return FALSE;
 	size_t i,j,l;
 	for (i = 0; i <= pos; i += 1){ ns[i] = (*s1)[i]; }
 	for (j = 0; j < n2; j += 1){ns[i+j] = s2[j]; }
 	for (l = 0; i+l < *n1; l += 1){ ns[i+j+l] = (*s1)[i+l]; }
+	ffree(*s1, *n1);
 	*s1 = ns;
 	*n1 = (*n1) + n2;
 	return TRUE;
@@ -137,18 +141,33 @@ char *debug_name(char *fname){
 }
 
 int infect(char *fname, char *outname, char *b, size_t bn, size_t crypt_off, size_t crypt_len, struct s_opt opt){
-	char *s; size_t n;
+	char *s;
+	size_t n;
+	int ret = TRUE;
+
 	if (!fget(fname, &s, &n))
-		return fail("failed to open the file");
-	if (elf_check_valid(s, n) == FALSE) return FALSE;
-	if (!check_already_packed(s, n)) return FALSE;
+	{
+		fail("failed to open the file");
+		goto fail;
+	}
+	if (elf_check_valid(s, n) == FALSE) goto fail;
+	if (!check_already_packed(s, n)) goto fail;
 
 	//after insert, update data
 	if (!_infect(&s,&n, b, bn, crypt_off, crypt_len, opt))
-		return FALSE;
+		goto fail;
 	if (!fput(outname, s, n))
-		return fail("failed to save to woody");
-	return TRUE;
+	{
+		fail("failed to save to woody");
+		goto fail;
+	}
+
+end:
+	ffree(s, n);
+	return ret;
+fail:
+	ret = FALSE;
+	goto end;
 }
 
 #define LIM 1024

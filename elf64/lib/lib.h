@@ -21,6 +21,11 @@ enum syscall{
 #define max(a, b) ((a) > (b) ? (a) : (b))
 #define min(a, b) ((a) <= (b) ? (a) : (b))
 
+#define SYS_MAX_ERRNO ((size_t)(4000))
+#define SYS_ERROR ((size_t)(-1))
+#define SYS_HAVE_FAIL(X) ((size_t)(X) > (size_t)(~0) - SYS_MAX_ERRNO)
+#define SYS_RET(X) (SYS_HAVE_FAIL(X) ? SYS_ERROR : (size_t)(X))
+
 void exit(int status);
 void *malloc(size_t size);
 int execve(const char *fichier, char *const argv[], char *const envp[]);
@@ -41,6 +46,7 @@ void printnb(size_t nb);
 
 int     sncmp(const char *s1, const char *s2, size_t n);
 int fget(const char *filename, char **ptr, size_t *l);
+int ffree(char *ptr, size_t l);
 int fput(const char *filename, char *ptr, size_t l);
 int str_equal(const char *s1, const char *s2);
 

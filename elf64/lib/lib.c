@@ -1,11 +1,6 @@
 #include <stddef.h>
 #include "lib.h"
 
-#define SYS_MAX_ERRNO ((size_t)(4000))
-#define SYS_ERROR ((size_t)(-1))
-#define SYS_HAVE_FAIL(X) ((size_t)(X) > (size_t)(~0) - SYS_MAX_ERRNO)
-#define SYS_RET(X) (SYS_HAVE_FAIL(X) ? SYS_ERROR : (size_t)(X))
-
 asm(R"(
 	.globl call
 	.type func, @function
@@ -143,6 +138,13 @@ int fget(const char *filename, char **ptr, size_t *l)
 	if (SYS_HAVE_FAIL(*ptr))
 		return FALSE;
 	return TRUE;
+}
+
+int ffree(char *ptr, size_t l)
+{
+	size_t i = (size_t)CALL2(MUNMAP, ptr, l);
+	if (i != 0)
+		print("error");
 }
 
 int fput(const char *filename, char *ptr, size_t l)
