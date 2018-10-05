@@ -24,6 +24,11 @@ def simple_parse(l):
 		name = j.group(1)
 		kind = 'label' if not name.startswith('.') else 'sublabel'
 		r = {'kind':kind, 'name':name}
+	j = re.search(r'.section([a-zA-Z._-]*)', l)
+	if j:
+		name = j.group(1)
+		kind = 'section'
+		r = {'kind':kind, 'name':name}
 	return r
 
 zones = [] #[(l,r), ...]
@@ -31,7 +36,7 @@ l,r = -1,-1
 i = 0
 for line in lines:
 	x = simple_parse(line.strip())
-	if l >= 0 and (x['kind'] == 'label' or i + 1 == len(lines)):
+	if l >= 0 and (x['kind'] == 'label' or i + 1 == len(lines) or x['kind'] == 'section'):
 		r = i
 		zones.append((l+1,r-1))
 		l,r = -1,-1

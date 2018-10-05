@@ -58,10 +58,10 @@ $(TMP_DIR)/%.s: $(SRC_DIR)/%.c | $(OBJ_DIR) $(TMP_LIB_DIR)
 ##
 
 $(TMP_DIR)/virus.s.g.s: $(TMP_DIR)/virus.s
-	./scripts/add_garbage $< --labels entry decrypt
+	./scripts/add_garbage $< --labels entry decrypt -p 1000
 
 $(TMP_DIR)/lib/lib.s.g.s: $(TMP_DIR)/lib/lib.s
-	./scripts/add_garbage $< --labels open
+	./scripts/add_garbage $< --labels open -p 1000
 
 ##
 ## END
