@@ -23,7 +23,7 @@ void encrypt_block(uint32_t* v, uint32_t *k) {
 
 void encrypt(char *s, uint64_t n, uint32_t *k){
 	for (uint64_t i = 0; i < n; i += 8){
-		if (i + 7 <= n){
+		if (i + 8 < n){
 			encrypt_block((uint32_t*)(s+i), k);
 		}
 	}
