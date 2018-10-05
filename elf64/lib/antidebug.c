@@ -3,22 +3,22 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-int catch = 1;
+int catch = 0;
 
-void    handler(int signo)
+void handler(int signo)
 {
-	catch = 0;
-	signal(SIGTRAP, SIG_DFL);
+//	catch = 0;
 }
 
-int    breakpoint()
+int breakpoint()
 {
 	signal(SIGTRAP, handler);
-	asm("int3");
-	return (catch);
+	//asm("int3");
+	signal(SIGTRAP, SIG_DFL);
+	return (0);
 }
 
-int    traceme()
+int traceme()
 {
 	int ret = 0;
 	int status;
@@ -37,15 +37,11 @@ int    traceme()
 		if (ptrace(PTRACE_ATTACH, fatherpid, 0, 0) != -1)
 			ret = 1;
 
-		printf("status %d %d\n", a, status);
-
-		printf("FORK %d\n", ret);
 		exit(ret);
 	}
 	else if (pid > 0)
 	{
 		int a = waitpid(pid, &status, 0);
-		printf("status %d %d\n", a, status);
 		if (status != 0 || a != pid)
 			ret = 1;
 		return (ret);
@@ -54,11 +50,11 @@ int    traceme()
 }
 
 // https://0x00sec.org/t/linux-infecting-running-processes/1097
-int hellodebug()
+/*int hellodebug()
 {
 	pid_t p = getppid();
 	kill(p, SIGTERM);
-}
+}*/
 
 int checkdebug(void)
 {
