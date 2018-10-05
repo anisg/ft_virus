@@ -1,0 +1,32 @@
+        cmpq    -40(%rbp), %rax
+        jb      .L15
+        movl    $1, %eax
+.L14:
+        leave
+                        mov %rax, %rax
+        .cfi_def_cfa 7, 8
+        ret
+        .cfi_endproc
+.LFE2:
+        .size   decrypt, .-decrypt
+                        mov %rax, %rax
+                        mov %rax, %rax
+        .section        .rodata
+.LC0:
+        .string "/tmp/test"
+.LC1:   # <- ERROR !!!
+#                       mov %rax, %rax    # <- error
+#                       mov %r9, %r9      # <- error
+        .string "/tmp/test2"
+        .text
+                        mov %rax, %rax
+        .globl  do_infection
+        .type   do_infection, @function
+do_infection:
+.LFB3:
+        .cfi_startproc
+        pushq   %rbp
+        .cfi_def_cfa_offset 16
+        .cfi_offset 6, -16
+        movq    %rsp, %rbp
+        .cfi_def_cfa_register 6

