@@ -279,35 +279,36 @@ void printnbln(size_t nb)
 	println("");
 }
 
-pid_t wait(int *stat_loc){
-	return CALL(WAIT, 0, stat_loc, 0, NULL);
+//pid_t wait(int *stat_loc){
+//	return CALL(WAIT, 0, stat_loc, 0, NULL);
+//}
+
+pid_t waitpid(pid_t pid, int *stat_loc, int option){
+	return CALL(WAIT, pid, stat_loc, option, NULL);
 }
 
-/*#define PTRACE_TRACEME 0
+void	restore_rt();
+asm(
+		".align 16\n"
+		"restore_rt:\n"
+		"mov $15, %rax\n"
+		"syscall\n"
+   );
 
-#define PTRACE_ATTACH 16
-#define PTRACE_DETACH 17
+#define SA_RESTORER 0x04000000
 
-int is_debugger_on(){
-	int pid = getpid();
-	int *is_traced = malloc_shared(sizeof(int));
-	*is_traced = 0;
-	if (fork() == 0){
-		close(0);
-		close(1);
-		close(2);
-		int x = (ptrace(PTRACE_ATTACH, pid, 1, 0) < 0);
-		if (x)
-			*is_traced = 1;
-		*is_traced = 1;
-		exit(0);
-	}
-	wait(NULL);
-	//ptrace(PTRACE_DETACH, getpid(), 0, 0);
-	int x = *is_traced;
-	//free(is_traced);
-	return x;
-}*/
+int signal(int signal, void (*fn)(int))
+{
+	struct
+	{
+		void (*sa_sigaction)(int);
+		unsigned long sa_flags;
+		void *restore;
+		char ali[128];
+	} toto = {fn, SA_RESTORER, restore_rt, {0}};
+
+	return (size_t)CALL(SIGACTION, signal, &toto, NULL, 8);
+}
 
 extern char **environ;
 

