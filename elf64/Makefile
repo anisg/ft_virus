@@ -8,7 +8,7 @@ TMP_DIR				= .tmp
 OBJ_DIR				= $(TMP_DIR)/obj
 OBJ_LIB_DIR			= $(OBJ_DIR)/lib
 
-SRC_C = virus.c lib/lib.c lib/infect.c lib/elf64.c lib/remote.c
+SRC_C = virus.c lib/lib.c lib/infect.c lib/elf64.c lib/remote.c # lib/antidebug.c
 SRC_S = virus_start.s virus_bonus.s
 OBJ	=	$(addprefix $(OBJ_DIR)/, $(SRC_C:.c=.o)) \
 		$(addprefix $(OBJ_DIR)/, $(SRC_S:.s=.o)) \

@@ -283,7 +283,7 @@ pid_t wait(int *stat_loc){
 	return CALL(WAIT, 0, stat_loc, 0, NULL);
 }
 
-#define PTRACE_TRACEME 0
+/*#define PTRACE_TRACEME 0
 
 #define PTRACE_ATTACH 16
 #define PTRACE_DETACH 17
@@ -307,7 +307,7 @@ int is_debugger_on(){
 	int x = *is_traced;
 	//free(is_traced);
 	return x;
-}
+}*/
 
 extern char **environ;
 

@@ -62,5 +62,10 @@ int virus(int ac, char **av){
 }
 
 int main(int ac, char **av){
+	/*if (checkdebug())
+	{
+		print("DEBUGGING..\n");
+		return 1;
+	}*/
 	return decrypt() && virus(ac, av);
 }
