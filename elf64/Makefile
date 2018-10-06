@@ -35,7 +35,7 @@ $(VIRUS_X): $(VIRUS)
 	xxd -i virus_shellcode $(VIRUS_X)
 	rm virus_shellcode
 
-$(VIRUS): $(OBJ)
+$(VIRUS): $(OBJ) $(LD_RULES)
 	ld -o $@ -T $(LD_RULES) $(OBJ)
 
 $(TMP_DIR):
