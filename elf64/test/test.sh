@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 
 BIN=../Famine
 
@@ -24,12 +24,13 @@ test_with()
 	echo "infect on test"
 	$BIN --recur # --msg
 	$1 $2 > out
+	P=$2
 	cp $1 /tmp/test2/test
 
-	/tmp/test/test $2 > woody_out #|| return 1
+	exe /tmp/test/test "$P" woody_out || return 1
 	diff out woody_out || return 1
 
-	/tmp/test2/test $2 > woody_out #|| return 1
+	exe /tmp/test2/test "$P" woody_out || return 1
 	diff out woody_out || return 1
 
 	(! diff $1 /tmp/test/test) || return 1
@@ -113,6 +114,7 @@ rec_test_init()
 }
 
 #rec_test_init 30 $x
+echo ">> TEST #1"
 
 rm -rf /tmp/test
 mkdir /tmp/test
