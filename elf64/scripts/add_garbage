@@ -18,7 +18,7 @@ args = parse('add to a gcc ASM file some garbage code',[
 
 def simple_parse(l):
 	r = {'kind':'unknown'}
-	if l.startswith('.cfi_def_cfa'):
+	if l.startswith('.cfi_def_cfa') or l.startswith('leave'):
 		r['kind']='stop'
 		return r
 	j = re.search(r'(.*):.*', l)
