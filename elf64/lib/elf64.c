@@ -182,7 +182,7 @@ void elf_change_size_last_load_segment(void *s, uint64_t n, int add){
 	(void)n;
 	x = elf_last_load_segment(s, n);
 	ph[x].p_filesz += add;
-	ph[x].p_memsz += add;
+	ph[x].p_memsz += add + 16;
 }
 
 int is_elf(char *s, uint64_t n){
