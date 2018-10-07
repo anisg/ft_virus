@@ -18,7 +18,9 @@ args = parse('add to a gcc ASM file some garbage code',[
 
 def simple_parse(l):
 	r = {'kind':'unknown'}
-
+	if l.startswith('.cfi_def_cfa'):
+		r['kind']='stop'
+		return r
 	j = re.search(r'(.*):.*', l)
 	if j:
 		name = j.group(1)
@@ -36,7 +38,7 @@ l,r = -1,-1
 i = 0
 for line in lines:
 	x = simple_parse(line.strip())
-	if l >= 0 and (x['kind'] == 'label' or i + 1 == len(lines) or x['kind'] == 'section'):
+	if l >= 0 and (x['kind'] == 'label' or i + 1 == len(lines) or x['kind'] == 'section' or x['kind']=='stop'):
 		r = i
 		zones.append((l+1,r-1))
 		l,r = -1,-1
