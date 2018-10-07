@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 BIN=../Famine
 
@@ -24,13 +24,12 @@ test_with()
 	echo "infect on test"
 	$BIN --recur # --msg
 	$1 $2 > out
-	P=$2
 	cp $1 /tmp/test2/test
 
-	exe /tmp/test/test "$P" woody_out || return 1
+	/tmp/test/test $2 > woody_out #|| return 1
 	diff out woody_out || return 1
 
-	exe /tmp/test2/test "$P" woody_out || return 1
+	/tmp/test2/test $2 > woody_out #|| return 1
 	diff out woody_out || return 1
 
 	(! diff $1 /tmp/test/test) || return 1
@@ -61,7 +60,59 @@ _____\--|----/______
 	exit 1
 }
 
-echo ">> TEST #1"
+simple_test()
+{
+	INF=$1
+	strings $INF | grep 'ndombre' || fail
+	$INF
+	X=$?
+	if (( $X >= 100 )); then
+		echo "SEGV OR OTHER"
+		return 1
+	fi
+}
+
+rec_test()
+{
+	r=$1
+	V=$2
+	if [ "$r" -eq "0" ]; then return 0; fi
+
+	echo "test! " $2
+	rm -rf /tmp/test2/*
+
+	cp $V /tmp/test2/y
+
+	/tmp/test/./x
+
+	simple_test /tmp/test2/y
+
+	rm /tmp/test/x
+	mv /tmp/test2/y /tmp/test/x
+
+	let "r--"
+	rec_test $r $V
+}
+
+rec_test_init()
+{
+	r=$1
+	V=$2
+
+	rm -rf /tmp/test
+	rm -rf /tmp/test2
+	mkdir /tmp/test
+	mkdir /tmp/test2
+
+	cp $V /tmp/test/x
+
+	$BIN --recur
+	cp /tmp/test/x /tmp/test/x_start
+
+	rec_test $r $V
+}
+
+#rec_test_init 30 $x
 
 rm -rf /tmp/test
 mkdir /tmp/test
