@@ -77,13 +77,15 @@ off = 0
 for z in zones:
 	(l,r) = z
 	to_add = int(ceil( r-l )*p)
-	for offl in range(to_add):
-		pos = randint(off + l, off + offl + r)
+	offl = 0
+	while offl < to_add:
+		pos = randint(off + l + 1, off + offl + r - 1)
 		r_idx = randint(0, len(garbage_inst_samples)-1)
 		choosed = (garbage_inst_samples[r_idx]
                     .format(uniq=str(off) + '_' + str(offl),
                         nb1=randint(0,255),nb2=randint(0,255),nb3=randint(0,255),nb4=randint(0,255),nb5=randint(0,255)))
 		lines.insert(pos, bef + choosed + aft)
+		offl += 1
 	off += offl
 
 f = args.file + '.g.s'
