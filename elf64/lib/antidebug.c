@@ -3,7 +3,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-int catch = 0;
+//int catch = 0;
 
 void handler(int signo)
 {
