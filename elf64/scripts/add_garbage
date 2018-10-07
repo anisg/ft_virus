@@ -58,7 +58,7 @@ aft = ''
 garbage_inst_samples = [
 	'mov %rax, %rax',
         'mov %r9, %r9',
-#        'nop',
+        'nop',
         'jmp .okok{uniq} ; .byte {nb1} ; .okok{uniq}:',
         'jmp .okok{uniq} ; .byte {nb1} ; .byte {nb2} ; .okok{uniq}:',
         'jmp .okok{uniq} ; .byte {nb1} ; .byte {nb2} ; .byte {nb4} ; .okok{uniq}:',
