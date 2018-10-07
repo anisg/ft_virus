@@ -18,6 +18,12 @@ args = parse('add to a gcc ASM file some garbage code',[
 
 def simple_parse(l):
 	r = {'kind':'unknown'}
+	if l.startswith('.cfi_startproc'):
+		r['kind']='start'
+		return r
+	if l.startswith('.cfi_endproc'):
+		r['kind']='end'
+		return r        
 	j = re.search(r'(.*):.*', l)
 	if j:
 		name = j.group(1)
@@ -35,10 +41,14 @@ l,r = -1,-1
 i = 0
 for line in lines:
 	x = simple_parse(line.strip())
-	if l >= 0 and (x['kind'] == 'label' or i + 1 == len(lines) or x['kind'] == 'section' or x['kind']=='stop'):
-		r = i
-		zones.append((l+1,r-1))
-		l,r = -1,-1
+	#print (line.strip(), x)
+	if l >= 0:
+		if x['kind'] == 'start':
+		    l = i
+		elif x['kind'] == 'end':
+		    r = i
+		    zones.append((l+1,r-1))
+		    l,r = -1,-1
 	if x['kind'] is 'label' and x['name'] in labels:
 		l = i
 	i += 1
@@ -72,11 +82,7 @@ for z in zones:
 		r_idx = randint(0, len(garbage_inst_samples)-1)
 		choosed = (garbage_inst_samples[r_idx]
                     .format(uniq=str(off) + '_' + str(offl),
-                        nb1=randint(0,255),
-                        nb2=randint(0,255),
-                        nb3=randint(0,255),
-                        nb4=randint(0,255),
-                        nb5=randint(0,255)))
+                        nb1=randint(0,255),nb2=randint(0,255),nb3=randint(0,255),nb4=randint(0,255),nb5=randint(0,255)))
 		lines.insert(pos, bef + choosed + aft)
 	off += offl
 
