@@ -3,6 +3,8 @@
 #include "lib/elf64.h"
 #include "virus_shellcode.h"
 
+char key[16];
+
 int usage(char *name){
 	print("usage: ./");
 	print(name);
@@ -48,7 +50,7 @@ int main(int ac, char **av){
 	struct s_opt opt = {FALSE, FALSE, FALSE};
 	if (get_virus_info(&virus, &virus_len, &crypt_off, &crypt_len) == FALSE)
 		return 1;
-	randomize(KEY);
+	randomize(key);
 	for (int i = 1; i < ac; i ++){
 		if (str_equal(av[i], "--recur"))
 			opt.do_recur = TRUE;

@@ -3,8 +3,8 @@
 #include "infect.h"
 #include <stdio.h>
 
-char KEY[16];
-int DATA = 0x02;
+//char KEY[16];
+#define DATA 0x02
 
 //======================= WOODY ==============================
 
@@ -42,7 +42,6 @@ static int _insert(char **s1, size_t *n1, size_t pos, char *s2, size_t n2){
 	for (i = 0; i <= pos; i += 1){ ns[i] = (*s1)[i]; }
 	for (j = 0; j < n2; j += 1){ns[i+j] = s2[j]; }
 	for (l = 0; i+l < *n1; l += 1){ ns[i+j+l] = (*s1)[i+l]; }
-	ffree(*s1, *n1);
 	*s1 = ns;
 	*n1 = (*n1) + n2;
 	return TRUE;
@@ -78,9 +77,9 @@ void update(char *b, size_t n, size_t old_entry, size_t entry, struct s_opt opt)
 	//p[3]=ok;
 	//p[4] = text_length;
 	//inserting KEY
-	p[3] = ((size_t*)KEY)[0];
-	p[4] = ((size_t*)KEY)[1];
-	encrypt((char*)(p+5), 15, (uint32_t*)KEY);
+	p[3] = ((size_t*)key)[0];
+	p[4] = ((size_t*)key)[1];
+	encrypt((char*)(p+5), 15, (uint32_t*)key);
 }
 
 static int _infect(char **s, size_t *n, char *b, size_t bn, size_t crypt_off, size_t crypt_len, struct s_opt opt){
@@ -91,10 +90,12 @@ static int _infect(char **s, size_t *n, char *b, size_t bn, size_t crypt_off, si
 	int x = elf_last_load_segment(*s, *n);
 	if (ph[x].p_memsz < ph[x].p_filesz) return fail("corrupted binary");
 	size_t diff = ph[x].p_memsz - ph[x].p_filesz;
+	size_t oldn = 0;
+	char *olds = NULL;
 	if (diff > 0){
 		//it means the segment will get bigger in mem, but we don't need that so we make it bigger in the file
-		size_t oldn = *n;
-		char *olds = *s;
+		oldn = *n;
+		olds = *s;
 		_insert_zeros(s,n, ph[x].p_offset+ph[x].p_filesz, diff);
 		elf_shift_offset(*s, *n, ph[x].p_offset+ph[x].p_filesz, diff);
 		//reset it
@@ -103,11 +104,12 @@ static int _infect(char **s, size_t *n, char *b, size_t bn, size_t crypt_off, si
 		//change memsize to filesize
 		ph[x].p_filesz += diff;
 		ph[x].p_memsz = ph[x].p_filesz;
-		ffree(olds, oldn);
 	}
 	size_t pos = ph[x].p_offset + ph[x].p_filesz;
+	size_t oldn2 = *n;
+	char *olds2 = *s;
 	_insert(s, n, pos, b, bn);
-	encrypt(((*s) + pos + 1 + crypt_off), crypt_len, (uint32_t*)KEY);
+	encrypt(((*s) + pos + 1 + crypt_off), crypt_len, (uint32_t*)key);
 	//reset it
 	elf_shift_offset(*s, *n, pos, bn);
 	elf_update_flags_of_load_segments(*s, *n);
@@ -115,6 +117,9 @@ static int _infect(char **s, size_t *n, char *b, size_t bn, size_t crypt_off, si
 	elf_set_off_entry(*s, *n, pos + 1);
 	h = (void*)*s;
 	update((*s) + pos + 1, bn, old_entry, h->e_entry, opt);
+	ffree(olds2, oldn2);
+	if (olds)
+		ffree(olds, oldn);
 	return TRUE;
 }
 

