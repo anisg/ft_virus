@@ -71,6 +71,7 @@ garbage_inst_samples = [
         'jmp .okok{uniq} ; .byte {nb1} ; .okok{uniq}:',
         'jmp .okok{uniq} ; .byte {nb1} ; .byte {nb2} ; .okok{uniq}:',
         'jmp .okok{uniq} ; .byte {nb1} ; .byte {nb2} ; .byte {nb4} ; .okok{uniq}:',
+        'jmp .okok{uniq} ; .byte {nb1} ; .byte {nb2} ; .byte {nb4} ; .byte {nb5} ; .okok{uniq}:',
 ]
 
 off = 0
