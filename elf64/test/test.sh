@@ -2,19 +2,35 @@
 
 BIN=../Famine
 
+exe () {
+	FILE=$1
+	PARAMS=$2
+	OUT_FILE=$3
+	echo "run: $FILE $PARAMS > $OUT_FILE"
+	$FILE $PARAMS > $OUT_FILE
+	X=$?
+	echo $X
+	if (( $X >= 100 )); then
+		echo "SEGV OR OTHER"
+		return 1
+	fi	
+	return 0
+}
+
 test_with()
 {
 	echo "Test" $1 $2
 	cp $1 /tmp/test/test
+	echo "infect on test"
 	$BIN --recur # --msg
 	$1 $2 > out
-
+	P=$2
 	cp $1 /tmp/test2/test
 
-	/tmp/test/test $2 > woody_out
+	exe /tmp/test/test "$P" woody_out || return 1
 	diff out woody_out || return 1
 
-	/tmp/test2/test $2 > woody_out
+	exe /tmp/test2/test "$P" woody_out || return 1
 	diff out woody_out || return 1
 
 	(! diff $1 /tmp/test/test) || return 1
@@ -27,6 +43,7 @@ test_with()
 check_infected()
 {
 	FILE=$1
+	echo "Test2 $1"
 	strings $FILE | grep 'ndombre' || return 1
 }
 
@@ -44,6 +61,8 @@ _____\--|----/______
 	exit 1
 }
 
+echo ">> TEST #1"
+
 rm -rf /tmp/test
 mkdir /tmp/test
 rm -rf /tmp/test2
@@ -55,6 +74,7 @@ test_with '/usr/bin/diff' 'data/sh_script test.sh' || fail
 test_with '/bin/ls' '-la ../..' || fail
 
 #test --recur
+echo ">> TEST #2"
 rm -rf /tmp/test
 mkdir /tmp/test
 cp /bin/ls /tmp/test/ls_one
