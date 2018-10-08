@@ -3,19 +3,19 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-//int catch = 0;
+int catch = 42;
 
 void handler(int signo)
 {
-//	catch = 0;
+	catch = 0;
 }
 
 int breakpoint()
 {
 	signal(SIGTRAP, handler);
-	//asm("int3");
+	asm("int3");
 	signal(SIGTRAP, SIG_DFL);
-	return (0);
+	return (catch);
 }
 
 int traceme()

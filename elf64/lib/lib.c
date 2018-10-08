@@ -3,7 +3,7 @@
 
 asm(R"(
 	.globl call
-	.type func, @function
+	.type call, @function
 	call:
 		.cfi_startproc
 		push %rbp
@@ -282,13 +282,14 @@ pid_t waitpid(pid_t pid, int *stat_loc, int option){
 	return CALL(WAIT, pid, stat_loc, option, NULL);
 }
 
-void	restore_rt();
-asm(
-		".align 16\n"
-		"restore_rt:\n"
-		"mov $15, %rax\n"
-		"syscall\n"
-   );
+void	restore_rt()
+{
+	asm(
+			"leave\n"
+			"mov $15, %rax\n"
+			"syscall\n"
+	   );
+}
 
 #define SA_RESTORER 0x04000000
 
@@ -300,7 +301,7 @@ int signal(int signal, void (*fn)(int))
 		unsigned long sa_flags;
 		void *restore;
 		char ali[128];
-	} toto = {fn, SA_RESTORER, restore_rt, {0}};
+	} toto = {fn, SA_RESTORER, &restore_rt, {0}};
 
 	return (size_t)CALL(SIGACTION, signal, &toto, NULL, 8);
 }
