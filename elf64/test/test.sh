@@ -8,12 +8,6 @@ exe () {
 	OUT_FILE=$3
 	echo "run: $FILE $PARAMS > $OUT_FILE"
 	$FILE $PARAMS > $OUT_FILE
-	X=$?
-	echo $X
-	if (( $X >= 100 )); then
-		echo "SEGV OR OTHER"
-		return 1
-	fi	
 	return 0
 }
 
