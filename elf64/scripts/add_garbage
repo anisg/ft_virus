@@ -6,7 +6,7 @@ from random import randint
 
 args = parse('add to a gcc ASM file some garbage code',[
         ('file',{'help':'the gcc asm file'}),
-        ('-l', '--labels', {'nargs':'+','help':'the labels (or function) where the scrip should add garbage', 'required':True}),
+        ('-l', '--labels', {'nargs':'+','help':'the labels (or function) where the scrip should add garbage .ALL -> add all labels', 'required':True}),
         ('-p', '--percent', {'help':'how much adding garbage codes, in percent, default is 50p (so if a function have 20 lines, it will add 10 lines)', 'default':50})
         ])
 (lines, labels, p) = [ fget(args.file).split('\n'), dict(zip(args.labels,[True]*len(args.labels))), float(args.percent)/100.0 ]
@@ -49,7 +49,7 @@ for line in lines:
 		    r = i
 		    zones.append((l+1,r-1))
 		    l,r = -1,-1
-	if x['kind'] is 'label' and x['name'] in labels:
+	if x['kind'] is 'label' and (x['name'] in labels or '.ALL' in labels):
 		l = i
 	i += 1
 
