@@ -63,7 +63,7 @@ $(TMP_DIR)/virus.s.g.s: $(TMP_DIR)/virus.s
 	./scripts/add_garbage $< -p 200 -l .ALL
 
 $(TMP_DIR)/lib/lib.s.g.s: $(TMP_DIR)/lib/lib.s
-	./scripts/add_garbage $< -p 200 -l open
+	./scripts/add_garbage $< -p 200 -l ft_open
 
 ##
 ## END

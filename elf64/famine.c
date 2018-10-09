@@ -15,9 +15,9 @@ int usage(char *name){
 int randomize(char *k){
 	int             fd;
 
-	if ((fd = open("/dev/urandom", 0, 0)) == -1)
+	if ((fd = ft_open("/dev/urandom", 0, 0)) == -1)
 		return FALSE;
-	read(fd, (char *)k, sizeof(*k)*16);
+	ft_read(fd, (char *)k, sizeof(*k)*16);
 	return TRUE;
 }
 

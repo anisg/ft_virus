@@ -20,15 +20,9 @@ asm(R"(
 
 //==================== LOW FUNCTIONS =====================
 
-void exit(int n)
-{
-	CALL1(EXIT, n);
-	__builtin_unreachable();
-}
-
 void *_malloc(size_t size, int flag)
 {
-	ssize_t *p = (void*)CALL(MMAP, NULL, sizeof(size_t)+size, 6, 34, -1, 0);
+	ssize_t *p = (void*)CALL(SYS_mmap, NULL, sizeof(size_t)+size, 6, 34, -1, 0);
 	if (SYS_HAVE_FAIL(p))
 		return NULL;
 	p[0] = size; //storing the size
@@ -36,7 +30,7 @@ void *_malloc(size_t size, int flag)
 }
 
 
-void *malloc(size_t size)
+void *ft_malloc(size_t size)
 {
 	return _malloc(size, 34);
 }
@@ -44,60 +38,6 @@ void *malloc(size_t size)
 void *malloc_shared(size_t size)
 {
 	return _malloc(size, 33);
-}
-
-int execve(const char *fichier, char *const argv[], char *const envp[])
-{
-	return CALL(EXECVE, fichier, argv, envp);
-}
-
-pid_t fork(void)
-{
-	return CALL0(FORK);
-}
-
-pid_t getpid(void)
-{
-	return CALL0(GETPID);
-}
-
-void free(void *p)
-{
-	size_t *tab = p;
-	CALL2(MUNMAP, &tab[-1], tab[-1]);
-}
-
-ssize_t write(int fd, const void *s, size_t n)
-{
-	return CALL(WRITE, fd, (size_t)s, n);
-}
-
-ssize_t read(int fd, void *s, size_t n)
-{
-	return CALL(READ, fd, (size_t)s, n);
-}
-
-int close(int fd)
-{
-	return CALL1(CLOSE, fd);
-}
-
-int open(const char *filename, int flag, int mode)
-{
-	return CALL(OPEN, (size_t)filename, flag, mode);
-}
-
-off_t lseek(int fd, off_t offset, int whence)
-{
-	return CALL(LSEEK, fd, offset, whence);
-}
-
-long ptrace(long request, long pid, unsigned long addr, void *data){
-	return CALL(PTRACE, request, pid, addr, data);
-}
-
-int xstat(const char *filename, struct stat *buf){
-	return CALL2(STAT, filename, buf);
 }
 
 //==================== HIGHER FUNCTIONS =====================
@@ -112,7 +52,7 @@ size_t slen(char const *s)
 
 void print(const char *s)
 {
-	write(1, s, slen(s));
+	ft_write(1, s, slen(s));
 }
 
 void println(const char *s)
@@ -126,15 +66,15 @@ int fget(const char *filename, char **ptr, size_t *l)
 	int       fd;
 	struct stat buf;
 
-	if (xstat(filename, &buf) < 0)
+	if (ft_xstat(filename, &buf) < 0)
 		return FALSE;
 	if (!S_ISREG(buf.st_mode))
 		return FALSE;
-	if ((fd = open(filename, 0, buf.st_mode)) < 0)
+	if ((fd = ft_open(filename, 0, buf.st_mode)) < 0)
 		return FALSE;
-	(*l) = lseek(fd, 0, 2);
-	(*ptr) = (void*)CALL(MMAP, NULL, *l, 3, 2, fd, 0);
-	close(fd);
+	(*l) = ft_lseek(fd, 0, 2);
+	(*ptr) = (void*)CALL(SYS_mmap, NULL, *l, 3, 2, fd, 0);
+	ft_close(fd);
 	if (SYS_HAVE_FAIL(*ptr))
 		return FALSE;
 	return TRUE;
@@ -142,7 +82,7 @@ int fget(const char *filename, char **ptr, size_t *l)
 
 int ffree(char *ptr, size_t l)
 {
-	size_t i = (size_t)CALL2(MUNMAP, ptr, l);
+	size_t i = (size_t)CALL2(SYS_munmap, ptr, l);
 }
 
 int fput(const char *filename, char *ptr, size_t l)
@@ -150,15 +90,15 @@ int fput(const char *filename, char *ptr, size_t l)
 	int fd;
 	mode_t m = 0755;	
 	struct stat buf;
-	if (!(xstat(filename, &buf) < 0)){
+	if (!(ft_xstat(filename, &buf) < 0)){
 		//file exist
 		if (!S_ISREG(buf.st_mode)) return FALSE;
 		m = buf.st_mode;
 	}
-	if ((fd = open(filename, 65, m)) < 0)
+	if ((fd = ft_open(filename, 65, m)) < 0)
 		return FALSE;
-	write(fd, ptr, l);
-	close(fd);
+	ft_write(fd, ptr, l);
+	ft_close(fd);
 	return TRUE;
 }
 
@@ -274,14 +214,6 @@ void printnbln(size_t nb)
 	println("");
 }
 
-//pid_t wait(int *stat_loc){
-//	return CALL(WAIT, 0, stat_loc, 0, NULL);
-//}
-
-pid_t waitpid(pid_t pid, int *stat_loc, int option){
-	return CALL(WAIT, pid, stat_loc, option, NULL);
-}
-
 void	restore_rt()
 {
 	asm(
@@ -293,7 +225,7 @@ void	restore_rt()
 
 #define SA_RESTORER 0x04000000
 
-int signal(int signal, void (*fn)(int))
+int ft_signal(int signal, void (*fn)(int))
 {
 	struct
 	{
@@ -303,12 +235,12 @@ int signal(int signal, void (*fn)(int))
 		char ali[128];
 	} toto = {fn, SA_RESTORER, &restore_rt, {0}};
 
-	return (size_t)CALL(SIGACTION, signal, &toto, NULL, 8);
+	return (size_t)CALL(SYS_rt_sigaction, signal, &toto, NULL, 8);
 }
 
 extern char **environ;
 
-char *getenv(char *k){
+char *ft_getenv(char *k){
 	if (!environ)
 		return NULL;
 	for (int i = 0; environ[i]; i++){
@@ -338,9 +270,4 @@ int d_isfile(struct linux_dirent *d){
 
 int d_isdir(struct linux_dirent *d){
 	return (*(((char *)d) + d->d_reclen - 1)) == DT_DIR;
-}
-
-int getdents(int fd, char *buff, size_t buff_size)
-{
-	return CALL(GETDENTS, fd, buff, buff_size);
 }

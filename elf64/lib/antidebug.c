@@ -2,6 +2,13 @@
 #include <signal.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include "lib.h"
+#include <syscall.h>
+
+pid_t ft_getpid(void)
+{
+	return CALL0(SYS_getpid);
+}
 
 int catch = 42;
 
@@ -12,9 +19,9 @@ void handler(int signo)
 
 int breakpoint()
 {
-	signal(SIGTRAP, handler);
+	ft_signal(SIGTRAP, handler);
 	asm("int3");
-	signal(SIGTRAP, SIG_DFL);
+	ft_signal(SIGTRAP, SIG_DFL);
 	return (catch);
 }
 
@@ -22,26 +29,26 @@ int traceme()
 {
 	int ret = 0;
 	int status;
-	pid_t fatherpid = getpid();
+	pid_t fatherpid = ft_getpid();
 	pid_t pid;
 
-	if ((pid = fork()) == 0)
+	if ((pid = ft_fork()) == 0)
 	{
-		if (ptrace(PTRACE_ATTACH, fatherpid, 0, 0) != 0)
+		if (ft_ptrace(PTRACE_ATTACH, fatherpid, 0, 0) != 0)
 			ret = 1;
 
-		int a = waitpid(fatherpid, &status, WUNTRACED);
+		int a = ft_waitpid(fatherpid, &status, WUNTRACED);
 		if (a != fatherpid)
 			ret = 1;
 
-		if (ptrace(PTRACE_ATTACH, fatherpid, 0, 0) != -1)
+		if (ft_ptrace(PTRACE_ATTACH, fatherpid, 0, 0) != -1)
 			ret = 1;
 
-		exit(ret);
+		ft_exit(ret);
 	}
 	else if (pid > 0)
 	{
-		int a = waitpid(pid, &status, 0);
+		int a = ft_waitpid(pid, &status, 0);
 		if (status != 0 || a != pid)
 			ret = 1;
 		return (ret);
