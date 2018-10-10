@@ -1,0 +1,31 @@
+#!/usr/bin/python3
+from pycool import *
+
+args = parse('Create a C file containing an array of empty struct',[
+        ('-n','--number',{'help':'count of garbage lines', 'type':int, 'required':True}),
+        ('-o','--out',{'help':'C file location', 'required':True}),
+        ])
+
+n, out = [args.number, args.out]
+
+s = """
+#include "virus_table.h"
+
+Garbage garbage_table[] = {
+\t"""
+
+for x in range(1, n+1):
+    s += "{1,1}"
+    if x + 1 < n+1:
+        s += ", "
+    if x % 8 == 0:
+        s += "\n\t"
+
+s += """
+}};
+
+unsigned int garbage_table_len = {};
+""".format(n)
+
+fput(out, s)
+print("Ok, generated {}".format(out))

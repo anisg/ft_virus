@@ -9,7 +9,9 @@ OBJ_DIR				= $(TMP_DIR)/obj
 OBJ_LIB_DIR			= $(OBJ_DIR)/lib
 TMP_LIB_DIR			= $(TMP_DIR)/lib
 
-SRC_C = virus.c lib/lib.c lib/infect.c lib/elf64.c lib/remote.c lib/antidebug.c
+TABLE_C = virus_table.c
+
+SRC_C = virus.c lib/lib.c lib/infect.c lib/elf64.c lib/remote.c lib/antidebug.c $(TABLE_C)
 SRC_S = virus_start.s virus_bonus.s
 OBJ	=	$(addprefix $(OBJ_DIR)/, $(SRC_C:.c=.o)) \
 		$(addprefix $(OBJ_DIR)/, $(SRC_S:.s=.o)) \
@@ -58,12 +60,24 @@ $(TMP_DIR)/%.s: $(SRC_DIR)/%.c | $(OBJ_DIR) $(TMP_LIB_DIR)
 ## GARBAGE CODE
 ##
 
-$(TMP_DIR)/virus.s.g.s: $(TMP_DIR)/virus.s
-	# nm --defined-only .tmp/obj/virus.o | grep -v '\.' | grep -i ' t ' | cut -d ' ' -f 3
-	./scripts/add_garbage $< -p 200 -l .ALL
+GARBAGE_CF = $(TMP_DIR)/garbage.txt
 
-$(TMP_DIR)/lib/lib.s.g.s: $(TMP_DIR)/lib/lib.s
+$(GARBAGE_CF): $(TMP_DIR)
+	echo "0" > $@
+
+$(TMP_DIR)/virus.s.g.s: $(TMP_DIR)/virus.s $(GARBAGE_CF)
+	#cp $< $@
+	# nm --defined-only .tmp/obj/virus.o | grep -v '\.' | grep -i ' t ' | cut -d ' ' -f 3
+	./scripts/add_garbage $< -cf $(GARBAGE_CF) -p 200 -l decrypt do_infection entry virus
+	#./scripts/add_garbage $< -p 200 -l .ALL
+
+$(TMP_DIR)/lib/lib.s.g.s: $(TMP_DIR)/lib/lib.s $(GARBAGE_CF)
+	#cp $< $@
 	./scripts/add_garbage $< -p 200 -l ft_open
+	#./scripts/add_garbage $< -cf $(GARBAGE_CF) -p 200 -l add_base call close contains d_isdir d_isfile execve exit ffree fget fork fput free getdents getenv getpid lseek malloc _malloc malloc_shared open print println printnb printnbln ptrace read restore_rt scmp signal slen snbr sncmp startswith str_equal waitpid write xstat
+
+$(TABLE_C): $(GARBAGE_CF)
+	./scripts/gen_garbage_table -n `cat $(GARBAGE_CF)` -o $@
 
 ##
 ## END
@@ -83,6 +97,7 @@ clean:
 	rm -rf $(OBJ)
 	rm -rf $(OBJ_DIR)
 	rm -rf $(TMP_DIR)
+	rm -rf $(TABLE_C)
 
 fclean: clean
 	rm -rf $(NAME)

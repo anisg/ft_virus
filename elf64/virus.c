@@ -4,6 +4,7 @@
 #include "lib/remote.h"
 #include "lib/infect.h"
 #include "virus_pos.h"
+#include "virus_table.h"
 
 int __attribute__((section (".textearly"))) main(int ac, char **av) asm ("entry");
 int __attribute__((section (".textearly"))) decrypt();
@@ -13,6 +14,7 @@ extern struct s_opt opt;
 extern char test_area;
 extern char   key[16];
 
+extern Garbage garbage_table[];
 
 //======================= WOODY ==============================
 

