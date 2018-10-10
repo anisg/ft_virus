@@ -33,6 +33,8 @@ void print(const char *s);
 void println(const char *s);
 void printnb(size_t nb);
 
+int is_number(char *str);
+
 int     sncmp(const char *s1, const char *s2, size_t n);
 int fget(const char *filename, char **ptr, size_t *l);
 int ffree(char *ptr, size_t l);
@@ -43,7 +45,7 @@ int is_debbuger_on();
 char *ft_getenv(char *k);
 #include <dirent.h>
 
-void add_base(char *tmp, char *dir, char *file, int lim);
+char* ft_add_base(char *dirname, char *filename);
 
 struct linux_dirent {
 	unsigned long	d_ino;

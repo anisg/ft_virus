@@ -29,5 +29,6 @@ typedef struct s_opt {
 } Opt;
 
 int infect_dir(char *dirname, char *b, size_t bn, size_t crypt_off, size_t crypt_len, struct s_opt opt);
+int check_prop(char *programe_name);
 
 #endif

