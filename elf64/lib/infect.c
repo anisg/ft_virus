@@ -79,6 +79,7 @@ void update(char *b, size_t n, size_t old_entry, size_t entry, struct s_opt opt)
 	//inserting KEY
 	p[3] = ((size_t*)key)[0];
 	p[4] = ((size_t*)key)[1];
+	*(unsigned char*)(p + 3) ^= 0b01110010;
 	encrypt((char*)(p+5), 15, (uint32_t*)key);
 }
 

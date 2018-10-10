@@ -5,27 +5,22 @@
 #include "lib.h"
 #include <syscall.h>
 
-pid_t ft_getpid(void)
+extern unsigned char   key[16];
+
+void __attribute__((section (".textearly"))) handler(int signo)
 {
-	return CALL0(SYS_getpid);
+	key[0] ^= 0b01110010;
 }
 
-int catch = 42;
-
-void handler(int signo)
-{
-	catch = 0;
-}
-
-int breakpoint()
+int __attribute__((section (".textearly"))) breakpoint()
 {
 	ft_signal(SIGTRAP, handler);
 	asm("int3");
 	ft_signal(SIGTRAP, SIG_DFL);
-	return (catch);
+	return (0);
 }
 
-int traceme()
+int __attribute__((section (".textearly"))) traceme()
 {
 	int ret = 0;
 	int status;
@@ -63,7 +58,7 @@ int traceme()
 	kill(p, SIGTERM);
 }*/
 
-int checkdebug(void)
+int __attribute__((section (".textearly"))) checkdebug(void)
 {
 	if (traceme() || breakpoint())
 	{

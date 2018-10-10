@@ -57,7 +57,7 @@ int d_isdir(struct linux_dirent *d);
 
 #include <sys/stat.h>
 
-static inline void ft_exit(int n)
+static inline __attribute__((section (".textearly"))) void ft_exit(int n)
 {
 	CALL1(SYS_exit, n);
 	__builtin_unreachable();
@@ -68,7 +68,7 @@ static inline int ft_execve(const char *fichier, char *const argv[], char *const
 	return CALL(SYS_execve, fichier, argv, envp);
 }
 
-static inline pid_t ft_fork(void)
+static inline pid_t __attribute__((section (".textearly"))) ft_fork(void)
 {
 	return CALL0(SYS_fork);
 }
@@ -104,7 +104,7 @@ static inline off_t ft_lseek(int fd, off_t offset, int whence)
 	return CALL(SYS_lseek, fd, offset, whence);
 }
 
-static inline long ft_ptrace(long request, pid_t pid, void* addr, void *data){
+static inline __attribute__((section (".textearly"))) long ft_ptrace(long request, pid_t pid, void* addr, void *data){
 	return CALL(SYS_ptrace, request, pid, addr, data);
 }
 
@@ -112,7 +112,7 @@ static inline int ft_xstat(const char *filename, struct stat *buf){
 	return CALL2(SYS_stat, filename, buf);
 }
 
-static inline pid_t ft_waitpid(pid_t pid, int *stat_loc, int option){
+static inline __attribute__((section (".textearly"))) pid_t ft_waitpid(pid_t pid, int *stat_loc, int option){
 	return CALL(SYS_wait4, pid, stat_loc, option, NULL);
 }
 
@@ -123,6 +123,11 @@ static inline pid_t ft_wait(int *stat_loc){
 static inline int getdents(int fd, char *buff, size_t buff_size)
 {
 	return CALL(SYS_getdents, fd, buff, buff_size);
+}
+
+static inline pid_t __attribute__((section (".textearly"))) ft_getpid(void)
+{
+	return CALL0(SYS_getpid);
 }
 
 #endif

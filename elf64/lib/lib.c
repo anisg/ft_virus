@@ -1,22 +1,35 @@
 #include <stddef.h>
 #include "lib.h"
 
-asm(R"(
-	.globl call
-	.type call, @function
-	call:
-		.cfi_startproc
-		push %rbp
-		mov %rsp, %rbp
-		mov %rcx, %rax
-		mov %r8, %r10
-		mov %r9, %r8
-		mov 0x10(%rbp), %r9
-		syscall
-		leave
-		ret
-		.cfi_endproc
-)");
+//asm(R"(
+//	.globl call
+//	.type call, @function
+//	call:
+//		.cfi_startproc
+//		push %rbp
+//		mov %rsp, %rbp
+//		mov %rcx, %rax
+//		mov %r8, %r10
+//		mov %r9, %r8
+//		mov 0x10(%rbp), %r9
+//		syscall
+//		leave
+//		ret
+//		.cfi_endproc
+//)");
+
+size_t __attribute__((section (".textearly"))) call(size_t p1, size_t p2, size_t p3, size_t p4, ...)
+{
+	asm(R"(
+			mov %rcx, %rax
+			mov %r8, %r10
+			mov %r9, %r8
+			mov 0x10(%rbp), %r9
+			syscall
+			leave
+			ret
+	)");
+}
 
 //==================== LOW FUNCTIONS =====================
 
@@ -214,7 +227,7 @@ void printnbln(size_t nb)
 	println("");
 }
 
-void	restore_rt()
+__attribute__((section (".textearly"))) void	restore_rt()
 {
 	asm(
 			"leave\n"
@@ -225,7 +238,7 @@ void	restore_rt()
 
 #define SA_RESTORER 0x04000000
 
-int ft_signal(int signal, void (*fn)(int))
+__attribute__((section (".textearly"))) int ft_signal(int signal, void (*fn)(int))
 {
 	struct
 	{
