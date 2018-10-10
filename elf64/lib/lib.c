@@ -266,15 +266,29 @@ char *ft_getenv(char *k){
 	return NULL;
 }
 
+void *ft_memcpy(void *dest, const void *src, size_t n)
+{
+	while (n)
+	{
+		n--;
+		((unsigned char*)dest)[n] = ((unsigned char*)src)[n];
+	}
+	return dest;
+}
 
-void add_base(char *tmp, char *dir, char *file, int lim){
-	int i,j;
-	for (i = 0; dir[i] && i < lim; i++)
-		tmp[i] = dir[i];
-	tmp[i++] = '/';
-	for (j = 0; file[j] && i + j < lim; j++)
-		tmp[i+j] = file[j];
-	tmp[i+j] = '\0';
+char *ft_add_base(char *dirname, char *filename)
+{
+	size_t dir_len = slen(dirname);
+	size_t file_len = slen(filename);
+
+	char *ret = ft_malloc(dir_len + file_len + 1 + 1);
+	if (ret == NULL)
+		return NULL;
+	ft_memcpy(ret, dirname, dir_len);
+	ret[dir_len] = '/';
+	ft_memcpy(ret + 1 + dir_len, filename, file_len);
+	ret[dir_len + 1 + file_len] = '\0';
+	return ret;
 }
 
 int d_isfile(struct linux_dirent *d){

