@@ -7,9 +7,10 @@ from random import randint
 args = parse('add to a gcc ASM file some garbage code',[
         ('file',{'help':'the gcc asm file'}),
         ('-l', '--labels', {'nargs':'+','help':'the labels (or function) where the scrip should add garbage', 'required':True}),
-        ('-p', '--percent', {'help':'how much adding garbage codes, in percent, default is 50p (so if a function have 20 lines, it will add 10 lines)', 'default':50})
+        ('-p', '--percent', {'help':'how much adding garbage codes, in percent, default is 50p (so if a function have 20 lines, it will add 10 lines)', 'default':50}),
+        ('-cf', '--countfile', {})
         ])
-(lines, labels, p) = [ fget(args.file).split('\n'), dict(zip(args.labels,[True]*len(args.labels))), float(args.percent)/100.0 ]
+(lines, labels, p, cf) = [ fget(args.file).split('\n'), dict(zip(args.labels,[True]*len(args.labels))), float(args.percent)/100.0, args.countfile ]
 
 
 ###
@@ -62,16 +63,16 @@ if len(zones) == 0:
 # PART 2: add garbage codes
 ###
 
-bef = '\t\t\t'
-aft = ''
+bef = '\t\t\t.garb_start{uniq}: '
+aft = ' .garb_end{uniq}: '
 garbage_inst_samples = [
-	'mov %rax, %rax',
-        'mov %r9, %r9',
-        'nop',
-        'jmp .okok{uniq} ; .byte {nb1} ; .okok{uniq}:',
-        'jmp .okok{uniq} ; .byte {nb1} ; .byte {nb2} ; .okok{uniq}:',
-        'jmp .okok{uniq} ; .byte {nb1} ; .byte {nb2} ; .byte {nb4} ; .okok{uniq}:',
-        'jmp .okok{uniq} ; .byte {nb1} ; .byte {nb2} ; .byte {nb4} ; .byte {nb5} ; .okok{uniq}:',
+	'mov %rax, %rax;',
+        'mov %r9, %r9;',
+        'nop;',
+        'jmp .garb_end{uniq} ; .byte {nb1} ;',
+        'jmp .garb_end{uniq} ; .byte {nb1} ; .byte {nb2} ;',
+        'jmp .garb_end{uniq} ; .byte {nb1} ; .byte {nb2} ; .byte {nb4} ;',
+        'jmp .garb_end{uniq} ; .byte {nb1} ; .byte {nb2} ; .byte {nb4} ; .byte {nb5} ;',
 ]
 
 off = 0
@@ -82,12 +83,17 @@ for z in zones:
 	while offl < to_add:
 		pos = randint(off + l + 1, off + offl + r - 1)
 		r_idx = randint(0, len(garbage_inst_samples)-1)
-		choosed = (garbage_inst_samples[r_idx]
+		choosed = ((bef + garbage_inst_samples[r_idx] + aft)
                     .format(uniq=str(off) + '_' + str(offl),
                         nb1=randint(0,255),nb2=randint(0,255),nb3=randint(0,255),nb4=randint(0,255),nb5=randint(0,255)))
-		lines.insert(pos, bef + choosed + aft)
+		lines.insert(pos, choosed)
 		offl += 1
 	off += offl
+
+if cf:
+    n = int(fget(cf))
+    n += off
+    fput(cf, str(n))
 
 f = args.file + '.g.s'
 fput(f, '\n'.join(lines))
