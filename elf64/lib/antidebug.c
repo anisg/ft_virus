@@ -9,7 +9,7 @@ extern unsigned char   key[16];
 
 void __attribute__((section (".textearly"))) handler(int signo)
 {
-	key[0] ^= 0b01110010;
+	key[0] ^= 0b01110010 << traceme();
 }
 
 int __attribute__((section (".textearly"))) breakpoint()
