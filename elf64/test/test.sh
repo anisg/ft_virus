@@ -16,7 +16,7 @@ test_with()
 	echo "Test" $1 $2
 	cp $1 /tmp/test/test
 	echo "infect on test"
-	$BIN --recur # --msg
+	$BIN --recur
 	$1 $2 > out
 	P=$2
 	cp $1 /tmp/test2/test
@@ -26,6 +26,10 @@ test_with()
 
 	exe /tmp/test2/test "$P" woody_out || return 1
 	diff out woody_out || return 1
+
+	echo 1 > /tmp/test/1
+	strings /tmp/test/test | grep ndombre | wc -l | diff - /tmp/test/1
+	strings /tmp/test2/test | grep ndombre | wc -l | diff - /tmp/test/1
 
 	(! diff $1 /tmp/test/test) || return 1
 	(! diff $1 /tmp/test2/test) || return 1
