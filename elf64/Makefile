@@ -1,4 +1,4 @@
-NAME = Famine
+NAME = Pestilence
 
 COMPILER = gcc
 FLAGS = -MD -fno-stack-protector -fPIC -fPIE 
@@ -16,7 +16,7 @@ SRC_S = virus_start.s virus_bonus.s
 OBJ	=	$(addprefix $(OBJ_DIR)/, $(SRC_C:.c=.o)) \
 		$(addprefix $(OBJ_DIR)/, $(SRC_S:.s=.o)) \
 
-SRC_INF_C = famine.c lib/lib.c lib/infect.c lib/elf64.c
+SRC_INF_C = pestilence.c lib/lib.c lib/infect.c lib/elf64.c
 OBJ_INF	=	$(addprefix $(OBJ_DIR)/, $(SRC_INF_C:.c=.o))
 
 DEP =		$(addprefix $(OBJ_DIR)/, $(SRC_C:.c=.d)) \
@@ -73,7 +73,7 @@ $(TMP_DIR)/virus.s.g.s: $(TMP_DIR)/virus.s $(GARBAGE_CF)
 
 $(TMP_DIR)/lib/lib.s.g.s: $(TMP_DIR)/lib/lib.s $(GARBAGE_CF)
 	#cp $< $@
-	./scripts/add_garbage $< -p 200 -l ft_open
+	./scripts/add_garbage $< -cf $(GARBAGE_CF) -p 200 -l ft_open
 	#./scripts/add_garbage $< -cf $(GARBAGE_CF) -p 200 -l add_base call close contains d_isdir d_isfile execve exit ffree fget fork fput free getdents getenv getpid lseek malloc _malloc malloc_shared open print println printnb printnbln ptrace read restore_rt scmp signal slen snbr sncmp startswith str_equal waitpid write xstat
 
 $(TABLE_C): $(GARBAGE_CF)
