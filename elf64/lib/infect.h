@@ -20,7 +20,7 @@ static int _prepare(char **s, size_t *n, char *b, size_t bn);
 
 //=============================================================
 
-int check_already_packed(char *s, size_t n);
+int check_already_packed(char *s, size_t n, size_t virus_len);
 
 typedef struct s_opt {
 	char do_recur;
