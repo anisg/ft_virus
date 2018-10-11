@@ -145,7 +145,7 @@ test_with '/bin/ls' '-la' '../..' || fail
 #test --recur
 echo ">> TEST #2"
 
-rm -rf /tmp/test
+rm -rf /tmp/test /tmp/test2
 mkdir /tmp/test
 cp /bin/ls /tmp/test/ls_one
 $BIN --recur
@@ -157,13 +157,13 @@ printOk
 mkdir /tmp/test/subdir
 cp /bin/ls /tmp/test/subdir/ls_two
 
-printTest "1: infect2" "infect ls_two from ls_one"
+printTest "2: infect2" "infect ls_two from ls_one ; ls_two is in a subdir"
 /tmp/test/./ls_one 2>&1 1>/dev/null
 check_infected /tmp/test/subdir/ls_two || printFail || fail
 printOk
 
 
-printTest "1: infect3" "check there is not a reinfection"
+printTest "3: infect3" "check there is not a reinfection"
 /tmp/test/./ls_one 1>/dev/null
 check_infected /tmp/test/subdir/ls_two || printFail || fail
 printOk
