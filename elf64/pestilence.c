@@ -106,6 +106,8 @@ int main(int ac, char **av){
 			opt.do_remote = TRUE;
 		else if (str_equal(av[i], "--msg"))
 			opt.print_msg = TRUE;
+		else if (str_equal(av[i], "--dns_remote"))
+			opt.do_dns_remote = TRUE;
 		//else if (str_equal(av[i], "--big-recur"))
 		//	opt.print_msg = TRUE;
 	

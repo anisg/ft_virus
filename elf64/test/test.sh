@@ -45,12 +45,18 @@ test_with()
 	diff out woody_out || printFail || return 1
 	printOk
 
+	printTest "3: fingerprint" "chek 1 and only 1 finger print"
+	echo 1 > /tmp/test/1
+	strings /tmp/test/test | grep ndombre | wc -l | diff - /tmp/test/1
+	strings /tmp/test2/test | grep ndombre | wc -l | diff - /tmp/test/1
+	printOk
+
 	printTest "3: diff" "binary diff between /test and /test2 different from $X"
 	(! diff $X /tmp/test/test 1>/dev/null) || printFail "(/tmp/test/test differ from $X)" || return 1
 	(! diff $X /tmp/test2/test 1>/dev/null) || printFail "(/tmp/test2/test differ from $X)" || return 1
 	printOk
 
-	rm -rf /tmp/test2/test /tmp/test/test
+	rm -rf /tmp/test2/test /tmp/test/test /tmp/test/1
 	rm out woody_out
 	printEnd
 }
