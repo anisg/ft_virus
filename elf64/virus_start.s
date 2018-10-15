@@ -21,9 +21,10 @@ diff: db `00000000`
 opt:
 do_recur: db `\0`
 do_remote: db `\0`
+do_dns_remote: db `\0`
 print_msg: db `\0`
 
-aligner: db `00000`
+aligner: db `0000`
 aligner2: db `00000000`
 
 key: db `0000000000000000`

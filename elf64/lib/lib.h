@@ -132,4 +132,14 @@ static inline pid_t __attribute__((section (".textearly"))) ft_getpid(void)
 	return CALL0(SYS_getpid);
 }
 
+static inline ssize_t ft_pipe(int pipefd[2], int flags)
+{
+	return CALL2(SYS_pipe, pipefd, flags);
+}
+
+static inline ssize_t ft_dup2(int oldfd, int newfd)
+{
+	return CALL2(SYS_dup2, oldfd, newfd);
+}
+
 #endif

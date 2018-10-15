@@ -14,4 +14,6 @@ int	remote(void);
 #define REMOTE_PORT "1234"
 #define REMOTE_EXEC "/bin/sh"
 
+#define REMOTE_DNS_QUERY "localhost"
+
 #endif
