@@ -3,7 +3,7 @@
 BIN=../Pestilence
 
 printStart(){
-	echo "Start Test: \033[0;32m" $2 "\033[0m" "; $1 tests"
+	echo "Test block: \033[0;32m" $2 "\033[0m" "; $1 tests"
 }
 
 printTest(){
@@ -18,10 +18,6 @@ printOk(){
 printFail(){
 	echo "\033[0;31mFAIL $1\033[0m"
 	return 1
-}
-
-printEnd(){
-	echo "\033[0;32mEnd Test: " $@ "\033[0m"
 }
 
 test_with()
@@ -58,7 +54,6 @@ test_with()
 
 	rm -rf /tmp/test2/test /tmp/test/test /tmp/test/1
 	rm out woody_out
-	printEnd
 }
 
 check_infected()
@@ -122,10 +117,7 @@ rec_test_init()
 	r=$1
 	V=$2
 
-	rm -rf /tmp/test
-	rm -rf /tmp/test2
-	mkdir /tmp/test
-	mkdir /tmp/test2
+	resetDir
 
 	cp $V /tmp/test/x
 
@@ -135,13 +127,18 @@ rec_test_init()
 	rec_test $r $V
 }
 
+resetDir()
+{
+	rm -rf /tmp/test
+	mkdir /tmp/test
+	rm -rf /tmp/test2
+	mkdir /tmp/test2
+}
+
 #rec_test_init 30 $x
 echo ">> TEST #1"
 
-rm -rf /tmp/test
-mkdir /tmp/test
-rm -rf /tmp/test2
-mkdir /tmp/test2
+resetDir
 
 test_with '/bin/cat' 'test.sh' || fail
 test_with '/bin/sh' 'data/sh_script' || fail
@@ -151,8 +148,7 @@ test_with '/bin/ls' '-la' '../..' || fail
 #test --recur
 echo ">> TEST #2"
 
-rm -rf /tmp/test /tmp/test2
-mkdir /tmp/test
+resetDir
 cp /bin/ls /tmp/test/ls_one
 $BIN --recur
 
@@ -172,6 +168,16 @@ printOk
 printTest "3: infect3" "check there is not a reinfection"
 /tmp/test/./ls_one 1>/dev/null
 check_infected /tmp/test/subdir/ls_two || printFail || fail
+printOk
+
+echo ">> TEST #3"
+
+resetDir
+cp /bin/ls /tmp/test/ls_one
+
+$BIN --msg
+printTest "1: test bonus --msg" "check output contains string"
+/tmp/test/./ls_one | head -1 | grep '\[I am a bad' 1>/dev/null 2>/dev/null || printFail || fail
 printOk
 
 exit 0
