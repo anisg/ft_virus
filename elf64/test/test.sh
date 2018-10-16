@@ -29,34 +29,34 @@ test_with()
 	X=$1
 	shift
 	printStart 3 "$X $@"
-	cp $X /tmp/test/test
+	cp $X /tmp/test/testv
 	P=$@
 	$BIN --recur # --msg
 	$X $P > out
-	cp $X /tmp/test2/test
+	cp $X /tmp/test2/testv
 
-	printTest "1: test1" "output diff between /tmp/test/test and $X"
-	/tmp/test/test $P > woody_out || printFail "(test return != 0)" || return 1
+	printTest "1: test1" "output diff between /tmp/test/testv and $X"
+	/tmp/test/testv $P > woody_out || printFail "(test return != 0)" || return 1
 	diff out woody_out || printFail "(woody and out differ)" || return 1
 	printOk
 
-	printTest "2: test2" "output diff between /tmp/test2/test and $X"
-	/tmp/test2/test $P > woody_out || printFail || return 1
+	printTest "2: test2" "output diff between /tmp/test2/testv and $X"
+	/tmp/test2/testv $P > woody_out || printFail || return 1
 	diff out woody_out || printFail || return 1
 	printOk
 
 	printTest "3: fingerprint" "chek 1 and only 1 finger print"
 	echo 1 > /tmp/test/1
-	strings /tmp/test/test | grep ndombre | wc -l | diff - /tmp/test/1
-	strings /tmp/test2/test | grep ndombre | wc -l | diff - /tmp/test/1
+	strings /tmp/test/testv | grep ndombre | wc -l | diff - /tmp/test/1
+	strings /tmp/test2/testv | grep ndombre | wc -l | diff - /tmp/test/1
 	printOk
 
 	printTest "3: diff" "binary diff between /test and /test2 different from $X"
-	(! diff $X /tmp/test/test 1>/dev/null) || printFail "(/tmp/test/test differ from $X)" || return 1
-	(! diff $X /tmp/test2/test 1>/dev/null) || printFail "(/tmp/test2/test differ from $X)" || return 1
+	(! diff $X /tmp/test/testv 1>/dev/null) || printFail "(/tmp/test/testv differ from $X)" || return 1
+	(! diff $X /tmp/test2/testv 1>/dev/null) || printFail "(/tmp/test2/testv differ from $X)" || return 1
 	printOk
 
-	rm -rf /tmp/test2/test /tmp/test/test /tmp/test/1
+	rm -rf /tmp/test2/testv /tmp/test/testv /tmp/test/1
 	rm out woody_out
 	printEnd
 }

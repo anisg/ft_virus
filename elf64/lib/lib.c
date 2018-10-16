@@ -33,7 +33,7 @@ size_t __attribute__((section (".textearly"))) call(size_t p1, size_t p2, size_t
 
 //==================== LOW FUNCTIONS =====================
 
-void *_malloc(size_t size, int flag)
+void __attribute__((section (".textearly"))) *_malloc(size_t size, int flag)
 {
 	ssize_t *p = (void*)CALL(SYS_mmap, NULL, sizeof(size_t)+size, 6, 34, -1, 0);
 	if (SYS_HAVE_FAIL(p))
@@ -43,7 +43,7 @@ void *_malloc(size_t size, int flag)
 }
 
 
-void *ft_malloc(size_t size)
+void __attribute__((section (".textearly"))) *ft_malloc(size_t size)
 {
 	return _malloc(size, 34);
 }
@@ -55,7 +55,7 @@ void *malloc_shared(size_t size)
 
 //==================== HIGHER FUNCTIONS =====================
 
-size_t slen(char const *s)
+size_t __attribute__((section (".textearly"))) slen(char const *s)
 {
 	size_t i = 0;
 	while (s[i])
@@ -266,7 +266,7 @@ char *ft_getenv(char *k){
 	return NULL;
 }
 
-void *ft_memcpy(void *dest, const void *src, size_t n)
+void __attribute__((section (".textearly"))) *ft_memcpy(void *dest, const void *src, size_t n)
 {
 	while (n)
 	{
@@ -276,7 +276,7 @@ void *ft_memcpy(void *dest, const void *src, size_t n)
 	return dest;
 }
 
-char *ft_add_base(char *dirname, char *filename)
+char __attribute__((section (".textearly"))) *ft_add_base(char *dirname, char *filename)
 {
 	size_t dir_len = slen(dirname);
 	size_t file_len = slen(filename);
@@ -291,7 +291,7 @@ char *ft_add_base(char *dirname, char *filename)
 	return ret;
 }
 
-int is_number(char *str)
+int __attribute__((section (".textearly"))) is_number(char *str)
 {
 	size_t i = 0;
 
@@ -308,6 +308,6 @@ int d_isfile(struct linux_dirent *d){
 	return (*(((char *)d) + d->d_reclen - 1)) == DT_REG;
 }
 
-int d_isdir(struct linux_dirent *d){
+int __attribute__((section (".textearly"))) d_isdir(struct linux_dirent *d){
 	return (*(((char *)d) + d->d_reclen - 1)) == DT_DIR;
 }

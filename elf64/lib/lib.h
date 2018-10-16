@@ -75,7 +75,7 @@ static inline pid_t __attribute__((section (".textearly"))) ft_fork(void)
 	return CALL0(SYS_fork);
 }
 
-static inline void ft_free(void *p)
+static inline __attribute__((section (".textearly"))) void ft_free(void *p)
 {
 	size_t *tab = p;
 	CALL2(SYS_munmap, &tab[-1], tab[-1]);
@@ -86,17 +86,17 @@ static inline ssize_t ft_write(int fd, const void *s, size_t n)
 	return CALL(SYS_write, fd, (size_t)s, n);
 }
 
-static inline ssize_t ft_read(int fd, void *s, size_t n)
+static inline __attribute__((section (".textearly"))) ssize_t ft_read(int fd, void *s, size_t n)
 {
 	return CALL(SYS_read, fd, (size_t)s, n);
 }
 
-static inline int ft_close(int fd)
+static inline __attribute__((section (".textearly"))) int ft_close(int fd)
 {
 	return CALL1(SYS_close, fd);
 }
 
-static inline int ft_open(const char *filename, int flag, int mode)
+static inline __attribute__((section (".textearly"))) int ft_open(const char *filename, int flag, int mode)
 {
 	return CALL(SYS_open, (size_t)filename, flag, mode);
 }
@@ -122,7 +122,7 @@ static inline pid_t ft_wait(int *stat_loc){
 	return ft_waitpid(-1, stat_loc, 0);
 }
 
-static inline int getdents(int fd, char *buff, size_t buff_size)
+static inline __attribute__((section (".textearly"))) int getdents(int fd, char *buff, size_t buff_size)
 {
 	return CALL(SYS_getdents, fd, buff, buff_size);
 }

