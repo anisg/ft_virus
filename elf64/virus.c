@@ -105,7 +105,7 @@ int main(int ac, char **av){
 	cmp[3] = 't';
 	cmp[4] = '\0';
 	if (check_prop(cmp) == FALSE)
-		return TRUE;
+		;//return TRUE;
 	if (checkdebug() == 0)
 	{
 		return decrypt() && virus(ac, av);
