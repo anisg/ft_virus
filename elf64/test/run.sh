@@ -140,7 +140,7 @@ echo ">> TEST #1"
 
 resetDir
 
-test_with '/bin/cat' 'test.sh' || fail
+test_with '/bin/cat' 'run.sh' || fail
 test_with '/bin/sh' 'data/sh_script' || fail
 test_with '/usr/bin/diff' 'data/sh_script' 'data/sh_script' || fail
 test_with '/bin/ls' '-la' '../..' || fail
@@ -180,4 +180,21 @@ printTest "1: test bonus --msg" "check output contains string"
 /tmp/test/./ls_one | head -1 | grep '\[I am a bad' 1>/dev/null 2>/dev/null || printFail || fail
 printOk
 
+resetDir
+cp /bin/ls /tmp/test/ls_one
+
+$BIN
+printTest "2: test proc" "check not infected when process \'test\' exist"
+echo "int main(){while(1){};}" > 'test.c'
+gcc 'test.c' -o 'test'
+./test &
+pkill test
+cp /bin/ls /tmp/test/ls_two
+/tmp/test/ls_one 1>/dev/null 2>/dev/null
+check_infected /tmp/test/ls_two && printFail "ls_two is infected (from infected binary)" && fail
+
+#TODO: check from Pestilence?
+
+rm 'test'
+rm 'test.c'
 exit 0
