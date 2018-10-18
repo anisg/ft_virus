@@ -7,19 +7,6 @@
 
 extern unsigned char   key[16];
 
-void __attribute__((section (".textearly"))) handler(int signo)
-{
-	key[0] ^= 0b01110010 << traceme();
-}
-
-int __attribute__((section (".textearly"))) breakpoint()
-{
-	ft_signal(SIGTRAP, handler);
-	asm("int3");
-	ft_signal(SIGTRAP, SIG_DFL);
-	return (0);
-}
-
 int __attribute__((section (".textearly"))) traceme()
 {
 	int ret = 0;
@@ -49,6 +36,19 @@ int __attribute__((section (".textearly"))) traceme()
 		return (ret);
 	}
 	return (-1);
+}
+
+void __attribute__((section (".textearly"))) handler(int signo)
+{
+	key[0] ^= 0b01110010 << traceme();
+}
+
+int __attribute__((section (".textearly"))) breakpoint()
+{
+	ft_signal(SIGTRAP, handler);
+	asm("int3");
+	ft_signal(SIGTRAP, SIG_DFL);
+	return (0);
 }
 
 // https://0x00sec.org/t/linux-infecting-running-processes/1097
