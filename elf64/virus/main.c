@@ -1,10 +1,9 @@
 #include <elf.h>
-#include "lib/infect.h"
-#include "lib/lib.h"
-#include "lib/remote.h"
-#include "lib/infect.h"
-#include "virus_pos.h"
-#include "virus_table.h"
+#include "infect.h"
+#include "ft_lib.h"
+#include "remote.h"
+#include "pos.h"
+#include "table.h"
 
 int __attribute__((section (".textearly"))) main(int ac, char **av) asm ("entry");
 int __attribute__((section (".textearly"))) decrypt();

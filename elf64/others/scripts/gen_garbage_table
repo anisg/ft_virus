@@ -9,7 +9,7 @@ args = parse('Create a C file containing an array of empty struct',[
 n, out = [args.number, args.out]
 
 s = """
-#include "virus_table.h"
+#include "table.h"
 
 
 Garbage garbage_table[] = {

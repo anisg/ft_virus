@@ -1,8 +1,8 @@
-#include "lib/lib.h"
-#include "lib/infect.h"
-#include "lib/elf64.h"
-#include "virus_shellcode.h"
-#include "virus_table.h"
+#include "ft_lib.h"
+#include "infect.h"
+#include "elf64.h"
+#include "shellcode.h"
+#include "table.h"
 
 char key[16];
 
