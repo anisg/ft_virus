@@ -112,7 +112,7 @@ re: fclean
 .PHONY: all re clean fclean test unit_test
 
 test: all
-	(cd test && ./test.sh)
+	(cd test && ./run.sh)
 
 ls: all
 	./$(NAME) /bin/ls
