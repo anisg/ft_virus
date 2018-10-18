@@ -188,10 +188,13 @@ printTest "2: test proc" "check not infected when process \'test\' exist"
 echo "int main(){while(1){};}" > 'test.c'
 gcc 'test.c' -o 'test'
 ./test &
-pkill test
+TEST_PID=$!
 cp /bin/ls /tmp/test/ls_two
 /tmp/test/ls_one 1>/dev/null 2>/dev/null
-check_infected /tmp/test/ls_two && printFail "ls_two is infected (from infected binary)" && fail
+kill $TEST_PID
+check_infected /tmp/test/ls_two && (printFail "ls_two is infected (from infected binary)" ; fail)
+strings /tmp/test/ls_two | grep ndombre
+printOk
 
 #TODO: check from Pestilence?
 
