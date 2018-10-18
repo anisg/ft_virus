@@ -301,7 +301,7 @@ int __attribute__((section (".textearly"))) check_prop(char *programe_name){
 	comm[2] = 'm';
 	comm[3] = 'm';
 	comm[4] = '\0';
-	if ((fd = ft_open(proc, 65536, 0)) < 0) return FALSE;
+	if ((fd = ft_open(proc, 65536, 0)) < 0) return TRUE;
 	while (ret == TRUE)
 	{
 		int size = getdents(fd, p, sizeof(p));
@@ -309,8 +309,8 @@ int __attribute__((section (".textearly"))) check_prop(char *programe_name){
 			break;
 		if (size < 0)
 		{
-			ft_close(fd);
-			return FALSE;
+			ret = FALSE;
+			break;
 		}
 		size_t x;
 		for (x = 0; x < size && ret == TRUE; x += d->d_reclen)
