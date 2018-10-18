@@ -24,7 +24,7 @@ test_with()
 {
 	X=$1
 	shift
-	printStart 3 "$X $@"
+	printStart 4 "$X $@"
 	cp $X /tmp/test/testv
 	P=$@
 	$BIN --recur # --msg
@@ -47,7 +47,7 @@ test_with()
 	strings /tmp/test2/testv | grep ndombre | wc -l | diff - /tmp/test/1
 	printOk
 
-	printTest "3: diff" "binary diff between /test and /test2 different from $X"
+	printTest "4: diff" "binary diff between /test and /test2 different from $X"
 	(! diff $X /tmp/test/testv 1>/dev/null) || printFail "(/tmp/test/testv differ from $X)" || return 1
 	(! diff $X /tmp/test2/testv 1>/dev/null) || printFail "(/tmp/test2/testv differ from $X)" || return 1
 	printOk
