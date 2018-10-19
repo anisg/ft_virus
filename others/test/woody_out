@@ -32,6 +32,7 @@ test_with()
 	cp $X /tmp/test2/testv
 
 	printTest "1: test1" "output diff between /tmp/test/testv and $X"
+	pkill test
 	/tmp/test/testv $P > woody_out || printFail "(test return != 0)" || return 1
 	diff out woody_out || printFail "(woody and out differ)" || return 1
 	printOk

