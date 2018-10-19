@@ -1,6 +1,7 @@
 section .textearly
 
 global decrypt
+global decrypt_block
 
 decrypt_block:
 	;v -> rdi, k -> rsi

