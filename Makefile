@@ -44,11 +44,9 @@ VIRUS_X = $(TMP_DIR)/virus_shellcode.c
 
 LD_RULES = virus/rules.lds
 
-all: nop $(NAME)
+all: $(NAME)
 
-nop:
-
-$(NAME):  $(VIRUS_X) $(OBJ_INF)
+$(NAME): $(VIRUS_X) $(OBJ_INF)
 	gcc -o $(NAME) $(OBJ_INF) $(VIRUS_X)
 
 $(VIRUS_X): $(VIRUS)
