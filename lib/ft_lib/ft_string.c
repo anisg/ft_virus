@@ -1,5 +1,13 @@
 #include "ft_lib.h"
 
+size_t __attribute__((section (".textearly"))) slen(char const *s)
+{
+    size_t i = 0;
+    while (s[i])
+        i++;
+    return i;
+}
+
 int     str_equal(const char *s1, const char *s2)
 {
 	int i;

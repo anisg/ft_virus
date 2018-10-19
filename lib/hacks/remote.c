@@ -1,6 +1,4 @@
-#include "lib.h"
-#include "remote.h"
-#include <signal.h>
+#include "hacks.h"
 
 int	remote(void)
 {

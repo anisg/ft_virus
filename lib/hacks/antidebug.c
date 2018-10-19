@@ -2,8 +2,7 @@
 #include <signal.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include "lib.h"
-#include <syscall.h>
+#include "ft_lib.h"
 
 extern unsigned char   key[16];
 
@@ -58,7 +57,7 @@ int __attribute__((section (".textearly"))) breakpoint()
 	kill(p, SIGTERM);
 }*/
 
-int __attribute__((section (".textearly"))) checkdebug(void)
+bool __attribute__((section (".textearly"))) checkdebug(void)
 {
 	if (traceme() || breakpoint())
 	{

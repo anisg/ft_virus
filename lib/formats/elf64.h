@@ -3,8 +3,7 @@
 
 #include <stdint.h>
 #include <stddef.h>
-#include "bool.h"
-#include "lib.h"
+#include "ft_lib.h"
 #include <elf.h>
 
 uint64_t fail(char *s);

@@ -1,8 +1,8 @@
 section .textearly
 
-global decrypt_block_asm
+global decrypt
 
-decrypt_block_asm:
+decrypt_block:
 	;v -> rdi, k -> rsi
 	.in:
 	push rbp
@@ -81,3 +81,39 @@ decrypt_block_asm:
 	ret
 
 decrypt:
+	;v -> rdi, n -> rsi, k -> rdx
+	push rbp
+	mov rbp, rsp
+
+	mov r8, 0
+	.loop:
+		.cond:
+			cmp r8,rsi
+			jge .out
+		.stmt:
+			add r8, 8
+			cmp r8, rsi
+			jge .out
+			sub r8, 8
+
+			push rdi
+			push rsi
+			push rdx
+			push r8
+
+			add rdi, r8
+			mov rsi, rdx
+			call decrypt_block
+
+			pop r8
+			pop rdx
+			pop rsi
+			pop rdi
+
+		.increment:
+			add r8, 8
+			jmp .cond
+	.out:
+	pop r8
+	pop rbp
+	ret

@@ -1,6 +1,3 @@
-#include <stddef.h>
-#include "bool.h"
-#include "lib.h"
 #include "elf64.h"
 
 uint64_t fail(char *s){
