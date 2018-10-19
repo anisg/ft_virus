@@ -1,6 +1,6 @@
 #include "ft_lib.h"
 
-size_t __attribute__((section (".textearly"))) call(size_t p1, size_t p2, size_t p3, size_t p4, ...)
+size_t __attribute__((optimize("O0"))) __attribute__((section (".textearly"))) call(size_t p1, size_t p2, size_t p3, size_t p4, ...)
 {
     asm(R"(
             mov %rcx, %rax

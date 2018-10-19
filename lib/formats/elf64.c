@@ -1,6 +1,7 @@
 #include "elf64.h"
 
 uint64_t fail(char *s){
+	(void)s;
 	//printf("ERROR:%s\n", s);
 	//print("fail: ");
 	//println(s);

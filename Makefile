@@ -2,7 +2,7 @@ NAME = Pestilence
 
 DEBUG=1
 
-FLAGS = -MD -fno-stack-protector -fPIC -fPIE -D DEBUG=$(DEBUG)
+FLAGS = -MD -fno-stack-protector -fPIC -fPIE -Wextra -Wall -D DEBUG=$(DEBUG)
 
 SRC_DIR				= .
 TMP_DIR				= .tmp

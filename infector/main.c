@@ -46,7 +46,6 @@ int get_virus_info(char **v, size_t *l, size_t *c_off, size_t *c_len){
 
 int set_garbage_infos(){
 	int64_t bin_start_off;
-	char **names = NULL;
 
 	elf_off_symbol(virus_shellcode, virus_shellcode_len, "bin_start", &bin_start_off);
 
@@ -83,6 +82,7 @@ int set_garbage_infos(){
 		}
 	}
 	if (x != gt_len) return FALSE;
+	return TRUE;
 }
 
 int main(int ac, char **av){
