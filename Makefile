@@ -63,7 +63,7 @@ $(TMP_DIR):
 
 $(OBJ_DIR):
 	mkdir -p $@
-	find -type d -links 2 -exec mkdir -p $(OBJ_DIR)"/{}" \;
+	python -c 'import os,sys;dirs=[ r for r,s,f in os.walk(".") if r != "."];[os.makedirs(os.path.join(sys.argv[1],i)) for i in dirs]' $(OBJ_DIR)/.
 	rm -rf $(OBJ_DIR)/others
 
 ##
