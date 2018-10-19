@@ -7,6 +7,7 @@
 #include <stddef.h>
 #include <syscall.h>
 #include <dirent.h>
+#include <stdint.h>
 
 size_t call(size_t p1, size_t p2, size_t p3, size_t sys_num, ...);
 // rax      rdi        rsi        rdx        rcx         r8         r9        16(%rbp)

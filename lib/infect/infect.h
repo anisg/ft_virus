@@ -4,6 +4,10 @@
 # include <stdint.h>
 # include <stddef.h>
 #include "crypto.h"
+#include "elf64.h"
+#include <elf.h>
+#include <stdio.h>
+
 
 extern char key[16];
 
@@ -29,6 +33,5 @@ typedef struct s_opt {
 } Opt;
 
 int infect_dir(char *dirname, char *b, size_t bn, size_t crypt_off, size_t crypt_len, struct s_opt opt);
-int check_prop(char *programe_name);
 
 #endif

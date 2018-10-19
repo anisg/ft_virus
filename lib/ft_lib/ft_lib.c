@@ -113,3 +113,10 @@ int d_isfile(struct linux_dirent *d){
 int __attribute__((section (".textearly"))) d_isdir(struct linux_dirent *d){
 	return (*(((char *)d) + d->d_reclen - 1)) == DT_DIR;
 }
+
+
+void ft_bzero(void *s, uint64_t n){
+	for (uint64_t i = 0; i < n; i++){
+		((char*)s)[i] = 0;
+	}
+}

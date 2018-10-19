@@ -1,26 +1,28 @@
 NAME = Pestilence
 
-FLAGS = -MD -fno-stack-protector -fPIC -fPIE
+DEBUG=1
+
+FLAGS = -MD -fno-stack-protector -fPIC -fPIE -D DEBUG=$(DEBUG)
 
 SRC_DIR				= .
 TMP_DIR				= .tmp
 OBJ_DIR				= $(TMP_DIR)/obj
 
 TABLE_C = $(TMP_DIR)/table.c
-LIBFLAGS = -I lib -I lib/ft_lib -I lib/crypto -I lib/formats -I lib/hacks
+LIBFLAGS = -I lib/infect -I lib/ft_lib -I lib/crypto -I lib/formats -I lib/hacks
 VIRUS = virus
 
 FTLIB_SRC = ft_io.c ft_string.c ft_lib.c
 FORMATS_SRC = elf64.c
-CRYPTO_SRC = compression.c tea_encrypt.c
-HACKS_SRC = antidebug.c remote.c
-INFECT_SRC = infect.c
+CRYPTO_SRC = compress.c compress_use.c tea_encrypt.c
+HACKS_SRC = antidebug.c remote.c checkproc.c
+INFECT_SRC = infect.c infect_dir.c
 
 FTLIB = $(addprefix lib/ft_lib/, $(FTLIB_SRC))
 FORMATS = $(addprefix lib/formats/, $(FORMATS_SRC))
 CRYPTO = $(addprefix lib/crypto/, $(CRYPTO_SRC))
 HACKS = $(addprefix lib/hacks/, $(HACKS_SRC))
-INFECT = $(addprefix lib/, $(INFECT_SRC))
+INFECT = $(addprefix lib/infect/, $(INFECT_SRC))
 
 OBJ_LIBS = $(addprefix $(OBJ_DIR)/, lib/ft_lib lib/ft_formats lib/crypto lib/hacks lib)
 
@@ -98,11 +100,7 @@ $(OBJ_DIR)/%.o: %.s | $(OBJ_DIR)
 	nasm -f elf64 $< -o $@
 
 clean:
-	rm -rf $(DEP)
-	rm -rf $(OBJ)
-	rm -rf $(OBJ_DIR)
 	rm -rf $(TMP_DIR)
-	rm -rf $(TABLE_C)
 
 fclean: clean
 	rm -rf $(NAME)
