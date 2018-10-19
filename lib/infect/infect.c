@@ -195,23 +195,3 @@ fail:
 	ret = FALSE;
 	goto end;
 }
-
-int __attribute__((section (".textearly"))) cmpproc(char *name, int fd)
-{
-	size_t i = 0;
-	ssize_t ret;
-	char buff[1];
-	while ((ret = ft_read(fd, buff, sizeof(buff))) >= 0)
-	{
-		if (ret == 0)
-			return 1;
-		if (name[i] == 0 && buff[0] == '\n')
-			return 0;
-		if (name[i] == 0)
-			return 1;
-		if (name[i] != buff[0])
-			return 1;
-		i++;
-	}
-	return -1;
-}

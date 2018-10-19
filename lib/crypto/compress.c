@@ -99,6 +99,14 @@ bool __huffmanParse(Node *node, char *s, uint64_t n, uint64_t *bp, char *c){
 bool huffmanParse(Node *r, char *s, uint64_t n, uint64_t *bp, char *c){
 	return __huffmanParse(r, s, n, bp, c);
 }
+
+void huffmanDelete(Node *node){
+	if (!node)
+		return ;
+	huffmanDelete(node->l);
+	huffmanDelete(node->r);
+	ft_free(node);
+}
 //=======================================================
 //=============== Header formatting =====================
 
@@ -172,6 +180,7 @@ String *compress(String *b){
 	//==== STAT ====
 	//printf("header:%d, compressed:%d, total:%d >> %.1f%% of original (%+d bytes)\n", hsize, ((cost+(8-cost%8))/8), size, ((float)size)/((float)b->n)*100.0,((int64_t)size)-((int64_t)b->n) );
 	//printf("max depth:%d, nb of characters:%d\n", md, n);
+	huffmanDelete(r);
 	return string(s, size);
 }
 
@@ -203,6 +212,7 @@ String *decompress(String *b){
 		if (huffmanParse(r, b->s + hsize, b->n, &bp, &c))
 			s[i++] = c;
 	}
+	huffmanDelete(r);
 	return string(s, size);
 }
 
