@@ -1,8 +1,8 @@
 #ifndef INFECT_H
 # define INFECT_H
 
-# include <stdint.h>
 # include <stddef.h>
+# include <stdint.h>
 #include "crypto.h"
 #include "elf64.h"
 #include <elf.h>

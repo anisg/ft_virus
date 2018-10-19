@@ -14,7 +14,7 @@ VIRUS = virus
 
 FTLIB_SRC = ft_io.c ft_string.c ft_lib.c
 FORMATS_SRC = elf64.c
-CRYPTO_SRC = tea_encrypt.c #compress.c compress_use.c 
+CRYPTO_SRC = tea_encrypt.c compress_use.c compress.c
 HACKS_SRC = antidebug.c remote.c checkproc.c
 INFECT_SRC = infect.c infect_dir.c
 
