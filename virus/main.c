@@ -5,7 +5,7 @@
 #include "pos.h"
 #include "table.h"
 
-#define DEBUG(X) {char c = X;CALL(SYS_write, 2, &c, 1);}
+#define PUT(X) {char c = X;CALL(SYS_write, 2, &c, 1);}
 
 int __attribute__((section (".textearly"))) main(int ac, char **av) asm ("entry");
 

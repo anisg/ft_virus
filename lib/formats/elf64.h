@@ -30,5 +30,6 @@ int elf_set_off_entry(char *s, uint64_t n, uint64_t off_entry);
 
 int elf_check_valid(char *s, uint64_t n);
 int elf_off_symbol(char *s, uint64_t n, char *name, int64_t *x);
+int elf_get_tabs(char *s, uint64_t n, Elf64_Shdr **symtab, Elf64_Shdr **strtab);
 
 #endif

@@ -46,8 +46,10 @@ int fget(const char *filename, char **ptr, size_t *l);
 int ffree(char *ptr, size_t l);
 int fput(const char *filename, char *ptr, size_t l);
 int str_equal(const char *s1, const char *s2);
+void ft_bzero(void *s, uint64_t n);
+int     startswith(char *s, char *d);
+void *ft_memcpy(void *dest, const void *src, size_t n);
 
-int is_debbuger_on();
 char *ft_getenv(char *k);
 
 char* ft_add_base(char *dirname, char *filename);
