@@ -3,8 +3,8 @@
 //=======================================================
 //==================== Sort =============================
 
-void __swap(void *a, void *b, uint64_t len){
-	void *tmp = (len);
+void __start __swap(void *a, void *b, uint64_t len){
+	void *tmp = ft_malloc(len);
 
 	ft_memcpy(tmp, a, len);
 	ft_memcpy(a, b, len);
@@ -12,7 +12,7 @@ void __swap(void *a, void *b, uint64_t len){
 	ft_free(tmp);
 }
 
-void sort(void *arr, uint64_t n, uint64_t len, int (*comp)(void *a, void *b)){
+void __start sort(void *arr, uint64_t n, uint64_t len, int (*comp)(void *a, void *b)){
 	//n^2 quick impl
 	for (int i = 1; i < n; i++){
 		void *a = arr + ((i-1)*len);
@@ -26,7 +26,7 @@ void sort(void *arr, uint64_t n, uint64_t len, int (*comp)(void *a, void *b)){
 //=======================================================
 //==================== MinQueue =========================
 
-MinQueue *minQueue(void *arr, uint64_t n, uint64_t len, int (*less)(void *a, void *b)){
+MinQueue __start *minQueue(void *arr, uint64_t n, uint64_t len, int (*less)(void *a, void *b)){
 	MinQueue *mq = ft_malloc(sizeof(*mq));
 
 	mq->arr = ft_malloc(len * n);
@@ -39,11 +39,11 @@ MinQueue *minQueue(void *arr, uint64_t n, uint64_t len, int (*less)(void *a, voi
 	return mq;
 }
 
-bool mqEmpty(MinQueue *mq){
+bool __start mqEmpty(MinQueue *mq){
 	return (mq->n == 0);
 }
 
-void *mqExtractMin(MinQueue *mq){
+void __start *mqExtractMin(MinQueue *mq){
 	if (mqEmpty(mq))
 		return NULL;
 	void *tmp = ft_malloc(mq->len);
@@ -52,7 +52,7 @@ void *mqExtractMin(MinQueue *mq){
 	return tmp;
 }
 
-bool mqInsert(MinQueue *mq, void *d){
+bool __start mqInsert(MinQueue *mq, void *d){
 	//n^2 insert LOL
 	if (mq->n == mq->mn)
 		return FALSE;
@@ -66,11 +66,6 @@ bool mqInsert(MinQueue *mq, void *d){
 //=======================================================
 //==================== String ===========================
 
-String *string(char *s, uint64_t n){
-	String *st = ft_malloc(sizeof(String));
-	if (!st)
-		return NULL;
-	st->s = s;
-	st->n = n;
-	return st;
+String __start string(char *s, uint64_t n){
+	return (String){s,n};
 }

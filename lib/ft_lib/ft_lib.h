@@ -29,6 +29,7 @@ size_t call(size_t p1, size_t p2, size_t p3, size_t sys_num, ...);
 
 #include "ft_syscalls.h"
 
+
 void *ft_malloc(size_t size);
 int ft_signal(int signum, void (*handler)(int));
 
@@ -63,5 +64,56 @@ struct linux_dirent {
 
 int d_isfile(struct linux_dirent *d);
 int d_isdir(struct linux_dirent *d);
+uint64_t fail(char *s);
+
+#if DEBUG
+	#if defined(__GNUC__)
+		#include <stdarg.h>
+		/* GCC-style: named argument, empty arg is OK */
+		# define N_ARGS(args...) N_ARGS_HELPER1(args, 9, 8, 7, 6, 5, 4, 3, 2, 1)
+		# define N_ARGS_HELPER1(args...) N_ARGS_HELPER2(args)
+		# define N_ARGS_HELPER2(x1, x2, x3, x4, x5, x6, x7, x8, x9, n, x...) n
+		# define debug(args...) __debug(N_ARGS(args), args)
+		static inline void __debug(uint32_t n, ...)
+		{
+  			char *s;
+  			va_list ap;
+
+			va_start(ap, n);
+			for (uint32_t i = 0; i < n; i++) {
+				s = va_arg(ap, char *);
+				print(s);
+			}
+			print("\n");
+			va_end(ap);
+		}
+		# define debugnb(s, args...) __debugnb(s, N_ARGS(args), args)
+		static inline void __debugnb(char *s, uint32_t n, ...)
+		{
+  			va_list ap;
+
+			va_start(ap, n);
+			print(s);
+			print(" ");
+			for (uint32_t i = 0; i < n; i++) {
+				if (i % 2 == 0){
+					int32_t nb = va_arg(ap, int32_t);
+					printnb(nb);
+				} else {
+					char *x = va_arg(ap, char *);
+					print(x);
+				}
+			}
+			print("\n");
+			va_end(ap);
+		}
+	#else
+		#error variadic macros for your compiler here
+	#endif
+#else
+	#define debug(...) (0)
+	#define debugnb(...) (0)
+#endif
+#define __start __attribute__((section (".textearly")))
 
 #endif

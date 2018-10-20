@@ -3,22 +3,22 @@
 //=======================================================
 //==================== Bit Array ========================
 
-bool getbit(char *a, uint64_t p){
+__start bool getbit(char *a, uint64_t p){
 	return (a[p/8] & (1 << (p%8))) != 0;
 }
 
-void setbit(char *a, uint64_t p){
+void __start setbit(char *a, uint64_t p){
 	a[p/8] |= (1 << (p%8));
 }
 
-void clearbit(char *a, uint64_t p){
+void __start clearbit(char *a, uint64_t p){
 	a[p/8] &= ~(1 << (p%8));
 }
 
 //=======================================================
 //==================== Sorting Node =====================
 
-int comp(void *a, void *b){
+int __start comp(void *a, void *b){
 	Node *na = (Node*)a;
 	Node *nb = (Node*)b;
 	return na->freq < nb->freq;
@@ -27,7 +27,7 @@ int comp(void *a, void *b){
 //=======================================================
 //============== Table/Arr Of Nodes =====================
 
-int tableToArr(Node *t, int n){
+int __start tableToArr(Node *t, int n){
 	sort(t, n, sizeof(Node), comp);
 	int i;
 	for (i = 0; i < n; i++)
@@ -39,7 +39,7 @@ int tableToArr(Node *t, int n){
 //=======================================================
 //==================== Huffman ==========================
 
-Node *huffmanTree(Node *arr, int n){
+Node __start *huffmanTree(Node *arr, int n){
 	MinQueue *mq = minQueue(arr, n, sizeof(Node), comp);
 
 	for (int i = 0; i < n-1; i++){
@@ -51,7 +51,7 @@ Node *huffmanTree(Node *arr, int n){
 	return mqExtractMin(mq); //root of the tree
 }
 
-uint32_t __huffmanCost(Node *node, int d){
+uint32_t __start __huffmanCost(Node *node, int d){
 	if (!node)
 		return 0;
 	if (node->l == NULL && node->r == NULL){
@@ -60,14 +60,14 @@ uint32_t __huffmanCost(Node *node, int d){
 	return __huffmanCost(node->l, d+1) + __huffmanCost(node->r, d+1);
 }
 
-uint32_t huffmanCost(Node *r){
+uint32_t __start huffmanCost(Node *r){
 	return __huffmanCost(r, 0);
 }
 
 //=======================================================
 //==================== Huffman++ ========================
 
-void __huffmanSetCodeTable(Node *node, CharCode *codes, int d, uint64_t rep){
+void __start __huffmanSetCodeTable(Node *node, CharCode *codes, int d, uint64_t rep){
 	if (node == NULL)
 		return ;
 	if (node->v != NOP){
@@ -77,11 +77,11 @@ void __huffmanSetCodeTable(Node *node, CharCode *codes, int d, uint64_t rep){
 	__huffmanSetCodeTable(node->r, codes, d+1, ((rep << 1) | 1));
 }
 
-void huffmanSetCodeTable(Node *r, CharCode *codes){
+void __start huffmanSetCodeTable(Node *r, CharCode *codes){
 	__huffmanSetCodeTable(r, codes, 0, 0);
 }
 
-bool __huffmanParse(Node *node, char *s, uint64_t n, uint64_t *bp, char *c){
+bool __start __huffmanParse(Node *node, char *s, uint64_t n, uint64_t *bp, char *c){
 	if (node == NULL)
 		return FALSE;
 	if (node->v != NOP){
@@ -96,11 +96,11 @@ bool __huffmanParse(Node *node, char *s, uint64_t n, uint64_t *bp, char *c){
 		return __huffmanParse(node->r, s, n, bp, c);
 }
 
-bool huffmanParse(Node *r, char *s, uint64_t n, uint64_t *bp, char *c){
+bool __start huffmanParse(Node *r, char *s, uint64_t n, uint64_t *bp, char *c){
 	return __huffmanParse(r, s, n, bp, c);
 }
 
-void huffmanDelete(Node *node){
+void __start huffmanDelete(Node *node){
 	if (!node)
 		return ;
 	huffmanDelete(node->l);
@@ -110,7 +110,7 @@ void huffmanDelete(Node *node){
 //=======================================================
 //=============== Header formatting =====================
 
-void setEncodedNode(char *s, int nsize, int v, uint32_t freq){
+void __start setEncodedNode(char *s, int nsize, int v, uint32_t freq){
 	switch (nsize){
 		case sizeof(EncodedNode8): ((EncodedNode8*)s)[0] = (EncodedNode8){v, freq}; break;
 		case sizeof(EncodedNode16): ((EncodedNode16*)s)[0] = (EncodedNode16){v, freq}; break;
@@ -118,7 +118,7 @@ void setEncodedNode(char *s, int nsize, int v, uint32_t freq){
 	}
 }
 
-EncodedNode getEncodedNode(char *s, int nsize){
+EncodedNode __start getEncodedNode(char *s, int nsize){
 	int v;
 	uint32_t freq;
 	switch (nsize){
@@ -133,7 +133,7 @@ EncodedNode getEncodedNode(char *s, int nsize){
 //=============== Compress Algorithm ====================
 
 
-void __add(unsigned char c, CharCode *codes, char *s, uint64_t *bp){
+void __start __add(unsigned char c, CharCode *codes, char *s, uint64_t *bp){
 	for (int i = 0; i < codes[c].n; i++){
 		if ((codes[c].rep & (1 << (codes[c].n-i-1))) != 0)
 			setbit(s,(*bp)+i);
@@ -143,14 +143,14 @@ void __add(unsigned char c, CharCode *codes, char *s, uint64_t *bp){
 	(*bp) += codes[c].n;
 }
 
-String *compress(String *b){
+String __start compress(String b){
 	//==== Count frequencies ====
 	Node t[256];
 	for (int i = 0; i < 256; i++){
 		t[i] = (Node){i, 0, NULL, NULL};
 	}
-	for (int i = 0; i < b->n; i++)
-		t[(unsigned char)b->s[i]].freq += 1;
+	for (int i = 0; i < b.n; i++)
+		t[(unsigned char)b.s[i]].freq += 1;
 	int n = tableToArr(t, 256);
 	uint32_t maxfreq = 0;
 	for (int i = 0; i < n; i++)
@@ -174,11 +174,11 @@ String *compress(String *b){
 	CharCode codes[256]; //table
 	huffmanSetCodeTable(r, codes);
 	uint64_t bp = 0;
-	for (int i = 0; i < b->n; i++){
-		__add(b->s[i], codes, s+hsize, &bp);
+	for (int i = 0; i < b.n; i++){
+		__add(b.s[i], codes, s+hsize, &bp);
 	}
 	//==== STAT ====
-	//printf("header:%d, compressed:%d, total:%d >> %.1f%% of original (%+d bytes)\n", hsize, ((cost+(8-cost%8))/8), size, ((float)size)/((float)b->n)*100.0,((int64_t)size)-((int64_t)b->n) );
+	//printf("header:%d, compressed:%d, total:%d >> %.1f%% of original (%+d bytes)\n", hsize, ((cost+(8-cost%8))/8), size, ((float)size)/((float)b.n)*100.0,((int64_t)size)-((int64_t)b.n) );
 	//printf("max depth:%d, nb of characters:%d\n", md, n);
 	huffmanDelete(r);
 	return string(s, size);
@@ -187,16 +187,16 @@ String *compress(String *b){
 //=======================================================
 //=============== Decompress Algorithm ==================
 
-String *decompress(String *b){
+String __start decompress(String b){
 	Node t[256];
 	//==== Parse header (and get decompressed size) ====
-	unsigned char nsize = b->s[0];
-	unsigned char n = b->s[1];
+	unsigned char nsize = b.s[0];
+	unsigned char n = b.s[1];
 	int starthsize = sizeof(char) * 2;
 	int hsize = (n * nsize) + starthsize;
 	uint64_t size = 0;
 	for (int i = 0; i < n; i++){
-		EncodedNode node = getEncodedNode(b->s + starthsize + (i * nsize), nsize);
+		EncodedNode node = getEncodedNode(b.s + starthsize + (i * nsize), nsize);
 		t[i] = (Node){node.v, node.freq, NULL, NULL};
 		size += node.freq;
 	}
@@ -209,7 +209,7 @@ String *decompress(String *b){
 	uint64_t bp = 0;
 	int i = 0;
 	while (bp < cost){
-		if (huffmanParse(r, b->s + hsize, b->n, &bp, &c))
+		if (huffmanParse(r, b.s + hsize, b.n, &bp, &c))
 			s[i++] = c;
 	}
 	huffmanDelete(r);

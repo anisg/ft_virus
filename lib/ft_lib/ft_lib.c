@@ -1,6 +1,11 @@
 #include "ft_lib.h"
 
-size_t __attribute__((section (".textearly"))) call(size_t p1, size_t p2, size_t p3, size_t p4, ...)
+uint64_t fail(char *s){
+	debug("FAIL: ", s);
+	return 0;
+}
+
+__start size_t call(size_t p1, size_t p2, size_t p3, size_t p4, ...)
 {
     asm(R"(
             mov %rcx, %rax
@@ -13,7 +18,7 @@ size_t __attribute__((section (".textearly"))) call(size_t p1, size_t p2, size_t
     )");
 }
 
-__attribute__((section (".textearly"))) void	restore_rt()
+__start void	restore_rt()
 {
 	asm(
 			"leave\n"
@@ -22,7 +27,7 @@ __attribute__((section (".textearly"))) void	restore_rt()
 	   );
 }
 
-void __attribute__((section (".textearly"))) *_malloc(size_t size, int flag)
+ __start void *_malloc(size_t size, int flag)
 {
     ssize_t *p = (void*)CALL(SYS_mmap, NULL, sizeof(size_t)+size, 6, 34, -1, 0);
     if (SYS_HAVE_FAIL(p))
@@ -32,7 +37,7 @@ void __attribute__((section (".textearly"))) *_malloc(size_t size, int flag)
 }
 
 
-void __attribute__((section (".textearly"))) *ft_malloc(size_t size)
+__start void *ft_malloc(size_t size)
 {
     return _malloc(size, 34);
 }
@@ -40,7 +45,7 @@ void __attribute__((section (".textearly"))) *ft_malloc(size_t size)
 
 #define SA_RESTORER 0x04000000
 
-__attribute__((section (".textearly"))) int ft_signal(int signal, void (*fn)(int))
+__start int ft_signal(int signal, void (*fn)(int))
 {
 	struct
 	{
@@ -68,7 +73,7 @@ char *ft_getenv(char *k){
 	return NULL;
 }
 
-void __attribute__((section (".textearly"))) *ft_memcpy(void *dest, const void *src, size_t n)
+__start void  *ft_memcpy(void *dest, const void *src, size_t n)
 {
 	while (n)
 	{
@@ -78,7 +83,7 @@ void __attribute__((section (".textearly"))) *ft_memcpy(void *dest, const void *
 	return dest;
 }
 
-char __attribute__((section (".textearly"))) *ft_add_base(char *dirname, char *filename)
+__start char *ft_add_base(char *dirname, char *filename)
 {
 	size_t dir_len = slen(dirname);
 	size_t file_len = slen(filename);
@@ -93,7 +98,7 @@ char __attribute__((section (".textearly"))) *ft_add_base(char *dirname, char *f
 	return ret;
 }
 
-int __attribute__((section (".textearly"))) is_number(char *str)
+__start int is_number(char *str)
 {
 	size_t i = 0;
 
@@ -110,7 +115,7 @@ int d_isfile(struct linux_dirent *d){
 	return (*(((char *)d) + d->d_reclen - 1)) == DT_REG;
 }
 
-int __attribute__((section (".textearly"))) d_isdir(struct linux_dirent *d){
+__start int d_isdir(struct linux_dirent *d){
 	return (*(((char *)d) + d->d_reclen - 1)) == DT_DIR;
 }
 

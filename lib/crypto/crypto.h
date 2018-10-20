@@ -11,7 +11,7 @@
 // Methods for encrypting using TEA algorithm (in ASM)
 //==============================================================================
 
-void encrypt(char *s, uint64_t n, uint32_t *k);
+uint64_t encrypt(char *s, uint64_t n, uint32_t *k, bool *compressed);
 
 //==============================================================================
 // tea_decrypt.s (in ASM)
@@ -19,7 +19,7 @@ void encrypt(char *s, uint64_t n, uint32_t *k);
 // Methods for decrypting using TEA algorithm
 //==============================================================================
 
-void decrypt(char *s, uint64_t n, uint32_t *k);
+void decrypt(char *s, uint64_t n, uint32_t *k, bool iscompressed);
 
 //==============================================================================
 // compress_use.c
@@ -54,7 +54,7 @@ typedef struct	s_string {
 	uint64_t n;
 }				String;
 
-String *string(char *s, uint64_t n); //pack (s,n) to String
+String string(char *s, uint64_t n); //pack (s,n) to String
 
 //-------------------- Other ---------------------
 
@@ -67,8 +67,8 @@ bool fput(const char *filename, char *ptr, size_t l);
 // Huffman compression and decompression methods
 //==============================================================================
 
-String *compress(String *b);
-String *decompress(String *b);
+String compress(String b);
+String decompress(String b);
 
 //-------------------- Structs ---------------------
 

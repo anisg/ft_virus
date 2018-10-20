@@ -1,12 +1,5 @@
 #include "elf64.h"
 
-uint64_t fail(char *s){
-	//printf("ERROR:%s\n", s);
-	//print("fail: ");
-	//println(s);
-	return 0;
-}
-
 static void _elf_shift_offset_ph(void *s, uint64_t n, uint64_t pos, uint64_t add){
 	Elf64_Ehdr *h = s;
 	Elf64_Phdr *ph = s + h->e_phoff;

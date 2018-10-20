@@ -14,7 +14,7 @@ VIRUS = virus
 
 FTLIB_SRC = ft_io.c ft_string.c ft_lib.c
 FORMATS_SRC = elf64.c
-CRYPTO_SRC = tea_encrypt.c compress_use.c compress.c
+CRYPTO_SRC = encrypt.c compress_use.c compress.c decrypt.c decrypt_block.s
 HACKS_SRC = antidebug.c remote.c checkproc.c
 INFECT_SRC = infect.c infect_dir.c
 
@@ -27,14 +27,14 @@ INFECT = $(addprefix lib/infect/, $(INFECT_SRC))
 OBJ_LIBS = $(addprefix $(OBJ_DIR)/, lib/ft_lib lib/ft_formats lib/crypto lib/hacks lib)
 
 SRC_C = virus/main.c $(FTLIB) $(INFECT) $(FORMATS) $(CRYPTO) $(HACKS) $(TABLE_C)
-SRC_S = virus/start.s lib/crypto/tea_decrypt.s
+SRC_S = virus/start.s
 
-OBJ	=	$(addprefix $(OBJ_DIR)/, $(SRC_C:.c=.o)) \
+OBJ	=	$(addprefix $(OBJ_DIR)/, $(patsubst %.s,%.o, $(patsubst %.c,%.o,$(SRC_C)))) \
 		$(addprefix $(OBJ_DIR)/, $(SRC_S:.s=.o)) \
 
 SRC_INF_C = infector/main.c $(FTLIB) $(INFECT) $(FORMATS) $(CRYPTO)
 
-OBJ_INF	= $(addprefix $(OBJ_DIR)/, $(SRC_INF_C:.c=.o))
+OBJ_INF	=	$(addprefix $(OBJ_DIR)/, $(patsubst %.s,%.o, $(patsubst %.c,%.o,$(SRC_INF_C)))) 
 
 DEP =		$(addprefix $(OBJ_DIR)/, $(SRC_C:.c=.d)) \
 		$(addprefix $(OBJ_DIR)/, $(SRC_INF_C:.c=.d))

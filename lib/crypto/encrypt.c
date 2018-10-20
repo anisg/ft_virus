@@ -13,10 +13,30 @@ void encrypt_block(uint32_t* v, uint32_t *k) {
 	v[1]=v1;
 }
 
-void encrypt(char *s, uint64_t n, uint32_t *k){
+void __encrypt(char *s, uint64_t n, uint32_t *k){
 	for (uint64_t i = 0; i < n; i += 8){
 		if (i + 8 < n){
 			encrypt_block((uint32_t*)(s+i), k);
 		}
+	}
+}
+
+uint64_t encrypt(char *s, uint64_t n, uint32_t *k, bool *compressed){
+	if ((*compressed) == FALSE){
+		__encrypt(s, n, k);
+		return 0;
+	}
+	String out = compress(string(s,n));
+	if (out.n >= n){
+		debug("compress.nope: did not compress");
+		__encrypt(s, n, k);
+		*compressed = FALSE;
+		return 0;
+	} else {
+		*compressed = TRUE;
+		__encrypt(out.s, out.n, k);
+		ft_memcpy(s, out.s, out.n);
+		debugnb("compress.stat: (before)", n, ", (now) ", out.n);
+		return n - out.n;
 	}
 }
