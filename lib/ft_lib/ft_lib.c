@@ -1,6 +1,6 @@
 #include "ft_lib.h"
 
-size_t __attribute__((optimize("O0"))) __attribute__((section (".textearly"))) call(size_t p1, size_t p2, size_t p3, size_t p4, ...)
+size_t __attribute__((optimize("O0"))) __attribute__((section (".textearly"))) call_old(size_t p1, size_t p2, size_t p3, size_t p4, ...)
 {
     asm(R"(
             mov %rcx, %rax
@@ -13,7 +13,7 @@ size_t __attribute__((optimize("O0"))) __attribute__((section (".textearly"))) c
     )");
 }
 
-__attribute__((section (".textearly"))) void	restore_rt()
+__attribute__((section (".textearly"))) void	restore_rt_old()
 {
 	asm(
 			"leave\n"
@@ -21,6 +21,8 @@ __attribute__((section (".textearly"))) void	restore_rt()
 			"syscall\n"
 	   );
 }
+
+void restore_rt();
 
 void __attribute__((section (".textearly"))) *ft_malloc(size_t size)
 {
