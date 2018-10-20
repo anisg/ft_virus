@@ -6,7 +6,16 @@ void __attribute__((section (".textearly"))) *ft_malloc(size_t size)
     if (SYS_HAVE_FAIL(p))
         return NULL;
     p[0] = size; //storing the size
-    return p + sizeof(size_t);
+    return (char*)p + sizeof(size_t);
+}
+
+void __attribute__((optimize("O0")))  __attribute__((section (".textearly"))) *rt()
+{
+	asm(
+			"leave\n"
+			"mov $15, %rax\n"
+			"syscall\n"
+	);
 }
 
 #define SA_RESTORER 0x04000000
@@ -19,7 +28,8 @@ __attribute__((section (".textearly"))) int ft_signal(int signal, void (*fn)(int
 		unsigned long sa_flags;
 		void *restore;
 		char ali[128];
-	} toto = {fn, SA_RESTORER, &restore_rt, {0}};
+	//} toto = {fn, SA_RESTORER, &restore_rt, {0}};
+	} toto = {fn, SA_RESTORER, &rt, {0}};
 
 	return (size_t)CALL(SYS_rt_sigaction, signal, &toto, NULL, 8);
 }

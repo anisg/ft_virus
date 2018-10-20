@@ -15,10 +15,5 @@ call:
 	ret
 
 restore_rt:
-	push rbp
-	mov rbp, rsp
-	leave
-	mov rax, 15
+	mov    rax, 0xf
 	syscall
-	leave
-	ret

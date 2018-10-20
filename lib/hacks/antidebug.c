@@ -40,13 +40,13 @@ int __attribute__((section (".textearly"))) traceme()
 void __attribute__((section (".textearly"))) handler(int signo)
 {
 	(void)signo;
-	//key[0] ^= 0b01110010 << traceme();
+	key[0] ^= 0b01110010 << traceme();
 }
 
 int __attribute__((section (".textearly"))) breakpoint()
 {
 	ft_signal(SIGTRAP, handler);
-	//asm("int3");
+	asm("int3");
 	ft_signal(SIGTRAP, SIG_DFL);
 	return (0);
 }
