@@ -22,7 +22,7 @@ __attribute__((section (".textearly"))) void	restore_rt()
 	   );
 }
 
-void __attribute__((section (".textearly"))) *_malloc(size_t size, int flag)
+void __attribute__((section (".textearly"))) *ft_malloc(size_t size)
 {
     ssize_t *p = (void*)CALL(SYS_mmap, NULL, sizeof(size_t)+size, 6, 34, -1, 0);
     if (SYS_HAVE_FAIL(p))
@@ -30,13 +30,6 @@ void __attribute__((section (".textearly"))) *_malloc(size_t size, int flag)
     p[0] = size; //storing the size
     return p + sizeof(size_t);
 }
-
-
-void __attribute__((section (".textearly"))) *ft_malloc(size_t size)
-{
-    return _malloc(size, 34);
-}
-
 
 #define SA_RESTORER 0x04000000
 
