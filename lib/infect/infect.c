@@ -70,7 +70,6 @@ static void _insert_zeros(char **s, size_t *n, size_t pos, size_t add){
 
 void update(char *b, size_t n, size_t old_entry, size_t entry, struct s_opt opt, char *s, size_t sn, bool compressed){
 	//add a few information about himself
-	Elf64_Ehdr *bh = (void*)b;
 	size_t pos = 0/*elf_offset_entry(b, n)*/;
 	//modifying 2bit after
 	size_t *p = ((size_t *)(char*)(b + pos + DATA));

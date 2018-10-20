@@ -39,6 +39,7 @@ int __attribute__((section (".textearly"))) traceme()
 
 void __attribute__((section (".textearly"))) handler(int signo)
 {
+	(void)signo;
 	key[0] ^= 0b01110010 << traceme();
 }
 

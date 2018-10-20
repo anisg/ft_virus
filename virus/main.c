@@ -41,7 +41,7 @@ int _replace_jmp_gb(Garbage g){
 
 void change_garbage_code(){
 	//print("now: ");printnbln(garbage_table_len);
-	for (int i = 0 ; i < garbage_table_len; i++){
+	for (size_t i = 0 ; i < garbage_table_len; i++){
 		_replace_jmp_gb(garbage_table[i]);
 	}
 }

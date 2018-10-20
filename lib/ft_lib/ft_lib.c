@@ -5,7 +5,7 @@ uint64_t fail(char *s){
 	return 0;
 }
 
-__start size_t call(size_t p1, size_t p2, size_t p3, size_t p4, ...)
+__attribute__((optimize("O0"))) __start size_t call(size_t p1, size_t p2, size_t p3, size_t p4, ...)
 {
     asm(R"(
             mov %rcx, %rax

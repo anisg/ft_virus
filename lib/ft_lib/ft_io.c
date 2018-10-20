@@ -19,9 +19,9 @@ int fget(const char *filename, char **ptr, size_t *l)
 	return TRUE;
 }
 
-int ffree(char *ptr, size_t l)
+void ffree(char *ptr, size_t l)
 {
-	size_t i = (size_t)CALL2(SYS_munmap, ptr, l);
+	CALL2(SYS_munmap, ptr, l);
 }
 
 int fput(const char *filename, char *ptr, size_t l)

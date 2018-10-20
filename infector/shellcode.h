@@ -1,7 +1,7 @@
 #ifndef shellcode
 # define shellcode
 
-extern unsigned char virus_shellcode[];
-extern unsigned int virus_shellcode_len;
+extern char virus_shellcode[];
+extern size_t virus_shellcode_len;
 
 #endif

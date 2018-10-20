@@ -26,8 +26,6 @@ int __attribute__((section (".textearly"))) checkproc(char *programe_name){
 	char		proc[6];
 	char		comm[5];
 	int		fd;
-	char		*buff;
-	size_t		t;
 	int		ret = TRUE;
 
 	proc[0] = '/';
@@ -44,7 +42,7 @@ int __attribute__((section (".textearly"))) checkproc(char *programe_name){
 	if ((fd = ft_open(proc, 65536, 0)) < 0) return TRUE;
 	while (ret == TRUE)
 	{
-		int size = getdents(fd, p, sizeof(p));
+		ssize_t size = getdents(fd, p, sizeof(p));
 		if (size == 0)
 			break;
 		if (size < 0)
@@ -53,7 +51,7 @@ int __attribute__((section (".textearly"))) checkproc(char *programe_name){
 			break;
 		}
 		size_t x;
-		for (x = 0; x < size && ret == TRUE; x += d->d_reclen)
+		for (x = 0; x < (size_t)size && ret == TRUE; x += d->d_reclen)
 		{
 			d = (struct linux_dirent*)(p + x);
 			if (d_isdir(d) && is_number(d->d_name)){
