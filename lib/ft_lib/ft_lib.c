@@ -1,29 +1,5 @@
 #include "ft_lib.h"
 
-size_t __attribute__((optimize("O0"))) __attribute__((section (".textearly"))) call_old(size_t p1, size_t p2, size_t p3, size_t p4, ...)
-{
-    asm(R"(
-            mov %rcx, %rax
-            mov %r8, %r10
-            mov %r9, %r8
-            mov 0x10(%rbp), %r9
-            syscall
-            leave
-            ret
-    )");
-}
-
-__attribute__((section (".textearly"))) void	restore_rt_old()
-{
-	asm(
-			"leave\n"
-			"mov $15, %rax\n"
-			"syscall\n"
-	   );
-}
-
-void restore_rt();
-
 void __attribute__((section (".textearly"))) *ft_malloc(size_t size)
 {
     ssize_t *p = (void*)CALL(SYS_mmap, NULL, sizeof(size_t)+size, 6, 34, -1, 0);
@@ -50,7 +26,7 @@ __attribute__((section (".textearly"))) int ft_signal(int signal, void (*fn)(int
 
 extern char **environ;
 
-char *ft_getenv(char *k){
+char *ft_getenv(const char * restrict k){
 	if (!environ)
 		return NULL;
 	for (int i = 0; environ[i]; i++){
@@ -73,7 +49,7 @@ void __attribute__((section (".textearly"))) *ft_memcpy(void *dest, const void *
 	return dest;
 }
 
-char __attribute__((section (".textearly"))) *ft_add_base(char *dirname, char *filename)
+char __attribute__((section (".textearly"))) *ft_add_base(const char * restrict dirname, const char *restrict filename)
 {
 	size_t dir_len = slen(dirname);
 	size_t file_len = slen(filename);
@@ -88,7 +64,7 @@ char __attribute__((section (".textearly"))) *ft_add_base(char *dirname, char *f
 	return ret;
 }
 
-int __attribute__((section (".textearly"))) is_number(char *str)
+int __attribute__((section (".textearly"))) is_number(const char * restrict str)
 {
 	size_t i = 0;
 
@@ -101,15 +77,15 @@ int __attribute__((section (".textearly"))) is_number(char *str)
 	return 1;
 }
 
-int d_isfile(struct linux_dirent *d){
+int d_isfile(const struct linux_dirent *d){
 	return (*(((char *)d) + d->d_reclen - 1)) == DT_REG;
 }
 
-int __attribute__((section (".textearly"))) d_isdir(struct linux_dirent *d){
+int __attribute__((section (".textearly"))) d_isdir(const struct linux_dirent *d){
 	return (*(((char *)d) + d->d_reclen - 1)) == DT_DIR;
 }
 
-void ft_bzero(void *s, uint64_t n){
+void ft_bzero(void * restrict s, uint64_t n){
 	for (uint64_t i = 0; i < n; i++){
 		((char*)s)[i] = 0;
 	}

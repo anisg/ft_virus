@@ -48,7 +48,7 @@ int     sncmp(const char *s1, const char *s2, size_t n)
 }
 
 
-int     startswith(char *s, char *d)
+int     startswith(const char *s, const char *d)
 {
     size_t i;
 
