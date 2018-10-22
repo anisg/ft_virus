@@ -12,7 +12,7 @@ void __attribute__((section (".textearly"))) *ft_malloc(size_t size)
 #define SA_RESTORER 0x04000000
 #define SA_SIGNAL_NB 128
 
-__attribute__((optimize("O0"))) __attribute__((section (".textearly"))) int ft_signal(int signal, void (*fn)(int))
+__attribute__((section (".textearly"))) int ft_signal(int signal, void (*fn)(int))
 {
 	struct
 	{
@@ -22,11 +22,10 @@ __attribute__((optimize("O0"))) __attribute__((section (".textearly"))) int ft_s
 		char ali[SA_SIGNAL_NB];
 	} toto = {fn, SA_RESTORER, &&restore_rt, {0}};
 
-	if (&toto == (void*)0x1) // Just say, ok gcc, we use this label
-	{
+	asm volatile goto("jmp %l[sys]\n" :::: sys);
 restore_rt:
-		asm("mov $15, %rax\nsyscall\n");
-	}
+	asm volatile("mov $15, %rax\nsyscall\n");
+sys:
 
 	return (size_t)CALL(SYS_rt_sigaction, signal, &toto, NULL, SA_SIGNAL_NB / 16);
 }
