@@ -12,7 +12,7 @@ void __attribute__((section (".textearly"))) *ft_malloc(size_t size)
 #define SA_RESTORER 0x04000000
 #define SA_SIGNAL_NB 128
 
-__attribute__((section (".textearly"))) int ft_signal(int signal, void (*fn)(int))
+__attribute__((optimize("O0"))) __attribute__((section (".textearly"))) int ft_signal(int signal, void (*fn)(int))
 {
 	struct
 	{
