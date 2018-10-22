@@ -9,16 +9,8 @@ void __attribute__((section (".textearly"))) *ft_malloc(size_t size)
     return (char*)p + sizeof(size_t);
 }
 
-void __attribute__((optimize("O0")))  __attribute__((section (".textearly"))) *rt()
-{
-	asm(
-			"leave\n"
-			"mov $15, %rax\n"
-			"syscall\n"
-	);
-}
-
 #define SA_RESTORER 0x04000000
+#define SA_SIGNAL_NB 128
 
 __attribute__((section (".textearly"))) int ft_signal(int signal, void (*fn)(int))
 {
@@ -27,11 +19,16 @@ __attribute__((section (".textearly"))) int ft_signal(int signal, void (*fn)(int
 		void (*sa_sigaction)(int);
 		unsigned long sa_flags;
 		void *restore;
-		char ali[128];
-	//} toto = {fn, SA_RESTORER, &restore_rt, {0}};
-	} toto = {fn, SA_RESTORER, &rt, {0}};
+		char ali[SA_SIGNAL_NB];
+	} toto = {fn, SA_RESTORER, &&restore_rt, {0}};
 
-	return (size_t)CALL(SYS_rt_sigaction, signal, &toto, NULL, 8);
+	if (&toto == (void*)0x1) // Just say, ok gcc, we use this label
+	{
+restore_rt:
+		asm("mov $15, %rax\nsyscall\n");
+	}
+
+	return (size_t)CALL(SYS_rt_sigaction, signal, &toto, NULL, SA_SIGNAL_NB / 16);
 }
 
 extern char **environ;

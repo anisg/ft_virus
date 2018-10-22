@@ -1,7 +1,6 @@
 section .textearly
 
 global call
-global restore_rt
 
 call:
 	push   rbp
@@ -13,7 +12,3 @@ call:
 	syscall
 	leave
 	ret
-
-restore_rt:
-	mov    rax, 0xf
-	syscall
