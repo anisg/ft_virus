@@ -40,7 +40,7 @@ void print(const char *s);
 void println(const char *s);
 void printnb(size_t nb);
 
-int is_number(char *str);
+int is_number(const char *str);
 
 int     sncmp(const char *s1, const char *s2, size_t n);
 int fget(const char *filename, char **ptr, size_t *l);
@@ -48,12 +48,12 @@ void ffree(char *ptr, size_t l);
 int fput(const char *filename, char *ptr, size_t l);
 int str_equal(const char *s1, const char *s2);
 void ft_bzero(void *s, uint64_t n);
-int     startswith(char *s, char *d);
+int     startswith(const char *s, const char *d);
 void *ft_memcpy(void *dest, const void *src, size_t n);
 
-char *ft_getenv(char *k);
+char *ft_getenv(const char *k);
 
-char* ft_add_base(char *dirname, char *filename);
+char* ft_add_base(const char *dirname, const char *filename);
 
 struct linux_dirent {
 	unsigned long	d_ino;
@@ -62,8 +62,8 @@ struct linux_dirent {
 	char		d_name[];
 };
 
-int d_isfile(struct linux_dirent *d);
-int d_isdir(struct linux_dirent *d);
+int d_isfile(const struct linux_dirent *d);
+int d_isdir(const struct linux_dirent *d);
 uint64_t fail(char *s);
 
 #if DEBUG

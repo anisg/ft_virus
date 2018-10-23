@@ -1,5 +1,7 @@
 #include "ft_lib.h"
 
+void restore_rt();
+
 static inline __attribute__((section (".textearly"))) void ft_exit(int n)
 {
 	CALL1(SYS_exit, n);
