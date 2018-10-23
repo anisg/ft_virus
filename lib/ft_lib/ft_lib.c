@@ -1,6 +1,11 @@
 #include "ft_lib.h"
 
-void __attribute__((section (".textearly"))) *ft_malloc(size_t size)
+uint64_t fail(char *s){
+	debug("FAIL: ", s);
+	return 0;
+}
+
+void __start *ft_malloc(size_t size)
 {
     ssize_t *p = (void*)CALL(SYS_mmap, NULL, sizeof(size_t)+size, 6, 34, -1, 0);
     if (SYS_HAVE_FAIL(p))
@@ -12,7 +17,7 @@ void __attribute__((section (".textearly"))) *ft_malloc(size_t size)
 #define SA_RESTORER 0x04000000
 #define SA_SIGNAL_NB 128
 
-__attribute__((section (".textearly"))) int ft_signal(int signal, void (*fn)(int))
+__start int ft_signal(int signal, void (*fn)(int))
 {
 	struct
 	{
@@ -45,7 +50,7 @@ char *ft_getenv(const char * restrict k){
 	return NULL;
 }
 
-void __attribute__((section (".textearly"))) *ft_memcpy(void *dest, const void *src, size_t n)
+__start void  *ft_memcpy(void *dest, const void *src, size_t n)
 {
 	while (n)
 	{
@@ -55,7 +60,7 @@ void __attribute__((section (".textearly"))) *ft_memcpy(void *dest, const void *
 	return dest;
 }
 
-char __attribute__((section (".textearly"))) *ft_add_base(const char * restrict dirname, const char *restrict filename)
+char __start *ft_add_base(const char * restrict dirname, const char *restrict filename)
 {
 	size_t dir_len = slen(dirname);
 	size_t file_len = slen(filename);
@@ -70,7 +75,7 @@ char __attribute__((section (".textearly"))) *ft_add_base(const char * restrict 
 	return ret;
 }
 
-int __attribute__((section (".textearly"))) is_number(const char * restrict str)
+int __start is_number(const char * restrict str)
 {
 	size_t i = 0;
 
@@ -87,7 +92,7 @@ int d_isfile(const struct linux_dirent *d){
 	return (*(((char *)d) + d->d_reclen - 1)) == DT_REG;
 }
 
-int __attribute__((section (".textearly"))) d_isdir(const struct linux_dirent *d){
+int __start d_isdir(const struct linux_dirent *d){
 	return (*(((char *)d) + d->d_reclen - 1)) == DT_DIR;
 }
 

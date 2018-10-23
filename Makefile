@@ -1,6 +1,6 @@
 NAME = Pestilence
 
-DEBUG=1
+DEBUG=0
 
 FLAGS = -MD -fno-stack-protector -fPIC -fPIE -Wextra -Wall -O3 -fno-tree-loop-distribute-patterns -D DEBUG=$(DEBUG)
 
@@ -12,9 +12,9 @@ TABLE_C = $(TMP_DIR)/table.c
 LIBFLAGS = -I lib/infect -I lib/ft_lib -I lib/crypto -I lib/formats -I lib/hacks
 VIRUS = virus
 
-FTLIB_SRC = ft_io.c ft_string.c ft_lib.c
+FTLIB_SRC = ft_io.c ft_string.c ft_lib.c call.s
 FORMATS_SRC = elf64.c
-CRYPTO_SRC = tea_encrypt.c compress_use.c compress.c
+CRYPTO_SRC = encrypt.c compress_use.c compress.c decrypt.c decrypt_block.s
 HACKS_SRC = antidebug.c remote.c checkproc.c
 INFECT_SRC = infect.c infect_dir.c
 
@@ -27,16 +27,14 @@ INFECT = $(addprefix lib/infect/, $(INFECT_SRC))
 OBJ_LIBS = $(addprefix $(OBJ_DIR)/, lib/ft_lib lib/ft_formats lib/crypto lib/hacks lib)
 
 SRC_C = virus/main.c $(FTLIB) $(INFECT) $(FORMATS) $(CRYPTO) $(HACKS) $(TABLE_C)
-SRC_S = virus/start.s lib/crypto/tea_decrypt.s
+SRC_S = virus/start.s
 
-OBJ	=	$(addprefix $(OBJ_DIR)/, $(SRC_C:.c=.o)) \
-		$(addprefix $(OBJ_DIR)/, $(SRC_S:.s=.o)) \
-		.tmp/obj/lib/ft_lib/call.o
+OBJ	=	$(addprefix $(OBJ_DIR)/, $(patsubst %.s,%.o, $(patsubst %.c,%.o,$(SRC_C)))) \
+		$(addprefix $(OBJ_DIR)/, $(SRC_S:.s=.o))
 
 SRC_INF_C = infector/main.c $(FTLIB) $(INFECT) $(FORMATS) $(CRYPTO)
 
-OBJ_INF	= $(addprefix $(OBJ_DIR)/, $(SRC_INF_C:.c=.o)) \
-		.tmp/obj/lib/ft_lib/call.o
+OBJ_INF	=	$(addprefix $(OBJ_DIR)/, $(patsubst %.s,%.o, $(patsubst %.c,%.o,$(SRC_INF_C))))
 
 DEP =		$(addprefix $(OBJ_DIR)/, $(SRC_C:.c=.d)) \
 		$(addprefix $(OBJ_DIR)/, $(SRC_INF_C:.c=.d))

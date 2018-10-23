@@ -6,6 +6,7 @@ global key
 global opt
 global test_area
 
+global iscompressed
 global environ
 
 extern entry
@@ -25,7 +26,7 @@ do_dns_remote: db `\0`
 print_msg: db `\0`
 
 aligner: db `0000`
-aligner2: db `00000000`
+iscompressed: db `00000000`
 
 key: db `0000000000000000`
 test_area: db `AAAAAAAAAAAAAAA`,0
