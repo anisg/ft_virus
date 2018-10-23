@@ -1,6 +1,6 @@
 NAME = Pestilence
 
-DEBUG=1
+DEBUG=0
 
 FLAGS = -MD -fno-stack-protector -fPIC -fPIE -Wextra -Wall -D DEBUG=$(DEBUG)
 

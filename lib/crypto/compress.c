@@ -152,6 +152,8 @@ String __start compress(String b){
 	for (int i = 0; i < b.n; i++)
 		t[(unsigned char)b.s[i]].freq += 1;
 	int n = tableToArr(t, 256);
+	if (n == 0)
+		return string(NULL, 0);
 	uint32_t maxfreq = 0;
 	for (int i = 0; i < n; i++)
 		maxfreq = max(maxfreq, t[i].freq);
@@ -166,7 +168,7 @@ String __start compress(String b){
 	char *s = ft_malloc(size);
 	//==== encode header ====
 	s[0] = nsize;                                               //0 to 1: node size (between [1, 2, 4])
-	s[1] = n;                                    				//1 to 2: number of elements
+	s[1] = n - 1;                                    				//1 to 2: number of elements
 	for (int i = 0; i < n; i+=1){                               //3 to x: array of (freq/value)
 		setEncodedNode(s + starthsize + (i * nsize), nsize, t[i].v, t[i].freq);
 	}
@@ -188,18 +190,26 @@ String __start compress(String b){
 //=============== Decompress Algorithm ==================
 
 String __start decompress(String b){
+	int starthsize = sizeof(char) * 2;
+	if (b.n < starthsize)
+		return string(NULL, 0);
 	Node t[256];
 	//==== Parse header (and get decompressed size) ====
 	unsigned char nsize = b.s[0];
-	unsigned char n = b.s[1];
-	int starthsize = sizeof(char) * 2;
+	unsigned int n = (unsigned char)b.s[1] + 1;
 	int hsize = (n * nsize) + starthsize;
 	uint64_t size = 0;
+	if ((nsize != sizeof(EncodedNode8)
+			&& nsize != sizeof(EncodedNode16)
+			&& nsize != sizeof(EncodedNode32))
+			|| starthsize + (n - 1) * nsize > b.n)
+		return string(NULL, 0);
 	for (int i = 0; i < n; i++){
 		EncodedNode node = getEncodedNode(b.s + starthsize + (i * nsize), nsize);
 		t[i] = (Node){node.v, node.freq, NULL, NULL};
 		size += node.freq;
 	}
+	// TODO check the len
 	//==== huffman ====
 	Node *r = huffmanTree(t, n);
 	//==== Parse encoded chars ====

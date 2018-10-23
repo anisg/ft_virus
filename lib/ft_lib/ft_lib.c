@@ -33,7 +33,7 @@ __start void	restore_rt()
     if (SYS_HAVE_FAIL(p))
         return NULL;
     p[0] = size; //storing the size
-    return p + sizeof(size_t);
+    return (char*)p + sizeof(size_t);
 }
 
 

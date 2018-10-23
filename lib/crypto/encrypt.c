@@ -27,6 +27,29 @@ uint64_t encrypt(char *s, uint64_t n, uint32_t *k, bool *compressed){
 		return 0;
 	}
 	String out = compress(string(s,n));
+
+	/*String out_out = decompress(out);
+	if (out_out.n != n)
+	{
+		PUT('S')
+	}
+	{
+		size_t i;
+		for (i = 0; i < n && i < out_out.n; i++)
+			if (out_out.s[i] != s[i])
+			{
+				PUT('H')
+			}
+		for (;i < n; i++)
+		{
+			PUT('L')
+		}
+		for (;i < out_out.n; i++)
+		{
+			PUT('M')
+		}
+	}*/
+
 	if (out.n >= n){
 		debug("compress.nope: did not compress");
 		__encrypt(s, n, k);

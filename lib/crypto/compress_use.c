@@ -4,7 +4,7 @@
 //==================== Sort =============================
 
 void __start __swap(void *a, void *b, uint64_t len){
-	void *tmp = ft_malloc(len);
+	void *tmp = ft_malloc(len);// TODO check malloc
 
 	ft_memcpy(tmp, a, len);
 	ft_memcpy(a, b, len);
