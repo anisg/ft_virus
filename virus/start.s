@@ -8,6 +8,8 @@ global test_area
 
 global iscompressed
 global environ
+global seed
+global fingerprint
 
 extern entry
 extern decrypt
@@ -31,7 +33,8 @@ iscompressed: db `00000000`
 key: db `0000000000000000`
 test_area: db `AAAAAAAAAAAAAAA`,0
 
-signature: db `Pestilence version 1.0 (c)oded by ndombre-agadhgad-AAAAAAAA`,0
+signature: db `Pestilence version 1.0 (c)oded by ndombre-agadhgad-`
+fingerprint: db `AAAAAAAA`,0
 
 environ: db `00000000`
 
@@ -105,3 +108,6 @@ core:
 	push r14
 	mov r14, 0
 	ret
+
+data2:
+	seed: db `00000000`
