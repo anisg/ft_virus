@@ -14,18 +14,18 @@ extern struct s_opt opt;
 extern uint64_t iscompressed;
 extern char test_area;
 extern char   key[16];
+extern uint64_t seed;
+extern uint64_t fingerprint;
 
 //======================== WAR ===============================
 
-unsigned int ft_rand(){
-	uint32_t		u;
-	int             fd;
+uint32_t ft_rand(){
+	seed = ((uint64_t)seed * 48271u) % 0x7fffffff;
+	return seed;
+}
 
-	if ((fd = ft_open("/dev/urandom", 0, 0)) == -1)
-		return FALSE;
-	ft_read(fd, &u, sizeof(u));
-	ft_close(fd);
-	return u;
+void ft_srand(){
+	seed = fingerprint;
 }
 
 int _replace_jmp_gb(Garbage g){
@@ -40,6 +40,7 @@ int _replace_jmp_gb(Garbage g){
 }
 
 void change_garbage_code(){
+	ft_srand();
 	//print("now: ");printnbln(garbage_table_len);
 	for (size_t i = 0 ; i < garbage_table_len - 1; i++){
 		_replace_jmp_gb(garbage_table[i]);
