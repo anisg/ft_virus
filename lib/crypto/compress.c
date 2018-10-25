@@ -159,6 +159,7 @@ String __start compress(String b){
 		maxfreq = max(maxfreq, t[i].freq);
 	//==== huffman ====
 	Node *r = huffmanTree(t, n);
+	if (!r) return string(NULL,0);
 	//==== get compressed size ====
 	int nsize = (maxfreq <= 255) ? sizeof(EncodedNode8) : (maxfreq <= 65535) ? sizeof(EncodedNode16) : sizeof(EncodedNode32);
 	int starthsize = sizeof(char) * 2;
@@ -166,6 +167,7 @@ String __start compress(String b){
 	int cost = huffmanCost(r);                                  //cost in bits (i.e: 1char = 8bits)
 	uint32_t size = ((cost+(8-cost%8))/8) + hsize;
 	char *s = ft_malloc(size);
+	if (!s) return string(NULL,0);
 	//==== encode header ====
 	s[0] = nsize;                                               //0 to 1: node size (between [1, 2, 4])
 	s[1] = n - 1;                                    				//1 to 2: number of elements
@@ -212,8 +214,10 @@ String __start decompress(String b){
 	// TODO check the len
 	//==== huffman ====
 	Node *r = huffmanTree(t, n);
+	if (!r) return string(NULL,0);
 	//==== Parse encoded chars ====
 	char *s = ft_malloc(size);
+	if (!s) return string(NULL,0);
 	char c;
 	uint64_t cost = huffmanCost(r);
 	uint64_t bp = 0;
@@ -225,30 +229,3 @@ String __start decompress(String b){
 	huffmanDelete(r);
 	return string(s, size);
 }
-
-/*
-//=======================================================
-//=============== Test Main =============================
-
-int main(int ac, char **av){
-	char *s; size_t l;
-	char cmpr[1024]; char dcmpr[1024];
-
-	if (!fget(av[1], &s, &l))
-		return -1;
-	sprintf(cmpr, "%s.cmpr", av[1]);
-	sprintf(dcmpr, "%s.dcmpr", av[1]);
-	String *in = string(s,l);
-
-	printf("Compress\n");
-	String *out = compress(in);
-
-	printf("Decompress\n");
-	String *test = decompress(out);
-
-	if (!fput(dcmpr, test->s, test->n) || !fput(cmpr, out->s, out->n))
-		printf("FAIL\n");
-	else
-		printf("Done! created \'%s\' (compressed file) and \'%s\' (decompressed file)\n", cmpr, dcmpr);
-}
-*/
