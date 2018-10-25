@@ -6,6 +6,8 @@ ENTRY(_infect)
 	.text : {
 		*(.textstart)
 		*(.textearly)
+		cmpr_start = .;
+		*(.textcmpr)
 		crypt_start = .;
 		*(.text)
 	}

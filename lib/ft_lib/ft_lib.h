@@ -114,6 +114,8 @@ uint64_t fail(char *s);
 	#define debug(...) (0)
 	#define debugnb(...) (0)
 #endif
+
 #define __start __attribute__((section (".textearly")))
+#define __zone2 __attribute__((section (".textcmpr")))
 
 #endif

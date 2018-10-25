@@ -3,7 +3,7 @@
 //=======================================================
 //==================== Sort =============================
 
-void __start swap(void *a, void *b, uint64_t len){
+void __zone2 swap(void *a, void *b, uint64_t len){
 	void *tmp = ft_malloc(len);// TODO check malloc
 
 	ft_memcpy(tmp, a, len);
@@ -12,7 +12,7 @@ void __start swap(void *a, void *b, uint64_t len){
 	ft_free(tmp);
 }
 
-void __start sort(void *arr, uint64_t n, uint64_t len, int (*comp)(void *a, void *b)){
+void __zone2 sort(void *arr, uint64_t n, uint64_t len, int (*comp)(void *a, void *b)){
 	//n^2 quick impl
 	for (int i = 1; i < n; i++){
 		void *a = arr + ((i-1)*len);
@@ -26,7 +26,7 @@ void __start sort(void *arr, uint64_t n, uint64_t len, int (*comp)(void *a, void
 //=======================================================
 //==================== MinQueue =========================
 
-MinQueue __start *minQueue(void *arr, uint64_t n, uint64_t len, int (*less)(void *a, void *b)){
+MinQueue __zone2 *minQueue(void *arr, uint64_t n, uint64_t len, int (*less)(void *a, void *b)){
 	MinQueue *mq = ft_malloc(sizeof(*mq));
 	if (!mq)
 		return NULL;
@@ -46,11 +46,11 @@ MinQueue __start *minQueue(void *arr, uint64_t n, uint64_t len, int (*less)(void
 	return mq;
 }
 
-bool __start mqEmpty(MinQueue *mq){
+bool __zone2 mqEmpty(MinQueue *mq){
 	return (mq->n == 0);
 }
 
-void __start *mqExtractMin(MinQueue *mq){
+void __zone2 *mqExtractMin(MinQueue *mq){
 	if (mqEmpty(mq))
 		return NULL;
 	void *tmp = ft_malloc(mq->len);
@@ -81,7 +81,7 @@ void __start *mqExtractMin(MinQueue *mq){
 	return tmp;
 }
 
-bool __start mqInsert(MinQueue *mq, void *d){
+bool __zone2 mqInsert(MinQueue *mq, void *d){
 	//O(log2(n))
 	if (mq->n == mq->mn)
 		return FALSE;
@@ -108,6 +108,6 @@ bool __start mqInsert(MinQueue *mq, void *d){
 //=======================================================
 //==================== String ===========================
 
-String __start string(char *s, uint64_t n){
+String __zone2 string(char *s, uint64_t n){
 	return (String){s,n};
 }
