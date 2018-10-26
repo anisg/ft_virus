@@ -1,10 +1,10 @@
 #include "crypto.h"
 
 void encrypt_block(uint32_t* v, uint32_t *k) {
-	uint32_t v0=v[0], v1=v[1], sum=0, i;           /* initialisation */
-	uint32_t delta=0x9e3779b9;                     /* constantes de clef */
-	uint32_t k0=k[0], k1=k[1], k2=k[2], k3=k[3];   /* mise en cache de la clef */
-	for (i=0; i < 32; i++) {                       /* boucle principale */
+	uint32_t v0=v[0], v1=v[1], sum=0, i;          
+	uint32_t delta=0x9e3779b9;                     
+	uint32_t k0=k[0], k1=k[1], k2=k[2], k3=k[3];   
+	for (i=0; i < 32; i++) {                       
 		sum += delta;
 		v0 += ((v1<<4) + k0) ^ (v1 + sum) ^ ((v1>>5) + k1);
 		v1 += ((v0<<4) + k2) ^ (v0 + sum) ^ ((v0>>5) + k3);
@@ -21,34 +21,28 @@ void __encrypt(char *s, uint64_t n, uint32_t *k){
 	}
 }
 
-uint64_t encrypt(char *s, uint64_t n, uint32_t *k, bool *compressed){
+/*
+	encrypt (s, n, key, compressed)
+	--------------------------------------------------------------------------
+	- s: area to decrypt
+	- n: length of the area
+	- key: 16 bytes key
+	- compressed: pointer to boolean that do 2 things;
+				  1) if value is FALSE, it will not compress
+				  2) if value is TRUE, it will try to compress, then it will
+				     change the value to TRUE or FALSE if the compression succeed
+	--------------------------------------------------------------------------
+	return -1 if fail, 0, or more if the compression work (the number of removed bytes after compression)
+*/
+
+int64_t encrypt(char *s, uint64_t n, uint32_t *k, bool *compressed){
 	if ((*compressed) == FALSE){
 		__encrypt(s, n, k);
 		return 0;
 	}
 	String out = compress(string(s,n));
-
-	/*String out_out = decompress(out);
-	if (out_out.n != n)
-	{
-		PUT('S')
-	}
-	{
-		size_t i;
-		for (i = 0; i < n && i < out_out.n; i++)
-			if (out_out.s[i] != s[i])
-			{
-				PUT('H')
-			}
-		for (;i < n; i++)
-		{
-			PUT('L')
-		}
-		for (;i < out_out.n; i++)
-		{
-			PUT('M')
-		}
-	}*/
+	if (out.s == NULL)
+		return -1;
 
 	if (out.n >= n){
 		debug("compress.nope: did not compress");

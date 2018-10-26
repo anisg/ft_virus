@@ -11,7 +11,7 @@
 // Methods for encrypting using TEA algorithm (in ASM)
 //==============================================================================
 
-uint64_t encrypt(char *s, uint64_t n, uint32_t *k, bool *compressed);
+int64_t encrypt(char *s, uint64_t n, uint32_t *k, bool *compressed);
 
 //==============================================================================
 // tea_decrypt.s (in ASM)
@@ -19,7 +19,7 @@ uint64_t encrypt(char *s, uint64_t n, uint32_t *k, bool *compressed);
 // Methods for decrypting using TEA algorithm
 //==============================================================================
 
-void decrypt(char *s, uint64_t n, uint32_t *k, bool iscompressed);
+int64_t decrypt(char *s, uint64_t n, uint32_t *k, bool iscompressed);
 
 //==============================================================================
 // compress_use.c

@@ -52,15 +52,18 @@ void change_garbage_code(){
 int __start decryptHiddenCode(){
 	uint32_t *k = (uint32_t *)key;
 	//-- decrypt z2        ------
-	decrypt(&cmpr_start, ((size_t)&cmpr_end) - ((size_t)&cmpr_start), k, FALSE);
+	if (decrypt(&cmpr_start, ((size_t)&cmpr_end) - ((size_t)&cmpr_start), k, FALSE) == -1)
+		return FALSE;
 
 	//-- decrypt z3        ------
 	char *s = ((char*)&crypt_start);
 	uint64_t n = ((size_t)&crypt_end) - ((size_t)&crypt_start);
-	decrypt(s,n,k, iscompressed);
+	if (decrypt(s,n,k, iscompressed) == -1)
+		return FALSE;
 
 	//-- decrypt test area ------
-	decrypt(&test_area,15,k, FALSE);
+	if (decrypt(&test_area,15,k, FALSE) == -1)
+		return FALSE;
 	//check test area
 	for (int i = 0; i < 15; i++)
 		if ((&test_area)[i] != 'A')
