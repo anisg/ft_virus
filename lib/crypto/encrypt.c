@@ -53,7 +53,7 @@ int64_t encrypt(char *s, uint64_t n, uint32_t *k, bool *compressed){
 		*compressed = TRUE;
 		__encrypt(out.s, out.n, k);
 		ft_memcpy(s, out.s, out.n);
-		debugnb("compress.stat: (before)", n, ", (now) ", out.n);
+		debug_ext("compress.stat: (before)", n, ", (now) ", out.n, "\n");
 		return n - out.n;
 	}
 }
