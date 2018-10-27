@@ -1,9 +1,9 @@
 NAME = Pestilence
 
-DEBUG=1
+DEBUG=0
 DEBUG_EXT=0
-
-FLAGS = -MD -fno-stack-protector -fPIC -fPIE -Wextra -Wall -O3 -fno-tree-loop-distribute-patterns -D DEBUG=$(DEBUG) -D DEBUG_EXT=$(DEBUG_EXT)
+FLAGS_IGNORE_WARNINGS=-Wno-unused-value -Wno-unused-variable -Wno-unused-parameter
+FLAGS = -MD -fno-stack-protector -fPIC -fPIE -Wextra -Wall -O3 -fno-tree-loop-distribute-patterns -D DEBUG=$(DEBUG) -D DEBUG_EXT=$(DEBUG_EXT) $(FLAGS_IGNORE_WARNINGS)
 
 SRC_DIR				= .
 TMP_DIR				= .tmp

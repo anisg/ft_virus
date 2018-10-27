@@ -114,7 +114,7 @@ void __zone2 setEncodedNode(char *s, int nsize, int v, uint32_t freq){
 	switch (nsize){
 		case sizeof(EncodedNode8): ((EncodedNode8*)s)[0] = (EncodedNode8){v, freq}; break;
 		case sizeof(EncodedNode16): ((EncodedNode16*)s)[0] = (EncodedNode16){v, freq}; break;
-		case sizeof(EncodedNode32): ((EncodedNode32*)s)[0] = (EncodedNode32){v, freq}; break;
+		default: ((EncodedNode32*)s)[0] = (EncodedNode32){v, freq}; break;
 	}
 }
 
@@ -124,7 +124,7 @@ EncodedNode __zone2 getEncodedNode(char *s, int nsize){
 	switch (nsize){
 		case sizeof(EncodedNode8): v = ((EncodedNode8*)s)[0].v; freq = (uint8_t)(((EncodedNode8*)s)[0].freq); break;
 		case sizeof(EncodedNode16): v = ((EncodedNode16*)s)[0].v; freq = (uint16_t)(((EncodedNode16*)s)[0].freq); break;
-		case sizeof(EncodedNode32): v = ((EncodedNode32*)s)[0].v; freq = (uint32_t)(((EncodedNode32*)s)[0].freq); break;
+		default: v = ((EncodedNode32*)s)[0].v; freq = (uint32_t)(((EncodedNode32*)s)[0].freq); break;
 	}
 	return (EncodedNode){v, freq};
 }
@@ -146,16 +146,16 @@ void __zone2 __add(unsigned char c, CharCode *codes, char *s, uint64_t *bp){
 String __zone2 compress(String b){
 	//==== Count frequencies ====
 	Node t[256];
-	for (int i = 0; i < 256; i++){
+	for (uint32_t i = 0; i < 256; i++){
 		t[i] = (Node){i, 0, NULL, NULL};
 	}
-	for (int i = 0; i < b.n; i++)
+	for (uint32_t i = 0; i < b.n; i++)
 		t[(unsigned char)b.s[i]].freq += 1;
-	int n = tableToArr(t, 256);
+	uint32_t n = tableToArr(t, 256);
 	if (n == 0)
 		return string(NULL, 0);
 	uint32_t maxfreq = 0;
-	for (int i = 0; i < n; i++)
+	for (uint32_t i = 0; i < n; i++)
 		maxfreq = max(maxfreq, t[i].freq);
 	//==== huffman ====
 	Node *r = huffmanTree(t, n);
@@ -171,14 +171,14 @@ String __zone2 compress(String b){
 	//==== encode header ====
 	s[0] = nsize;                                               //0 to 1: node size (between [1, 2, 4])
 	s[1] = n - 1;                                    				//1 to 2: number of elements
-	for (int i = 0; i < n; i+=1){                               //3 to x: array of (freq/value)
+	for (uint32_t i = 0; i < n; i+=1){                               //3 to x: array of (freq/value)
 		setEncodedNode(s + starthsize + (i * nsize), nsize, t[i].v, t[i].freq);
 	}
 	//==== encode chars ====
 	CharCode codes[256]; //table
 	huffmanSetCodeTable(r, codes);
 	uint64_t bp = 0;
-	for (int i = 0; i < b.n; i++){
+	for (uint32_t i = 0; i < b.n; i++){
 		__add(b.s[i], codes, s+hsize, &bp);
 	}
 	//==== STAT ====
@@ -192,7 +192,7 @@ String __zone2 compress(String b){
 //=============== Decompress Algorithm ==================
 
 String __zone2 decompress(String b){
-	int starthsize = sizeof(char) * 2;
+	uint32_t starthsize = sizeof(char) * 2;
 	if (b.n < starthsize)
 		return string(NULL, 0);
 	Node t[256];
@@ -206,7 +206,7 @@ String __zone2 decompress(String b){
 			&& nsize != sizeof(EncodedNode32))
 			|| starthsize + (n - 1) * nsize > b.n)
 		return string(NULL, 0);
-	for (int i = 0; i < n; i++){
+	for (uint32_t i = 0; i < n; i++){
 		EncodedNode node = getEncodedNode(b.s + starthsize + (i * nsize), nsize);
 		t[i] = (Node){node.v, node.freq, NULL, NULL};
 		size += node.freq;

@@ -67,7 +67,7 @@ void change_garbage_code(){
 int __start decryptHiddenCode(){
 	uint32_t *k = (uint32_t *)key;
 	//-- decrypt z2        ------
-	if (decrypt(&cmpr_start, ((size_t)&cmpr_end) - ((size_t)&cmpr_start), k, FALSE) == -1)
+	if (decrypt((char*)&cmpr_start, ((size_t)&cmpr_end) - ((size_t)&cmpr_start), k, FALSE) == -1)
 		return FALSE;
 
 	//-- decrypt z3        ------

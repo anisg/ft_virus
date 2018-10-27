@@ -72,13 +72,13 @@ void update(char *b, size_t n, size_t old_entry, size_t entry, struct s_opt opt,
 	//add a few information about himself
 	size_t pos = 0;
 	//modifying 2bit after
-	size_t *p = ((size_t *)(char*)(b + pos + DATA));
+	uint64_t *p = ((uint64_t *)(char*)(b + pos + DATA));
 	p[0] = max(old_entry,entry) - min(old_entry,entry);
 	struct s_opt *p_opt = (struct s_opt*)(((char *)b+DATA+8));
 	*p_opt = opt;
 	p[2] = compressed;
-	p[3] = ((size_t*)key)[0];
-	p[4] = ((size_t*)key)[1];
+	p[3] = ((uint64_t*)key)[0];
+	p[4] = ((uint64_t*)key)[1];
 	*(unsigned char*)(p + 3) ^= 0b01110010;
 	int c = FALSE;
 	encrypt((char*)(p+5), 15, (uint32_t*)key, &c);
