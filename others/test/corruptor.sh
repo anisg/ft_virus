@@ -9,25 +9,28 @@
 
 if [ -z "$1" ] || [ -z "$2" ]
 then
-	echo "Usage: $0 ./woody_woodpacker file"
+	echo "Usage: $0 ./BIN file"
    	exit 1
 fi
 
+bin=$1
 filename=$2
 
 # Retrieve size and trim spaces
 size=$(wc -c < "$filename" | xargs)
 
 echo $filename $size
-
+cp $filename > /tmp/ok
 for (( i=$size; i>0; i--))
 do
-	outname="$filename.part$i.__tmp"
+	rm -rf /tmp/test
+	mkdir /tmp/test
+	outname="/tmp/test/part$i.__tmp"
 	head -c $i "$filename" > "$outname"
-	$1 $outname
-	#$( head -c $i "$filename" | $1 - 1>/dev/null 2>&1 )
+	$bin
 	retval=$?
 	echo -n "Part $i: "
+	rm $outname
 	if [ $retval -ne 0 ]
 	then
 		if [ $retval -ne 255 ]
@@ -40,5 +43,4 @@ do
 	else
 		echo "Ok"
 	fi
-	rm $outname
 done

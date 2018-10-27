@@ -109,7 +109,13 @@ re: fclean
 
 -include $(DEP)
 
-.PHONY: all re clean fclean test unit_test
+.PHONY: all re clean fclean test unit_test test_corruptor
+
+test_corruptor: all
+	echo 'int main(){printf("SALUT\\n");}' > /tmp/oki.c
+	gcc /tmp/oki.c -o /tmp/oki
+	(cd others/test && ./corruptor.sh ./../../$(NAME) /tmp/oki)
+	
 
 test: all
 	(cd others/test && ./run.sh)
