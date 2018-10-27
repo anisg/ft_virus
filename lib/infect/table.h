@@ -4,7 +4,7 @@
 typedef struct s_garbage {
 	unsigned int off;
 	unsigned int len;
-} Garbage;
+} /*__attribute__((packed))*/ Garbage;
 
 extern Garbage garbage_table[];
 extern unsigned int garbage_table_len;

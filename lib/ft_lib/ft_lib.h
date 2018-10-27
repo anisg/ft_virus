@@ -66,13 +66,14 @@ int d_isfile(const struct linux_dirent *d);
 int d_isdir(const struct linux_dirent *d);
 uint64_t fail(char *s);
 
-#if DEBUG
+#if DEBUG || DEBUG_EXT
 	#if defined(__GNUC__)
 		#include <stdarg.h>
 		/* GCC-style: named argument, empty arg is OK */
 		# define N_ARGS(args...) N_ARGS_HELPER1(args, 9, 8, 7, 6, 5, 4, 3, 2, 1)
 		# define N_ARGS_HELPER1(args...) N_ARGS_HELPER2(args)
 		# define N_ARGS_HELPER2(x1, x2, x3, x4, x5, x6, x7, x8, x9, n, x...) n
+		#if DEBUG
 		# define debug(args...) __debug(N_ARGS(args), args)
 		static inline void __debug(uint32_t n, ...)
 		{
@@ -87,8 +88,12 @@ uint64_t fail(char *s);
 			print("\n");
 			va_end(ap);
 		}
-		# define debugnb(s, args...) __debugnb(s, N_ARGS(args), args)
-		static inline void __debugnb(char *s, uint32_t n, ...)
+		#else
+			#define debug(...) (0)
+		#endif
+		#if DEBUG_EXT
+		# define debug_ext(s, args...) __debug_ext(s, N_ARGS(args), args)
+		static inline void __debug_ext(char *s, uint32_t n, ...)
 		{
   			va_list ap;
 
@@ -104,15 +109,17 @@ uint64_t fail(char *s);
 					print(x);
 				}
 			}
-			print("\n");
 			va_end(ap);
 		}
+		#else
+			#define debug_ext(...) (0)
+		#endif
 	#else
 		#error variadic macros for your compiler here
 	#endif
 #else
+	#define debug_ext(...) (0)
 	#define debug(...) (0)
-	#define debugnb(...) (0)
 #endif
 
 #define __start __attribute__((section (".textearly")))

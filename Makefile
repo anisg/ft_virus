@@ -1,8 +1,9 @@
 NAME=Pestilence
 
 DEBUG=0
-
-FLAGS = -fno-stack-protector -fPIC -fPIE -Wextra -Wall -O3 -fno-tree-loop-distribute-patterns -D DEBUG=$(DEBUG)
+DEBUG_EXT=0
+FLAGS_IGNORE_WARNINGS=-Wno-unused-value -Wno-unused-variable -Wno-unused-parameter
+FLAGS = -MD -fno-stack-protector -fPIC -fPIE -Wextra -Wall -O3 -fno-tree-loop-distribute-patterns -D DEBUG=$(DEBUG) -D DEBUG_EXT=$(DEBUG_EXT) $(FLAGS_IGNORE_WARNINGS)
 
 SRC_DIR				= .
 TMP_DIR				= .tmp
@@ -117,7 +118,13 @@ re: fclean
 
 -include $(DEP)
 
-.PHONY: all re clean fclean test unit_test
+.PHONY: all re clean fclean test unit_test test_corruptor
+
+test_corruptor: all
+	echo 'int main(){printf("SALUT\\n");}' > /tmp/oki.c
+	gcc /tmp/oki.c -o /tmp/oki
+	(cd others/test && ./corruptor.sh ./../../$(NAME) /tmp/oki)
+	
 
 test: all
 	(cd others/test && ./run.sh)

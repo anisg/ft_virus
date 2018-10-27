@@ -14,7 +14,7 @@ void __zone2 swap(void *a, void *b, uint64_t len){
 
 void __zone2 sort(void *arr, uint64_t n, uint64_t len, int (*comp)(void *a, void *b)){
 	//n^2 quick impl
-	for (int i = 1; i < n; i++){
+	for (uint32_t i = 1; i < n; i++){
 		void *a = arr + ((i-1)*len);
 		void *b = arr + (i*len);
 		if (comp(a, b)){
@@ -40,7 +40,7 @@ MinQueue __zone2 *minQueue(void *arr, uint64_t n, uint64_t len, int (*less)(void
 	mq->len = len;
 	mq->less = less;
 	//insert in the mq
-	for (int i = 0; i < n; i++){
+	for (uint64_t i = 0; i < n; i++){
 		mqInsert(mq, arr + (i*len));
 	}
 	return mq;
