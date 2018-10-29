@@ -47,7 +47,7 @@ VIRUS_X = $(TMP_DIR)/virus_shellcode.c
 
 LD_RULES = virus/rules.lds
 
-all: $(NAME)
+all: $(NAME) fn_list
 
 $(NAME): $(VIRUS_X) $(OBJ_INF)
 	gcc -o $(NAME) $(OBJ_INF) $(VIRUS_X)
