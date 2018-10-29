@@ -92,6 +92,7 @@ if cf:
     n += off
     fput(cf, str(n))
 
-f = args.file + '.g.s'
+pre, ext = os.path.splitext(args.file)
+f = pre + ".s"
 fput(f, '\n'.join(lines))
 print("Success! added garbage ({} lines) to \"{}\"".format(off, f))
