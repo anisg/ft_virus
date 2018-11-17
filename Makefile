@@ -18,16 +18,18 @@ FORMATS_SRC = elf64.c
 CRYPTO_SRC = encrypt.c compress_use.c compress.c decrypt.c decrypt_block.s
 HACKS_SRC = antidebug.c remote.c checkproc.c
 INFECT_SRC = infect.c infect_dir.c
+POLY_SRC = poly.c
 
 FTLIB = $(addprefix lib/ft_lib/, $(FTLIB_SRC))
 FORMATS = $(addprefix lib/formats/, $(FORMATS_SRC))
 CRYPTO = $(addprefix lib/crypto/, $(CRYPTO_SRC))
 HACKS = $(addprefix lib/hacks/, $(HACKS_SRC))
 INFECT = $(addprefix lib/infect/, $(INFECT_SRC))
+POLY = $(addprefix lib/poly/, $(POLY_SRC))
 
-OBJ_LIBS = $(addprefix $(OBJ_DIR)/, lib/ft_lib lib/ft_formats lib/crypto lib/hacks lib)
+OBJ_LIBS = $(addprefix $(OBJ_DIR)/, lib/ft_lib lib/ft_formats lib/crypto lib/hacks lib lib/poly)
 
-SRC_C = virus/main.c $(FTLIB) $(INFECT) $(FORMATS) $(CRYPTO) $(HACKS)
+SRC_C = virus/main.c $(FTLIB) $(INFECT) $(FORMATS) $(CRYPTO) $(HACKS) $(POLY)
 SRC_S = virus/start.s
 
 OBJ_NO_TABLE=	$(addprefix $(OBJ_DIR)/, $(patsubst %.s,%.o, $(patsubst %.c,%.o,$(SRC_C)))) \
