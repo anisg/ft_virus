@@ -11,7 +11,7 @@
 // Methods for encrypting using TEA algorithm (in ASM)
 //==============================================================================
 
-int64_t encrypt(char *s, uint64_t n, uint32_t *k, bool *compressed);
+int64_t encrypt(char *s, uint64_t n, uint32_t *k, bool *compressed, void (*fn)(char *, size_t, uint64_t[2]));
 
 //==============================================================================
 // tea_decrypt.s (in ASM)

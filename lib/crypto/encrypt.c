@@ -35,7 +35,7 @@ void __encrypt(char *s, uint64_t n, uint32_t *k){
 	return -1 if fail, 0, or more if the compression work (the number of removed bytes after compression)
 */
 
-int64_t encrypt(char *s, uint64_t n, uint32_t *k, bool *compressed){
+int64_t encrypt(char *s, uint64_t n, uint32_t *k, bool *compressed, void (*fn)(char *, size_t, uint64_t[2])){
 	if ((*compressed) == FALSE){
 		__encrypt(s, n, k);
 		return 0;

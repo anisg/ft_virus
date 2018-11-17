@@ -14,6 +14,16 @@ void __start *ft_malloc(size_t size)
     return (char*)p + sizeof(size_t);
 }
 
+void __start *ft_malloc_x(size_t size)
+{
+    ssize_t *p = (void*)CALL(SYS_mmap, NULL, sizeof(size_t)+size, PROT_READ | PROT_WRITE | PROT_EXEC,MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
+    if (SYS_HAVE_FAIL(p))
+        return NULL;
+    p[0] = size; //storing the size
+    return (char*)p + sizeof(size_t);
+}
+
+
 #define SA_RESTORER 0x04000000
 #define SA_SIGNAL_NB 128
 
