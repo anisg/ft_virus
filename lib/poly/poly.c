@@ -4,6 +4,7 @@
 #include <stdlib.h>
 #include <sys/mman.h>
 #include "ins.h"
+#include "ft_lib.h"
 
 void ploy_ins_add(char *data, size_t *i, char *ins, size_t ins_size)
 {
@@ -41,18 +42,20 @@ int poly_generate(void **crypt, void **decrypt)
 
 	size_t i = 0;
 	size_t j = 0;
-
+	debug_ext("BEGIN TO POLY C", 0, "\n");
 	//ploy_ins_add(*crypt, &i, INS_PUSH_RBP, sizeof(INS_PUSH_RBP) - 1);
 	//ploy_ins_add(*crypt, &i, INS_MOV_RSP_RBP, sizeof(INS_MOV_RSP_RBP) - 1);
 	ploy_ins_add(*crypt, &i, INS_MOV_RCX_RSI, sizeof(INS_MOV_RCX_RSI) - 1);
 	ploy_ins_add(*crypt, &i, INS_K1_R8, sizeof(INS_K1_R8) - 1);
 	ploy_ins_add(*crypt, &i, INS_K2_R9, sizeof(INS_K2_R9) - 1);
 
+	debug_ext("BEGIN TO POLY D", 0, "\n");
 	//ploy_ins_add(*decrypt, &j, INS_PUSH_RBP, sizeof(INS_PUSH_RBP) - 1);
 	//ploy_ins_add(*decrypt, &j, INS_MOV_RSP_RBP, sizeof(INS_MOV_RSP_RBP) - 1);
 	ploy_ins_add(*decrypt, &j, INS_MOV_RCX_RSI, sizeof(INS_MOV_RCX_RSI) - 1);
 	ploy_ins_add(*decrypt, &j, INS_K1_R8, sizeof(INS_K1_R8) - 1);
 	ploy_ins_add(*decrypt, &j, INS_K2_R9, sizeof(INS_K2_R9) - 1);
+	debug_ext("END", 0, "\n");
 
 	#define NB_ELEM 14
 	#define INS_MAX 120

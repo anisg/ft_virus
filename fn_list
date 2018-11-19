@@ -51,6 +51,7 @@ _infect
 iscompressed
 is_number
 key
+NOPE
 opt
 print_debugging
 print_msg

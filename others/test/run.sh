@@ -48,9 +48,9 @@ test_with()
 	strings /tmp/test2/testv | grep ndombre | wc -l | diff - /tmp/test/1
 	printOk
 
-	printTest "4: diff" "binary diff between /test and /test2 different from $X"
-	(! diff $X /tmp/test/testv 1>/dev/null) || printFail "(/tmp/test/testv differ from $X)" || return 1
-	(! diff $X /tmp/test2/testv 1>/dev/null) || printFail "(/tmp/test2/testv differ from $X)" || return 1
+	printTest "4: diff" "binary diff with $X (original), must be different"
+	(! diff $X /tmp/test/testv 1>/dev/null) || printFail "(/tmp/test/testv does not differ from $X)" || return 1
+	(! diff $X /tmp/test2/testv 1>/dev/null) || printFail "(/tmp/test2/testv does not differ from $X)" || return 1
 	printOk
 
 	rm -rf /tmp/test2/testv /tmp/test/testv /tmp/test/1

@@ -35,6 +35,7 @@ size_t call(size_t p1, size_t p2, size_t p3, size_t sys_num, ...);
 #define __zone2 __attribute__((section (".textcmpr")))
 
 void *ft_malloc(size_t size);
+void *ft_malloc_x(size_t size);
 int ft_signal(int signum, void (*handler)(int));
 
 size_t slen(const char *s);
