@@ -80,7 +80,7 @@ uint64_t fail(char *s);
 		# define N_ARGS_HELPER2(x1, x2, x3, x4, x5, x6, x7, x8, x9, n, x...) n
 		#if DEBUG
 		# define debug(args...) __debug(N_ARGS(args), args)
-		static inline void __debug(uint32_t n, ...)
+		static inline void  __attribute__((section (".textearly"))) __debug(uint32_t n, ...)
 		{
   			char *s;
   			va_list ap;
@@ -89,12 +89,17 @@ uint64_t fail(char *s);
 			for (uint32_t i = 0; i < n; i++) {
 				s = va_arg(ap, char *);
 				print(s);
+				return ;
 			}
-			print("\n");
+			char c[2];
+			c[0]='\n';
+			c[1]='\0';
+			print((char*)c);
+			c[0] += n;
 			va_end(ap);
 		}
 		#else
-			#define debug(...) (0)
+			#define debug(...)
 		#endif
 		#if DEBUG_EXT
 		# define debug_ext(s, args...) __debug_ext(s, N_ARGS(args), args)
@@ -117,14 +122,14 @@ uint64_t fail(char *s);
 			va_end(ap);
 		}
 		#else
-			#define debug_ext(...) (0)
+			#define debug_ext(...)
 		#endif
 	#else
 		#error variadic macros for your compiler here
 	#endif
 #else
-	#define debug_ext(...) (0)
-	#define debug(...) (0)
+	#define debug_ext(...)
+	#define debug(...)
 #endif
 
 #endif

@@ -9,6 +9,10 @@ cmpproc
 core
 data
 data2
+__debug
+__debug
+__debug
+__debug
 decrypt
 decrypt_block
 decryptHiddenCode
@@ -44,6 +48,7 @@ ft_ptrace
 ft_read
 ft_signal
 ft_waitpid
+ft_write
 getdents
 getdents
 handler
@@ -51,12 +56,16 @@ _infect
 iscompressed
 is_number
 key
-NOPE
 opt
+print
 print_debugging
+println
 print_msg
+printnb
+printnbln
 seed
 signature
 slen
+snbr
 test_area
 traceme

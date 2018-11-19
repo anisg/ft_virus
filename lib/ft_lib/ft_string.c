@@ -1,6 +1,6 @@
 #include "ft_lib.h"
 
-size_t __attribute__((section (".textearly"))) slen(char const *s)
+__start size_t slen(char const *s)
 {
     size_t i = 0;
     while (s[i])
@@ -80,7 +80,7 @@ int     contains(char *s, char *d)
     return (FALSE);
 }
 
-void  snbr(size_t nb, char *sn)
+__start void  snbr(size_t nb, char *sn)
 {
 	int   i;
 	int   j;

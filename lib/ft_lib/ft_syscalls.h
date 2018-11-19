@@ -22,7 +22,7 @@ static inline __attribute__((section (".textearly"))) void ft_free(void *p)
 	CALL2(SYS_munmap, &tab[-1], tab[-1]);
 }
 
-static inline ssize_t ft_write(int fd, const void *s, size_t n)
+static inline __attribute__((section (".textearly"))) ssize_t ft_write(int fd, const void *s, size_t n)
 {
 	return CALL(SYS_write, fd, (size_t)s, n);
 }

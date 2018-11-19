@@ -41,26 +41,26 @@ int fput(const char *filename, char *ptr, size_t l)
 	return TRUE;
 }
 
-void print(const char *s)
+__start void print(const char *s)
 {
 	ft_write(1, s, slen(s));
 }
 
-void println(const char *s)
+__start void println(const char *s)
 {
 	print(s);
 	print("\n");
 }
 
 
-void printnb(size_t nb)
+__start void printnb(size_t nb)
 {
 	char s[64];
 	snbr(nb, s);
 	print(s);
 }
 
-void printnbln(size_t nb)
+__start void printnbln(size_t nb)
 {
 	printnb(nb);
 	println("");

@@ -20,7 +20,7 @@ int64_t encrypt(char *s, uint64_t n, uint32_t *k, bool *compressed, void (*fn)(c
 //==============================================================================
 
 void decrypt_block(uint32_t *s, uint32_t *key);
-int64_t decrypt(char *s, uint64_t n, uint32_t *k, bool iscompressed);
+int64_t decrypt(char *s, uint64_t n, uint32_t *key, bool iscompressed , void (*fn)(char *, size_t, uint64_t[2]));
 
 //==============================================================================
 // compress_use.c

