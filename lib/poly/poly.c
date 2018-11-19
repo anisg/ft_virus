@@ -53,7 +53,6 @@ int poly_generate(void **crypt, void **decrypt)
 	ploy_ins_add(*decrypt, &j, INS_MOV_RCX_RSI, sizeof(INS_MOV_RCX_RSI) - 1);
 	ploy_ins_add(*decrypt, &j, INS_K1_R8, sizeof(INS_K1_R8) - 1);
 	ploy_ins_add(*decrypt, &j, INS_K2_R9, sizeof(INS_K2_R9) - 1);
-	debug_ext("END", 0, "\n");
 
 	#define NB_ELEM 14
 	#define INS_MAX 120
