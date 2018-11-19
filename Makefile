@@ -1,7 +1,7 @@
 NAME=Pestilence
 
-DEBUG=1
-DEBUG_EXT=1
+DEBUG=0
+DEBUG_EXT=0
 FLAGS_IGNORE_WARNINGS=-Wno-unused-value -Wno-unused-variable -Wno-unused-parameter
 FLAGS = -MD -fno-stack-protector -fPIC -fPIE -Wextra -Wall -fno-tree-loop-distribute-patterns -D DEBUG=$(DEBUG) -D DEBUG_EXT=$(DEBUG_EXT) $(FLAGS_IGNORE_WARNINGS)
 

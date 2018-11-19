@@ -9,10 +9,6 @@ cmpproc
 core
 data
 data2
-__debug
-__debug
-__debug
-__debug
 decrypt
 decrypt_block
 decryptHiddenCode

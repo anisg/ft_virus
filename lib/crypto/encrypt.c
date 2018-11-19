@@ -37,7 +37,8 @@ void __encrypt(char *s, uint64_t n, uint32_t *k){
 
 int64_t encrypt(char *s, uint64_t n, uint32_t *k, bool *compressed, void (*fn)(char *, size_t, uint64_t[2])){
 	if ((*compressed) == FALSE){
-		__encrypt(s, n, k);
+		fn(s, n, k);
+		//__encrypt(s, n, k);
 		return 0;
 	}
 	String out = compress(string(s,n));
