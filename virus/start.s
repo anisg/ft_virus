@@ -110,4 +110,4 @@ core:
 	ret
 
 data2:
-	seed: db `00000000`
+	seed: db `10400709`
