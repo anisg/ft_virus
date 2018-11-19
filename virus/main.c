@@ -415,6 +415,7 @@ extern uint64_t fingerprint;
 //======================== WAR ===============================
 
 uint32_t ft_rand(){
+		seed ^= fingerprint;
 		seed = ((uint64_t)seed * 48271u) % 0x7fffffff;
 		return seed;
 }
