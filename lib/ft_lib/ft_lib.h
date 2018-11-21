@@ -89,7 +89,6 @@ uint64_t fail(char *s);
 			for (uint32_t i = 0; i < n; i++) {
 				s = va_arg(ap, char *);
 				print(s);
-				return ;
 			}
 			char c[2];
 			c[0]='\n';
@@ -102,16 +101,14 @@ uint64_t fail(char *s);
 			#define debug(...)
 		#endif
 		#if DEBUG_EXT
-		# define debug_ext(s, args...) __debug_ext(s, N_ARGS(args), args)
-		static inline void __debug_ext(char *s, uint32_t n, ...)
+		# define debug_ext(args...) __debug_ext(N_ARGS(args), args)
+		static inline void __attribute__((section (".textearly"))) __debug_ext(uint32_t n, ...)
 		{
   			va_list ap;
 
 			va_start(ap, n);
-			print(s);
-			print(" ");
 			for (uint32_t i = 0; i < n; i++) {
-				if (i % 2 == 0){
+				if (i % 2 != 0){
 					int32_t nb = va_arg(ap, int32_t);
 					printnb(nb);
 				} else {

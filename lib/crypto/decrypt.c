@@ -13,10 +13,6 @@
 */
 
 int64_t __start decrypt(char *s, uint64_t n, uint32_t *key, bool iscompressed , void (*fn)(char *, size_t, uint64_t[2])){
-    /*for (uint64_t i = 0; i < n; i += 8){
-        if (i + 8 < n)
-            decrypt_block((uint32_t*)(s + i), key);
-	}*/
 	fn(s,n,key);
 	if (iscompressed){
 		String out = decompress(string(s,n));

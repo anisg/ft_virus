@@ -42,10 +42,10 @@ int __zone2 tableToArr(Node *t, int n){
 Node __zone2 *huffmanTree(Node *arr, int n){
 	MinQueue *mq = minQueue(arr, n, sizeof(Node), comp);
 
-	for (int i = 0; i < n-1; i++){
+	for (int i = 0; i < n; i++){
 		Node *a = mqExtractMin(mq);
 		Node *b = mqExtractMin(mq);
-		Node z = (Node){NOP, a->freq + b->freq, a, b};
+		Node z = (Node){NOP, (a ? a->freq : 0) + (b ? b->freq : 0), a, b};
 		mqInsert(mq, &z);
 	}
 	return mqExtractMin(mq); //root of the tree
@@ -179,6 +179,7 @@ String __zone2 compress(String b){
 	huffmanSetCodeTable(r, codes);
 	uint64_t bp = 0;
 	for (uint32_t i = 0; i < b.n; i++){
+
 		__add(b.s[i], codes, s+hsize, &bp);
 	}
 	//==== STAT ====
@@ -204,8 +205,9 @@ String __zone2 decompress(String b){
 	if ((nsize != sizeof(EncodedNode8)
 			&& nsize != sizeof(EncodedNode16)
 			&& nsize != sizeof(EncodedNode32))
-			|| starthsize + (n - 1) * nsize > b.n)
+			|| starthsize + (n - 1) * nsize > b.n){
 		return string(NULL, 0);
+	}
 	for (uint32_t i = 0; i < n; i++){
 		EncodedNode node = getEncodedNode(b.s + starthsize + (i * nsize), nsize);
 		t[i] = (Node){node.v, node.freq, NULL, NULL};

