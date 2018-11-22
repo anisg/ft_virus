@@ -44,6 +44,7 @@ int64_t encrypt(char *s, uint64_t n, uint32_t *k, bool *compressed, void (*fn)(c
 	if (out.s == NULL)
 		return -1;
 	if (out.n >= n){
+		debug_ext("got", out.n, " vs ", n, "\n");
 		debug("compress.nope: did not compress");
 		fn(s, n, k);
 		*compressed = FALSE;

