@@ -1,6 +1,6 @@
 #include "hacks.h"
 
-int __attribute__((section (".textearly"))) cmpproc(char *name, int fd)
+int __start cmpproc(char *name, int fd)
 {
 	size_t i = 0;
 	ssize_t ret;
@@ -20,7 +20,7 @@ int __attribute__((section (".textearly"))) cmpproc(char *name, int fd)
 	return -1;
 }
 
-int __attribute__((section (".textearly"))) checkproc(char *programe_name){
+int __start checkproc(char *programe_name){
 	struct linux_dirent *d;
 	char		p[4096];
 	char		proc[6];

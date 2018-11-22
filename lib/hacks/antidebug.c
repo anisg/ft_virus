@@ -6,7 +6,7 @@
 
 extern unsigned char   key[16];
 
-int __attribute__((section (".textearly"))) traceme()
+int __start traceme()
 {
 	int ret = 0;
 	int status;
@@ -37,13 +37,13 @@ int __attribute__((section (".textearly"))) traceme()
 	return (-1);
 }
 
-void __attribute__((section (".textearly"))) handler(int signo)
+void __start  handler(int signo)
 {
 	(void)signo;
 	key[0] ^= 0b01110010 << traceme();
 }
 
-int __attribute__((section (".textearly"))) breakpoint()
+int __start breakpoint()
 {
 	ft_signal(SIGTRAP, handler);
 	asm("int3");
@@ -58,7 +58,7 @@ int __attribute__((section (".textearly"))) breakpoint()
 	kill(p, SIGTERM);
 }*/
 
-bool __attribute__((section (".textearly"))) checkdebug(void)
+bool __start checkdebug(void)
 {
 	if (traceme() || breakpoint())
 	{

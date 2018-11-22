@@ -1,4 +1,4 @@
-section .textearly
+section .textcmpr
 
 global call
 

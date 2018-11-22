@@ -27,12 +27,14 @@ size_t call(size_t p1, size_t p2, size_t p3, size_t sys_num, ...);
 #define SYS_HAVE_FAIL(X) ((size_t)(X) > (size_t)(~0) - SYS_MAX_ERRNO)
 #define SYS_RET(X) (SYS_HAVE_FAIL(X) ? SYS_ERROR : (size_t)(X))
 
-#include "ft_syscalls.h"
 #include <sys/mman.h>
 
-#define __start __attribute__((section (".textearly")))
+#define __start __attribute__((section (".textcmpr")))
+#define __start2 __attribute__((section (".textearly")))
 #define __datastart __attribute__((section (".dataearly")))
 #define __zone2 __attribute__((section (".textcmpr")))
+
+#include "ft_syscalls.h"
 
 void *ft_malloc(size_t size);
 void *ft_malloc_x(size_t size);

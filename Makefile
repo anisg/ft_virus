@@ -49,7 +49,7 @@ VIRUS_X = $(TMP_DIR)/virus_shellcode.c
 
 LD_RULES = virus/rules.lds
 
-all: $(NAME) fn_list
+all: $(NAME)
 
 to_infect = $(TMP_DIR)/to_infect
 

