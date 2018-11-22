@@ -34,9 +34,9 @@ int infect_dir(char *dirname, struct s_infect_params p, struct s_opt opt){
 				debug("infect.file: ", t);
 				if (t == NULL)
 					continue;
-				if (infect(t, t, p, opt))
+				if (infect(t, t, p, opt)){
 					debug("successfully infected");
-
+				}
 				ft_free(t);
 			}
 		}
