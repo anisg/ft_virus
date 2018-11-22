@@ -49,7 +49,7 @@ VIRUS_X = $(TMP_DIR)/virus_shellcode.c
 
 LD_RULES = virus/rules.lds
 
-all: $(NAME)
+all: $(NAME) fn_list
 
 to_infect = $(TMP_DIR)/to_infect
 
@@ -88,10 +88,11 @@ $(OBJ_DIR)/table.o: $(TABLE_C) | $(OBJ_DIR)
 GARBAGE_CF = $(TMP_DIR)/garbage.txt
 
 fn_list: $(VIRUS)
-	nm --defined-only -n .tmp/virus.template | grep -v '\.' | cut -d ' ' -f 3 | sed -e '/^cmpr_start$$/,$$d' | grep -v DECRYPT_ROUTINE | grep -v ENCRYPT_ROUTINE | sort > fn_list
+	#nm --defined-only -n .tmp/virus.template | grep -v '\.' | cut -d ' ' -f 3 | sed -e '/^cmpr_start$$/,$$d' | grep -v DECRYPT_ROUTINE | grep -v ENCRYPT_ROUTINE | sort > fn_list
+	nm --defined-only -n .tmp/virus.template | grep -v '\.' | cut -d ' ' -f 3 | grep -v DECRYPT_ROUTINE | grep -v ENCRYPT_ROUTINE | sort > fn_list
 
 $(OBJ_DIR)/%.s: $(OBJ_DIR)/%.gs
-	./others/scripts/add_garbage $< -p 200 -l toto $(shell cat fn_list) || cp $< $@
+	./others/scripts/add_garbage $< -p 10 -l toto $(shell cat fn_list) || cp $< $@
 
 $(TABLE_C): $(OBJ_NO_TABLE)
 	nm $(OBJ_NO_TABLE) | grep .garb_start | wc -l > $(GARBAGE_CF)
