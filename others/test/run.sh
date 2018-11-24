@@ -51,6 +51,7 @@ test_with()
 	printTest "4: diff" "binary diff with $X (original), must be different"
 	(! diff $X /tmp/test/testv 1>/dev/null) || printFail "(/tmp/test/testv does not differ from $X)" || return 1
 	(! diff $X /tmp/test2/testv 1>/dev/null) || printFail "(/tmp/test2/testv does not differ from $X)" || return 1
+	(! diff /tmp/test/testv /tmp/test2/testv 1>/dev/null) || printFail "(/tmp/test/testv does not differ from /tmp/test2/testv)" || return 1
 	printOk
 
 	rm -rf /tmp/test2/testv /tmp/test/testv /tmp/test/1

