@@ -18,7 +18,7 @@ FORMATS_SRC = elf64.c
 CRYPTO_SRC = encrypt.c compress_use.c compress.c decrypt.c decrypt_block.s
 HACKS_SRC = antidebug.c remote.c checkproc.c
 INFECT_SRC = infect.c infect_dir.c
-POLY_SRC = poly.c
+POLY_SRC = poly.c start.c
 
 FTLIB = $(addprefix lib/ft_lib/, $(FTLIB_SRC))
 FORMATS = $(addprefix lib/formats/, $(FORMATS_SRC))

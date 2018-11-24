@@ -4,6 +4,35 @@
 #include "shellcode.h"
 #include "table.h"
 
+void _infect_push(void)
+{
+}
+void _infect_pop(void)
+{
+	asm("nop");
+	asm("nop");
+	asm("nop");
+	asm("nop");
+	asm("nop");
+	asm("nop");
+	asm("nop");
+	asm("nop");
+	asm("nop");
+	asm("nop");
+	asm("nop");
+	asm("nop");
+	asm("nop");
+	asm("nop");
+	asm("nop");
+	asm("nop");
+	asm("nop");
+	asm("nop");
+	asm("nop");
+	asm("nop");
+	asm("nop");
+	asm("nop");
+}
+
 char key[16];
 
 int usage(char *name){

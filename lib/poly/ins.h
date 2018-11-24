@@ -83,4 +83,35 @@
 # define INS_ROR_R8 "\x49\xc1\xc8\x0b"
 # define INS_ROR_R9 "\x49\xc1\xc9\x0b"
 
+/*
+ * 50		push	%rax
+ * 51		push	%rcx
+ * 52		push	%rdx
+ * 53		push	%rbx
+ * 54		push	%rsp
+ * 56		push	%rsi
+ * 57		push	%rdi
+ * 58		pop	%rax
+ * 59		pop	%rcx
+ * 5a		pop	%rdx
+ * 5b		pop	%rbx
+ * 5c		pop	%rsp
+ * 5e		pop	%rsi
+ * 5f		pop	%rdi
+ */
+# define INS_PUSH_RAX "\x50"
+# define INS_PUSH_RCX "\x51"
+# define INS_PUSH_RDX "\x52"
+# define INS_PUSH_RBX "\x53"
+# define INS_PUSH_RSP "\x54"
+# define INS_PUSH_RSI "\x56"
+# define INS_PUSH_RDI "\x57"
+# define INS_POP_RAX "\x58"
+# define INS_POP_RCX "\x59"
+# define INS_POP_RDX "\x5a"
+# define INS_POP_RBX "\x5b"
+# define INS_POP_RSP "\x5c"
+# define INS_POP_RSI "\x5e"
+# define INS_POP_RDI "\x5f"
+
 #endif
