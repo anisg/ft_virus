@@ -6,14 +6,6 @@
 #include "ins.h"
 #include "ft_lib.h"
 
-void ploy_ins_add(char *data, size_t *i, char *ins, size_t ins_size)
-{
-	size_t j;
-	for (j = 0; j < ins_size; j++)
-		data[*i + j] = ins[j];
-	*i += ins_size;
-}
-
 void ploy_ins_add_end(char *data, size_t *i, char *ins, size_t ins_size)
 {
 	*i -= ins_size;

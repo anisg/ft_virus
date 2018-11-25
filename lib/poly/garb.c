@@ -6,18 +6,27 @@
 
 #define MAX 3
 
+void generate_garb_end(void);
 void generate_garb(unsigned char *pos, size_t len)
 {
-	pos[0] = 0xeb;
-	pos[1] = len - 2;
+	int safe = 0;
+	size_t i = 0;
+	unsigned r = ft_rand();
+
+	if (pos >= &generate_garb && pos < &generate_garb_end)
+		safe = 1;
+
+	if (safe == 1)
+	{
+		pos[i++] = 0xeb;
+		pos[i++] = len - 2;
+	}
 	debug_ext("jmp ", len - 2, " var ", pos[1], "\n");
 
-	size_t i = 2;
 	while (i < len)
 	{
-		debug_ext("val, ", i, "/", len, "\n");
 		size_t left = len - i;
-		unsigned r = ft_rand();
+		r = ((uint64_t)r * 48271u) % 0x7fffffff + 1;
 
 		if (r % MAX == 0)
 		{
@@ -44,9 +53,25 @@ void generate_garb(unsigned char *pos, size_t len)
 		{
 			pos[i++] = 0xeb;
 			pos[i++] = 1;
-			pos[i++] = ft_rand();
+			r = ((uint64_t)r * 48271u) % 0x7fffffff;
+			pos[i++] = r;
 		}
 	}
-	pos[0] = 0x90;
-	pos[1] = 0x90;
+
+	if (safe == 1)
+	{
+		pos[0] = 0x90;
+		pos[1] = 0x90;
+	}
 }
+
+void ploy_ins_add(char *data, size_t *i, char *ins, size_t ins_size)
+{
+	size_t j;
+	for (j = 0; j < ins_size; j++)
+		data[*i + j] = ins[j];
+	*i += ins_size;
+}
+
+void generate_garb_end(void)
+{}
