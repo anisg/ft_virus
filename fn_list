@@ -135,6 +135,7 @@ println
 print_msg
 printnb
 printnbln
+randomize_key
 remote
 _replace_jmp_gb
 scmp

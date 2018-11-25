@@ -51,11 +51,17 @@ void ft_srand(){
 }
 
 int _replace_jmp_gb(Garbage g, int x){
+		generate_garb(((unsigned char *)(&bin_start)) + g.off, g.len);
+		return ;
+
+
+
 		if (x < 10){ debug_ext("(at pos ", g.off, ") "); }
 
 		//if (&bin_start + g.off + g.len >= &bin_end) return FALSE;
 
 		unsigned char *p = ((unsigned char *)(&bin_start)) + g.off + 2;
+
 		int n = g.len - 2;
 		if (x < 10){ debug_ext(".jmp +", n, ": "); }
 		for (int i = 0; i < n; i++){

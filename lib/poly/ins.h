@@ -2,9 +2,24 @@
 # define IND_H
 
 /*
- * 90 	nop
+ * 90		nop
+ * 28 89 c0	mov	rax, rax
  */
 # define INS_NOP "\x90"
+# define INS_NOP2 "\x66\x90"
+# define INS_NOP3 "\x0f\x1f\x00"
+# define INS_NOP4 "\x0f\x1f\x40\x00"
+# define INS_NOP5 "\x0f\x1f\x44\x00\x00"
+# define INS_NOP6 "\x66\x0f\x1f\x44\x00\x00"
+# define INS_NOP7 "\x0f\x1f\x80\x00\x00\x00\x00"
+# define INS_NOP8 "\x0f\x1f\x84\x00\x00\x00\x00\x00"
+# define INS_NOP9 "\x66\x0f\x1f\x84\x00\x00\x00\x00\x00"
+# define INS_MOV_RAX_RAX "\x28\x89\xc0"
+
+/*
+ * 0xeb		jmp	i
+ */
+# define INS_JMP_I "\xeb"
 
 /*
  * 55 	pushq	%rbp
