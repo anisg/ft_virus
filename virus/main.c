@@ -50,28 +50,6 @@ void ft_srand(){
 		seed = fingerprint;
 }
 
-int _replace_jmp_gb(Garbage g, int x){
-		generate_garb(((unsigned char *)(&bin_start)) + g.off, g.len);
-		return ;
-
-
-
-		if (x < 10){ debug_ext("(at pos ", g.off, ") "); }
-
-		//if (&bin_start + g.off + g.len >= &bin_end) return FALSE;
-
-		unsigned char *p = ((unsigned char *)(&bin_start)) + g.off + 2;
-
-		int n = g.len - 2;
-		if (x < 10){ debug_ext(".jmp +", n, ": "); }
-		for (int i = 0; i < n; i++){
-				if (x < 10){ debug_ext(".byte ", p[i], ", "); }
-				p[i] = (unsigned char)ft_rand();
-		}
-		if (x < 10){ debug_ext("\n"); }
-		return TRUE;
-}
-
 void change_garbage_code(){
 		ft_srand();
 		int x = (size_t)(&cmpr_start) - (size_t)(&bin_start);
@@ -84,7 +62,7 @@ void change_garbage_code(){
 		debug_ext("----------- output first 10 /", garbage_table_len, " of gb codes -----------\n");
 		for (size_t i = 0 ; i < garbage_table_len; i++){
 				if (i < 10) { debug_ext("",i+1,": "); }
-				_replace_jmp_gb(garbage_table[i], i);
+				generate_garb(((unsigned char *)(&bin_start)) + garbage_table[i].off, garbage_table[i].len);
 		}
 		debug_ext("\n");
 }
@@ -93,13 +71,6 @@ void change_garbage_code(){
 
 int __start decryptHiddenCode(){
 		uint32_t *k = (uint32_t *)key;
-		//-- decrypt z2        ------
-		//if (decrypt((char*)&cmpr_start, ((size_t)&cmpr_end) - ((size_t)&cmpr_start), k, FALSE, &DECRYPT_ROUTINE) == -1)
-		//		return FALSE;
-		//-- decrypt test area ------
-		//if (decrypt(&test_area,15, k, FALSE, &DECRYPT_ROUTINE) == -1)
-		//		return FALSE;
-		//check test area
 		//-- decrypt z3        ------
 		uint64_t n = ((size_t)&crypt_end) - ((size_t)&crypt_start);
 		char *s = ((char*)&crypt_start);

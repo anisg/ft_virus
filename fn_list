@@ -137,7 +137,6 @@ printnb
 printnbln
 randomize_key
 remote
-_replace_jmp_gb
 scmp
 seed
 setbit
