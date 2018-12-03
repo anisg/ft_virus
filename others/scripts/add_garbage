@@ -1,4 +1,4 @@
-#!/usr/bin/python3
+#!/usr/bin/env python3
 from pycool import *
 import re
 from math import ceil
@@ -7,11 +7,9 @@ from random import randint
 args = parse('add to a gcc ASM file some garbage code',[
         ('file',{'help':'the gcc asm file'}),
         ('-l', '--labels', {'nargs':'+','help':'the labels (or function) where the scrip should add garbage', 'required':True}),
-        ('-p', '--percent', {'help':'how much adding garbage codes, in percent, default is 50p (so if a function have 20 lines, it will add 10 lines)', 'default':50}),
-        ('-cf', '--countfile', {})
+        ('-p', '--percent', {'help':'how much adding garbage codes, in percent, default is 50p (so if a function have 20 lines, it will add 10 lines)', 'default':50})
         ])
-(lines, labels, p, cf) = [ fget(args.file).split('\n'), dict(zip(args.labels,[True]*len(args.labels))), float(args.percent)/100.0, args.countfile ]
-
+(lines, labels, p) = [ fget(args.file).split('\n'), dict(zip(args.labels,[True]*len(args.labels))), float(args.percent)/100.0 ]
 
 ###
 # PART 1: detect label
@@ -58,19 +56,56 @@ if len(zones) == 0:
 	print("Warning: No labels found, exit")
 	exit(-1)
 
+###
+# PART 2-00: preparing up
+###
+kinds=dict(
+	reg=r"\%\w*",
+	imm=r"\$-?[0-9]*",
+)
+
+ops=dict(
+	#mov
+	movb="mov",
+	movl="mov",
+)
+
+insts=dict(
+	mov=[dict(p1="reg", p2="imm", action="gb*3")],
+)
+
+def check_param(v, kind):
+	r=r'^'+kinds[kind]+r',?$'
+	return re.match(r, v) != None
+
+def check_inst(x, v):
+	#print("for", v, x)
+	if "p2" in x and not check_param(v[1], x["p2"]): return False
+	if "p1" in x and not check_param(v[2], x["p1"]): return False
+	#print("ok!")
+	return True
+
+def advanced_parse(line):
+	v=line.split()
+	if v[0].startswith('.'): return False #skip label and frame info
+	if v[0] not in ops: return False
+	op=ops[v[0]]
+	if op not in insts: return False
+	for x in insts[op]:
+		if check_inst(x, v):
+			return True
+	return False
+
+for z in zones:
+	for i in range(z[0], z[1]+1):
+		advanced_parse(lines[i])
 
 ###
 # PART 2: add garbage codes
 ###
 
-bef = '\t\t\t.garb_start{uniq}: '
-aft = ' .garb_end{uniq}: '
-garbage_inst_samples = [
-        'jmp .garb_end{uniq} ; .byte {nb1} ;',
-        'jmp .garb_end{uniq} ; .byte {nb1} ; .byte {nb2} ;',
-        'jmp .garb_end{uniq} ; .byte {nb1} ; .byte {nb2} ; .byte {nb4} ;',
-        'jmp .garb_end{uniq} ; .byte {nb1} ; .byte {nb2} ; .byte {nb4} ; .byte {nb5} ;',
-]
+bef = '\t\t\t.garb_start{uniq}: jmp .garb_end{uniq} ; '
+aft = ' ; .garb_end{uniq}: '
 
 off = 0
 for z in zones:
@@ -79,18 +114,12 @@ for z in zones:
 	offl = 0
 	while offl < to_add:
 		pos = randint(off + l + 1, off + offl + r - 1)
-		r_idx = randint(0, len(garbage_inst_samples)-1)
-		choosed = ((bef + garbage_inst_samples[r_idx] + aft)
-                    .format(uniq=str(off) + '_' + str(offl),
-                        nb1=randint(0,255),nb2=randint(0,255),nb3=randint(0,255),nb4=randint(0,255),nb5=randint(0,255)))
-		lines.insert(pos, choosed)
+		size = randint(1, 5)
+		tmp = bef + ' ; '.join(['.byte %d' % (randint(0,255)) for i in range(1,size+1)]) + aft
+		gb_line=tmp.format(uniq='%d_%d' %(off,offl))
+		lines.insert(pos, gb_line)
 		offl += 1
 	off += offl
-
-if cf:
-    n = int(fget(cf))
-    n += off
-    fput(cf, str(n))
 
 pre, ext = os.path.splitext(args.file)
 f = pre + ".s"
