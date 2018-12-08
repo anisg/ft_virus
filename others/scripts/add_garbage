@@ -71,17 +71,17 @@ ops=dict(
 )
 
 insts=dict(
-		mov=[
+		movl=[
 			dict(num=1, p1="reg", p2="imm",
 				action=(
-					["p2 = '$%d,' % (int(p2[1:-1])+r)"],
-					["{inst} {p2} {p1}"," subl ${r}, {p1}"]
+					["p2 = '$%d,' % (int(p2[1:-1])-r)"],
+					["{inst} {p2} {p1}"," addl ${r}, {p1}"]
 				)
 			)
 		],
-		xor=[
-			dict(num=2, p1="reg", p2="imm", cond="p1 == p2",),
-			],
+		#xor=[
+		#	dict(num=2, p1="reg", p2="imm", cond="p1 == p2",),
+		#],
 	)
 
 def check_param(v, kind):
@@ -110,7 +110,7 @@ def advanced_parse(line,i):
 	v=line.split()
 	if v[0].startswith('.'): return False #skip label and frame info
 	if v[0] not in ops: return False
-	op=ops[v[0]]
+	op= v[0] if v[0] in insts else ops[v[0]]
 	if op not in insts: return False
 	for x in insts[op]:
 		if check_inst(x, v):
