@@ -9,7 +9,7 @@ args = parse('add to a gcc ASM file some garbage code',[
         ('-l', '--labels', {'nargs':'+','help':'the labels (or function) where the scrip should add garbage', 'required':True}),
         ('-p', '--percent', {'help':'how much adding garbage codes, in percent, default is 50p (so if a function have 20 lines, it will add 10 lines)', 'default':50})
         ])
-(lines, labels, p) = [ fget(args.file).split('\n'), dict(zip(args.labels,[True]*len(args.labels))), float(args.percent)/100.0 ]
+(file, lines, labels, p) = [ args.file.replace(".","").replace("/",""), fget(args.file).split('\n'), dict(zip(args.labels,[True]*len(args.labels))), float(args.percent)/100.0 ]
 
 ###
 # PART 1: detect label
@@ -22,7 +22,7 @@ def simple_parse(l):
 		return r
 	if l.startswith('.cfi_endproc'):
 		r['kind']='end'
-		return r        
+		return r
 	j = re.search(r'(.*):.*', l)
 	if j:
 		name = j.group(1)
@@ -71,8 +71,18 @@ ops=dict(
 )
 
 insts=dict(
-	mov=[dict(p1="reg", p2="imm", action="gb*3")],
-)
+		mov=[
+			dict(num=1, p1="reg", p2="imm",
+				action=(
+					["p2 = '$%d,' % (int(p2[1:-1])+r)"],
+					["{inst} {p2} {p1}"," subl ${r}, {p1}"]
+				)
+			)
+		],
+		xor=[
+			dict(num=2, p1="reg", p2="imm", cond="p1 == p2",),
+			],
+	)
 
 def check_param(v, kind):
 	r=r'^'+kinds[kind]+r',?$'
@@ -85,7 +95,18 @@ def check_inst(x, v):
 	#print("ok!")
 	return True
 
-def advanced_parse(line):
+inst=p1=p2=r=None
+def gen(x,v):
+	global inst; global p1; global p2; global r;
+	inst = v[0]
+	p1=v[2] if "p2" in x else v[1]
+	p2=v[1] if "p2" in x else None
+	r=randint(1,255)
+
+	exec("global inst; global p1; global p2; global r;"+ " ; ".join(x["action"][0]) )
+	return " ; ".join(x["action"][1]).format(inst=inst,p1=p1,p2=p2,r=r)
+
+def advanced_parse(line,i):
 	v=line.split()
 	if v[0].startswith('.'): return False #skip label and frame info
 	if v[0] not in ops: return False
@@ -93,12 +114,16 @@ def advanced_parse(line):
 	if op not in insts: return False
 	for x in insts[op]:
 		if check_inst(x, v):
-			return True
+			return ".modif_start{num}{file}{i}:".format(i=i,file=file,num=x["num"]) + gen(x,v) + "; .modif_end{num}{file}{i}:".format(i=i,file=file,num=x["num"])
 	return False
 
 for z in zones:
 	for i in range(z[0], z[1]+1):
-		advanced_parse(lines[i])
+		x=advanced_parse(lines[i],i)
+		if x != False:
+			print(lines[i].strip(), " ----------> ", x)
+			lines[i] = x
+#exit()
 
 ###
 # PART 2: add garbage codes
@@ -115,11 +140,13 @@ for z in zones:
 	while offl < to_add:
 		pos = randint(off + l + 1, off + offl + r - 1)
 		size = randint(1, 5)
-		tmp = bef + ' ; '.join(['.byte %d' % (randint(0,255)) for i in range(1,size+1)]) + aft
+		tmp = bef + ' ; '.join(['.byte %d' % (randint(0,255)) for i in range(0,size)]) + aft
 		gb_line=tmp.format(uniq='%d_%d' %(off,offl))
 		lines.insert(pos, gb_line)
 		offl += 1
 	off += offl
+
+#exit(-1)
 
 pre, ext = os.path.splitext(args.file)
 f = pre + ".s"

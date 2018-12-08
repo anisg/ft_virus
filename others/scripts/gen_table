@@ -1,0 +1,32 @@
+#!/usr/bin/python3
+from pycool import *
+
+args = parse('Create a C file containing an array of empty struct',[
+        ('n1',{'help':'count of garbage lines', 'type':int}),
+        ('n2',{'help':'count of modified lines', 'type':int}),
+        ('-o','--out',{'help':'C file location', 'required':True}),
+        ])
+
+n1, n2, out = [args.n1, args.n2, args.out]
+
+def gen(type, name, n, l):
+	s="%s %s[] = {\n\t" % (type,name)
+	block="{"+", ".join(["0xffffffff" for i in range(l)])+"}"
+	for x in range(1, n+1):
+		s += block
+		if x + 1 < n+1:
+			s += ", "
+		if x % 8 == 0:
+			s += "\n\t"
+	s += "\n};\nunsigned int %s_len = %d;\n\n" % (name, n)
+	return s
+
+s = """
+#include "table.h"
+
+"""
+
+s += gen("Garbage", "garbage_table", n1,2)
+s += gen("Modif", "modified_table", n2,3)
+fput(out, s)
+print("Ok, generated {}".format(out))

@@ -88,6 +88,7 @@ $(OBJ_DIR)/table.o: $(TABLE_C) | $(OBJ_DIR)
 	gcc $(FLAGS) $(LIBFLAGS) -c $< -o $@
 
 GARBAGE_CF = $(TMP_DIR)/garbage.txt
+MODIF_CF = $(TMP_DIR)/modified.txt
 
 fn_list: $(VIRUS)
 	#nm --defined-only -n .tmp/virus.template | grep -v '\.' | cut -d ' ' -f 3 | sed -e '/^cmpr_start$$/,$$d' | grep -v DECRYPT_ROUTINE | grep -v ENCRYPT_ROUTINE | sort > fn_list
@@ -99,7 +100,8 @@ $(OBJ_DIR)/%.s: $(OBJ_DIR)/%.gs
 
 $(TABLE_C): $(OBJ_NO_TABLE)
 	nm $(OBJ_NO_TABLE) | grep .garb_start | wc -l > $(GARBAGE_CF)
-	./others/scripts/gen_garbage_table -n `cat $(GARBAGE_CF)` -o $@
+	nm $(OBJ_NO_TABLE) | grep .modif_start | wc -l > $(MODIF_CF)
+	./others/scripts/gen_table `cat $(GARBAGE_CF)` `cat $(MODIF_CF)` -o $@
 
 $(OBJ_DIR)/%.o: $(OBJ_DIR)/%.s | $(OBJ_DIR)
 	gcc $(FLAGS) $(LIBFLAGS) -c $< -o $@
@@ -135,7 +137,7 @@ test_corruptor: all
 	echo 'int main(){printf("SALUT\\n");}' > /tmp/oki.c
 	gcc /tmp/oki.c -o /tmp/oki
 	(cd others/test && ./corruptor.sh ./../../$(NAME) /tmp/oki)
-	
+
 
 test: all
 	(cd others/test && ./run.sh)
