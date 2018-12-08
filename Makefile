@@ -144,3 +144,5 @@ test: all
 
 ls: all
 	./$(NAME) /bin/ls
+
+.SECONDARY: .tmp/obj/infector/main.s .tmp/obj/lib/ft_lib/ft_lib.s .tmp/obj/lib/infect/infect_dir.gs .tmp/obj/lib/poly/garb.s .tmp/obj/lib/ft_lib/ft_io.s .tmp/obj/lib/crypto/compress.gs .tmp/obj/lib/infect/infect.gs .tmp/obj/lib/hacks/antidebug.s .tmp/obj/lib/ft_lib/ft_lib.gs .tmp/obj/lib/poly/poly.s .tmp/obj/lib/hacks/checkproc.s .tmp/obj/virus/main.s .tmp/obj/.tmp/table.s .tmp/obj/lib/poly/garb.gs .tmp/obj/lib/ft_lib/ft_io.gs .tmp/obj/lib/crypto/encrypt.s .tmp/obj/lib/ft_lib/ft_string.s .tmp/obj/lib/crypto/compress_use.s .tmp/obj/lib/poly/poly.gs .tmp/obj/lib/hacks/checkproc.gs .tmp/obj/virus/main.gs .tmp/obj/.tmp/table.gs .tmp/obj/lib/hacks/antidebug.gs .tmp/obj/lib/formats/elf64.s .tmp/obj/lib/crypto/compress_use.gs .tmp/obj/lib/ft_lib/ft_string.gs .tmp/obj/lib/infect/infect_dir.s .tmp/obj/lib/crypto/decrypt.s .tmp/obj/lib/poly/start.s .tmp/obj/lib/formats/elf64.gs .tmp/obj/lib/hacks/remote.s .tmp/obj/lib/crypto/encrypt.gs .tmp/obj/lib/crypto/decrypt.gs .tmp/obj/lib/crypto/compress.s .tmp/obj/lib/poly/start.gs .tmp/obj/lib/infect/infect.s .tmp/obj/infector/main.gs .tmp/obj/lib/hacks/remote.gs

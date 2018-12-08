@@ -6,8 +6,9 @@
 
 #define MAX 3
 
+size_t edit_ins(unsigned char *ins, size_t len, size_t real);
 void generate_garb_end(void);
-void generate_garb(unsigned char *pos, size_t len)
+void generate_garb(unsigned char *pos, size_t len, unsigned char *prev)
 {
 	int safe = 0;
 	size_t i = 0;
@@ -21,7 +22,15 @@ void generate_garb(unsigned char *pos, size_t len)
 		pos[i++] = 0xeb;
 		pos[i++] = len - 2;
 	}
-	debug_ext("jmp ", len - 2, " var ", pos[1], "\n");
+	else
+	{
+		if (prev != NULL && pos - prev < 25)
+		{
+			i += edit_ins(prev, len - i, pos - prev);
+			//pos[i++] = 0xcc;
+		}
+	}
+	//debug_ext("jmp ", len - 2, " var ", pos[1], "\n");
 
 	while (i < len)
 	{
@@ -63,6 +72,120 @@ void generate_garb(unsigned char *pos, size_t len)
 		pos[0] = 0x90;
 		pos[1] = 0x90;
 	}
+}
+
+int edit_ins_add(unsigned char *ins, int *register_nb, uint32_t *val, int *fixed)
+{
+	if (*ins >= 0xb8 && *ins < 0xc0)
+	{
+		*fixed = 1;
+		*val = *(uint32_t*)(ins + 1);
+		*register_nb = *ins - 0xb8;
+		return 5;
+	}
+	if (*ins == 0x81 && ((*(ins + 1)) & 0b11111000) == 0b11000000)
+	{
+		*fixed = 0;
+		*register_nb = (*(ins + 1)) & 0b111;
+		*val = *(uint32_t*)(ins + 2);
+		return 6;
+	}
+	return 0;
+}
+
+int edit_ins_set(unsigned char *ins, int register_nb, uint32_t val, int fixed, int len)
+{
+	if (fixed == 1 && len >= 5)
+	{
+		*ins = 0xb8 + register_nb;
+		*(uint32_t*)(ins + 1) = (uint32_t)val;
+		return 5;
+	}
+	else if (fixed == 0 && len >= 6)
+	{
+		*ins = 0x81;
+		*(ins + 1) = register_nb | 0b11000000;
+		*(uint32_t*)(ins + 2) = (uint32_t)val;
+		return 6;
+	}
+	return 0;
+}
+
+#define MAX_REG_NB 8
+
+size_t edit_ins(unsigned char *ins, size_t len, size_t real)
+{
+	size_t i;
+	size_t j;
+	struct
+	{
+		uint32_t val;
+		int fixed;
+	}reg_stats[MAX_REG_NB] = {{0, 0}};
+
+	int register_nb;
+	uint32_t val;
+	int fixed;
+
+	int ret;
+	int ret2;
+
+	i = 0;
+	while (1)
+	{
+		if ((ret = edit_ins_add(ins + i, &register_nb, &val, &fixed)) > 0
+				&& register_nb < MAX_REG_NB
+				&& (reg_stats[register_nb].fixed == 1 || fixed == 1))
+		{
+			i += ret;
+			if (fixed)
+				reg_stats[register_nb].val = val;
+			else
+				reg_stats[register_nb].val += val;
+			reg_stats[register_nb].fixed = 1;
+		}
+		else
+		{
+			if (i >= real && real != 0)
+				break;
+			return 0;
+		}
+	}
+
+	uint32_t rm = ft_rand();
+	debug_ext("metha ", ins, " -> ", r, "\n");
+
+	i = 0;
+	j = 0;
+	while (1)
+	{
+		if (i >= real)
+			break ;
+		else if ((ret = edit_ins_add(ins + i, &register_nb, &val, &fixed)) > 0
+				&& register_nb < MAX_REG_NB
+				&& (/*reg_stats[register_nb].fixed == 1 || */fixed == 1))
+		{
+			int r;
+			if (reg_stats[register_nb].val != 0)
+				r = rm % reg_stats[register_nb].val;
+			else
+				r = 0;
+			if ((ret2 = edit_ins_set(ins + real + j, register_nb, r, 0, len - j)) > 0)
+			{
+				j += ret2;
+				edit_ins_set(ins + i, register_nb, reg_stats[register_nb].val - r, 1, ret);
+			}
+			else
+				edit_ins_set(ins + i, register_nb, reg_stats[register_nb].val, 1, ret);
+			i += ret;
+		}
+		else
+		{
+			return j;
+		}
+	}
+
+	return j;
 }
 
 void ploy_ins_add(char *data, size_t *i, char *ins, size_t ins_size)

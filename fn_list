@@ -32,6 +32,9 @@ do_dns_remote
 do_infection
 do_recur
 do_remote
+edit_ins
+edit_ins_add
+edit_ins_set
 elf_addr_text_section
 elf_addr_to_offset
 elf_change_size_last_load_segment
