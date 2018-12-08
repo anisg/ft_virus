@@ -27,6 +27,6 @@ s = """
 """
 
 s += gen("Garbage", "garbage_table", n1,2)
-s += gen("Modif", "modified_table", n2,3)
+s += gen("Modif", "modified_table", n2,2)
 fput(out, s)
 print("Ok, generated {}".format(out))

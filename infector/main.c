@@ -156,7 +156,7 @@ int set_modif_infos(){
 						str_equal(strs + sym[i].st_name + slen(STR_M_START),
 							strs + sym[i+1].st_name + slen(STR_M_END))))
 				return FALSE;
-			mt[x] = (Modif){sym[i].st_value - bin_start_off, sym[i+1].st_value - sym[i].st_value, (char*)(strs + sym[i].st_name)[slen(STR_M_START)]-'0'};
+			mt[x] = (Modif){sym[i].st_value - bin_start_off, sym[i+1].st_value - sym[i].st_value};
 			//skip next
 			x += 1;
 			i += 1;

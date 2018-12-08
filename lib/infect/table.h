@@ -12,7 +12,6 @@ extern unsigned int garbage_table_len;
 typedef struct s_modified {
 	unsigned int off;
 	unsigned int len;
-	unsigned int num;
 } /*__attribute__((packed))*/ Modif;
 
 extern Modif modified_table[];
