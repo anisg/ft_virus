@@ -66,10 +66,7 @@ if len(zones) == 0:
 bef = '\t\t\t.garb_start{uniq}: '
 aft = ' .garb_end{uniq}: '
 garbage_inst_samples = [
-        'jmp .garb_end{uniq} ; .byte {nb1} ;',
-        'jmp .garb_end{uniq} ; .byte {nb1} ; .byte {nb2} ;',
-        'jmp .garb_end{uniq} ; .byte {nb1} ; .byte {nb2} ; .byte {nb4} ;',
-        'jmp .garb_end{uniq} ; .byte {nb1} ; .byte {nb2} ; .byte {nb4} ; .byte {nb5} ;',
+        'jmp .garb_end{uniq} ; .byte {nb1} ; .byte {nb2} ; .byte {nb4} ; .byte {nb5} ; .byte {nb2} ; .byte {nb1} ; .byte {nb5} ;',
 ]
 
 off = 0

