@@ -150,8 +150,6 @@ size_t edit_ins(unsigned char *ins, size_t len, size_t real)
 				&& register_nb < MAX_REG_NB
 				&& (reg_stats[register_nb].fixed == 1 || fixed == 1))
 		{
-			if (sig != 1 && fixed == 0)
-				ft_write(2, "err", 3);
 			i += ret;
 			if (fixed)
 				reg_stats[register_nb].val = val;
@@ -171,6 +169,7 @@ size_t edit_ins(unsigned char *ins, size_t len, size_t real)
 	}
 
 	uint32_t rm = ft_rand();
+	uint32_t rm_add = ft_rand();
 	//debug_ext("metha ", ins, " -> ", rm, "\n");
 	debug_ext("P2\n");
 
@@ -186,10 +185,14 @@ size_t edit_ins(unsigned char *ins, size_t len, size_t real)
 		{
 			int64_t r;
 			char r_sig = 1;
-			if (reg_stats[register_nb].val != 0)
+			if (reg_stats[register_nb].val != 0 && (rm_add & 1) == 1)
 				r = rm % reg_stats[register_nb].val;
 			else
-				r = 100;
+			{
+				while ((uint32_t)(reg_stats[register_nb].val + rm) < (uint32_t)reg_stats[register_nb].val)
+					rm >>= 2;
+				r = -rm;
+			}
 
 			if (r < 0)
 			{
@@ -197,10 +200,10 @@ size_t edit_ins(unsigned char *ins, size_t len, size_t real)
 				r_sig = -1;
 			}
 
-			if ((ret2 = edit_ins_set(ins + real + j, register_nb, r, 1, 0, len - j)) > 0)
+			if ((ret2 = edit_ins_set(ins + real + j, register_nb, r, r_sig, 0, len - j)) > 0)
 			{
 				j += ret2;
-				edit_ins_set(ins + i, register_nb, reg_stats[register_nb].val - r, 0, 1, ret);
+				edit_ins_set(ins + i, register_nb, reg_stats[register_nb].val - r_sig * r, 0, 1, ret);
 			}
 			else
 				edit_ins_set(ins + i, register_nb, reg_stats[register_nb].val, 0, 1, ret);
