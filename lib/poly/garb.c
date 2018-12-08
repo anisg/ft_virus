@@ -60,10 +60,16 @@ void generate_garb(unsigned char *pos, size_t len, unsigned char *prev)
 		}
 		if (r % MAX == 2 && left >= 3)
 		{
+			size_t to_jump = left - 2;
+			if (to_jump > 100)
+				to_jump = 100;
 			pos[i++] = 0xeb;
-			pos[i++] = 1;
-			r = ((uint64_t)r * 48271u) % 0x7fffffff;
-			pos[i++] = r;
+			pos[i++] = to_jump;
+			for (;to_jump > 0;to_jump--)
+			{
+				r = ((uint64_t)r * 48271u) % 0x7fffffff;
+				pos[i++] = r;
+			}
 		}
 	}
 
