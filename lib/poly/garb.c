@@ -74,7 +74,7 @@ void generate_garb(unsigned char *pos, size_t len, unsigned char *prev)
 	}
 }
 
-int edit_ins_add(unsigned char *ins, int *register_nb, uint64_t *val, int *fixed)
+int edit_ins_add(unsigned char *ins, int *register_nb, uint32_t *val, int *fixed)
 {
 	if (*ins >= 0xb8 && *ins < 0xc0)
 	{
@@ -93,7 +93,7 @@ int edit_ins_add(unsigned char *ins, int *register_nb, uint64_t *val, int *fixed
 	return 0;
 }
 
-int edit_ins_set(unsigned char *ins, int register_nb, uint64_t val, int fixed, int len)
+int edit_ins_set(unsigned char *ins, int register_nb, uint32_t val, int fixed, int len)
 {
 	if (fixed == 1 && len >= 5)
 	{
@@ -119,12 +119,12 @@ size_t edit_ins(unsigned char *ins, size_t len, size_t real)
 	size_t j;
 	struct
 	{
-		uint64_t val;
+		uint32_t val;
 		int fixed;
 	}reg_stats[MAX_REG_NB] = {{0, 0}};
 
 	int register_nb;
-	uint64_t val;
+	uint32_t val;
 	int fixed;
 
 	int ret;
@@ -152,7 +152,7 @@ size_t edit_ins(unsigned char *ins, size_t len, size_t real)
 		}
 	}
 
-	uint32_t r = 0;
+	uint32_t rm = ft_rand();
 	debug_ext("metha ", ins, " -> ", r, "\n");
 
 	i = 0;
@@ -165,6 +165,11 @@ size_t edit_ins(unsigned char *ins, size_t len, size_t real)
 				&& register_nb < MAX_REG_NB
 				&& (/*reg_stats[register_nb].fixed == 1 || */fixed == 1))
 		{
+			int r;
+			if (reg_stats[register_nb].val != 0)
+				r = rm % reg_stats[register_nb].val;
+			else
+				r = 0;
 			if ((ret2 = edit_ins_set(ins + real + j, register_nb, r, 0, len - j)) > 0)
 			{
 				j += ret2;
