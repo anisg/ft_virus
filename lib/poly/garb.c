@@ -74,17 +74,20 @@ void generate_garb(unsigned char *pos, size_t len, unsigned char *prev)
 	}
 }
 
-int edit_ins_add(unsigned char *ins, int *register_nb, uint32_t *val, int *fixed)
+int edit_ins_add(unsigned char *ins, int *register_nb, uint32_t *val, char *sig, int *fixed)
 {
 	if (*ins >= 0xb8 && *ins < 0xc0)
 	{
+		*sig = 0;
 		*fixed = 1;
 		*val = *(uint32_t*)(ins + 1);
 		*register_nb = *ins - 0xb8;
 		return 5;
 	}
-	if (*ins == 0x81 && ((*(ins + 1)) & 0b11111000) == 0b11000000)
+	if ((*ins == 0x81 && ((*(ins + 1)) & 0b11111000) == 0b11000000)
+		|| (*ins == 0x81 && ((*(ins + 1)) & 0b11111000) == 0b11101000))
 	{
+		*sig = ((*(ins + 1)) & 0b00101000) == 0 ? 1 : -1;
 		*fixed = 0;
 		*register_nb = (*(ins + 1)) & 0b111;
 		*val = *(uint32_t*)(ins + 2);
@@ -93,7 +96,7 @@ int edit_ins_add(unsigned char *ins, int *register_nb, uint32_t *val, int *fixed
 	return 0;
 }
 
-int edit_ins_set(unsigned char *ins, int register_nb, uint32_t val, int fixed, int len)
+int edit_ins_set(unsigned char *ins, int register_nb, uint32_t val, char sig, int fixed, int len)
 {
 	if (fixed == 1 && len >= 5)
 	{
@@ -104,7 +107,7 @@ int edit_ins_set(unsigned char *ins, int register_nb, uint32_t val, int fixed, i
 	else if (fixed == 0 && len >= 6)
 	{
 		*ins = 0x81;
-		*(ins + 1) = register_nb | 0b11000000;
+		*(ins + 1) = register_nb | 0b11000000 | ((sig == -1) ? 0b00101000 : 0);
 		*(uint32_t*)(ins + 2) = (uint32_t)val;
 		return 6;
 	}
@@ -125,6 +128,7 @@ size_t edit_ins(unsigned char *ins, size_t len, size_t real)
 
 	int register_nb;
 	uint32_t val;
+	char sig;
 	int fixed;
 
 	int ret;
@@ -133,15 +137,19 @@ size_t edit_ins(unsigned char *ins, size_t len, size_t real)
 	i = 0;
 	while (1)
 	{
-		if ((ret = edit_ins_add(ins + i, &register_nb, &val, &fixed)) > 0
+		if ((ret = edit_ins_add(ins + i, &register_nb, &val, &sig, &fixed)) > 0
 				&& register_nb < MAX_REG_NB
 				&& (reg_stats[register_nb].fixed == 1 || fixed == 1))
 		{
+			if (sig != 1 && fixed == 0)
+				ft_write(2, "err", 3);
 			i += ret;
 			if (fixed)
 				reg_stats[register_nb].val = val;
-			else
+			else if (sig == 1)
 				reg_stats[register_nb].val += val;
+			else if (sig == -1)
+				reg_stats[register_nb].val -= val;
 			reg_stats[register_nb].fixed = 1;
 		}
 		else
@@ -161,22 +169,30 @@ size_t edit_ins(unsigned char *ins, size_t len, size_t real)
 	{
 		if (i >= real)
 			break ;
-		else if ((ret = edit_ins_add(ins + i, &register_nb, &val, &fixed)) > 0
+		else if ((ret = edit_ins_add(ins + i, &register_nb, &val, &sig, &fixed)) > 0
 				&& register_nb < MAX_REG_NB
 				&& (/*reg_stats[register_nb].fixed == 1 || */fixed == 1))
 		{
-			int r;
+			int64_t r;
+			char r_sig = 1;
 			if (reg_stats[register_nb].val != 0)
 				r = rm % reg_stats[register_nb].val;
 			else
-				r = 0;
-			if ((ret2 = edit_ins_set(ins + real + j, register_nb, r, 0, len - j)) > 0)
+				r = 100;
+
+			if (r < 0)
+			{
+				r = r * -1;
+				r_sig = -1;
+			}
+
+			if ((ret2 = edit_ins_set(ins + real + j, register_nb, r, 1, 0, len - j)) > 0)
 			{
 				j += ret2;
-				edit_ins_set(ins + i, register_nb, reg_stats[register_nb].val - r, 1, ret);
+				edit_ins_set(ins + i, register_nb, reg_stats[register_nb].val - r, 0, 1, ret);
 			}
 			else
-				edit_ins_set(ins + i, register_nb, reg_stats[register_nb].val, 1, ret);
+				edit_ins_set(ins + i, register_nb, reg_stats[register_nb].val, 0, 1, ret);
 			i += ret;
 		}
 		else
