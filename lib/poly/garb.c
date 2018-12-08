@@ -22,14 +22,14 @@ void generate_garb(unsigned char *pos, size_t len, unsigned char *prev)
 		pos[i++] = 0xeb;
 		pos[i++] = len - 2;
 	}
-	else
+	/*else
 	{
 		if (prev != NULL && pos - prev < 25)
 		{
 			i += edit_ins(prev, len - i, pos - prev);
 			//pos[i++] = 0xcc;
 		}
-	}
+	}*/
 	//debug_ext("jmp ", len - 2, " var ", pos[1], "\n");
 
 	while (i < len)
@@ -118,6 +118,7 @@ int edit_ins_set(unsigned char *ins, int register_nb, uint32_t val, char sig, in
 
 size_t edit_ins(unsigned char *ins, size_t len, size_t real)
 {
+	debug_ext("IN\n");
 	size_t i;
 	size_t j;
 	struct
@@ -135,6 +136,8 @@ size_t edit_ins(unsigned char *ins, size_t len, size_t real)
 	int ret2;
 
 	i = 0;
+
+	debug_ext("P1\n");
 	while (1)
 	{
 		if ((ret = edit_ins_add(ins + i, &register_nb, &val, &sig, &fixed)) > 0
@@ -156,12 +159,14 @@ size_t edit_ins(unsigned char *ins, size_t len, size_t real)
 		{
 			if (i >= real && real != 0)
 				break;
+			debug_ext("LEAVE\n");
 			return 0;
 		}
 	}
 
 	uint32_t rm = ft_rand();
-	debug_ext("metha ", ins, " -> ", r, "\n");
+	//debug_ext("metha ", ins, " -> ", rm, "\n");
+	debug_ext("P2\n");
 
 	i = 0;
 	j = 0;
@@ -197,10 +202,12 @@ size_t edit_ins(unsigned char *ins, size_t len, size_t real)
 		}
 		else
 		{
+			debug_ext("OUT1\n");
 			return j;
 		}
 	}
 
+	debug_ext("OUT2\n");
 	return j;
 }
 
