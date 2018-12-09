@@ -132,7 +132,7 @@ for z in zones:
 	for i in range(z[0], z[1]+1):
 		x=advanced_parse(lines[i],i)
 		if x != False:
-			if not "mov" in x:
+			if "leaq" in x:
 				print(lines[i].strip(), " ----------> ", x)
 			lines[i] = x
 #exit()
