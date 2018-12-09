@@ -79,9 +79,17 @@ insts=dict(
 				)
 			)
 		],
+		#addl=[
+		#	dict(num=2, p1="reg", p2="imm",
+	#			action=(
+		#			["p2 = '$%d,' % (int()) "]
+		#		)
+		#	)
+		#],
 		#xor=[
 		#	dict(num=2, p1="reg", p2="imm", cond="p1 == p2",),
 		#],
+
 	)
 
 def check_param(v, kind):
