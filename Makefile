@@ -95,13 +95,13 @@ fn_list: $(VIRUS)
 	nm --defined-only -n .tmp/virus.template | grep -v '\.' | cut -d ' ' -f 3 | grep -v DECRYPT_ROUTINE | grep -v ENCRYPT_ROUTINE | grep -v generate_garb | grep -v edit_ins | sort > fn_list
 
 $(OBJ_DIR)/%.s: $(OBJ_DIR)/%.gs
-	cp $< $<.tmp
-	./others/scripts/add_garbage $< -p 10 -l toto $(shell cat fn_list) || cp $< $@
+	@cp $< $<.tmp
+	@./others/scripts/add_garbage $< -p 10 -l toto $(shell cat fn_list) || cp $< $@
 
 $(TABLE_C): $(OBJ_NO_TABLE)
-	nm $(OBJ_NO_TABLE) | grep .garb_start | wc -l > $(GARBAGE_CF)
-	nm $(OBJ_NO_TABLE) | grep .modif_start | wc -l > $(MODIF_CF)
-	./others/scripts/gen_table `cat $(GARBAGE_CF)` `cat $(MODIF_CF)` -o $@
+	@nm $(OBJ_NO_TABLE) | grep .garb_start | wc -l > $(GARBAGE_CF)
+	@nm $(OBJ_NO_TABLE) | grep .modif_start | wc -l > $(MODIF_CF)
+	@./others/scripts/gen_table `cat $(GARBAGE_CF)` `cat $(MODIF_CF)` -o $@
 
 $(OBJ_DIR)/%.o: $(OBJ_DIR)/%.s | $(OBJ_DIR)
 	gcc $(FLAGS) $(LIBFLAGS) -c $< -o $@

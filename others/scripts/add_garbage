@@ -62,12 +62,10 @@ if len(zones) == 0:
 kinds=dict(
 	reg=r"\%\w*",
 	imm=r"\$-?[0-9]*",
+	ripaddr=r".*\(%rip\)"
 )
 
 ops=dict(
-	#mov
-	movb="mov",
-	movl="mov",
 )
 
 insts=dict(
@@ -79,17 +77,22 @@ insts=dict(
 				)
 			)
 		],
-		#addl=[
-		#	dict(num=2, p1="reg", p2="imm",
-	#			action=(
-		#			["p2 = '$%d,' % (int()) "]
-		#		)
-		#	)
-		#],
-		#xor=[
-		#	dict(num=2, p1="reg", p2="imm", cond="p1 == p2",),
-		#],
-
+		addq=[
+			dict(num=2, p1="reg", p2="imm",
+				action=(
+					["p2 = '$%d,' % (int(p2[1:-1])-r)"],
+					["{inst} {p2} {p1}", " addq ${r}, {p1}"]
+				)
+			)
+		],
+		leaq=[
+			dict(num=2, p1="reg", p2="ripaddr",
+				action=(
+					["p2 = '%d+%s,' % (r, str(p2[:-1]))"],
+					["{inst} {p2} {p1}", "addq $-{r}, {p1}"]
+				)
+			)
+		],
 	)
 
 def check_param(v, kind):
@@ -117,7 +120,7 @@ def gen(x,v):
 def advanced_parse(line,i):
 	v=line.split()
 	if v[0].startswith('.'): return False #skip label and frame info
-	if v[0] not in ops: return False
+	if v[0] not in ops and v[0] not in insts: return False
 	op= v[0] if v[0] in insts else ops[v[0]]
 	if op not in insts: return False
 	for x in insts[op]:
@@ -129,7 +132,8 @@ for z in zones:
 	for i in range(z[0], z[1]+1):
 		x=advanced_parse(lines[i],i)
 		if x != False:
-			print(lines[i].strip(), " ----------> ", x)
+			if not "mov" in x:
+				print(lines[i].strip(), " ----------> ", x)
 			lines[i] = x
 #exit()
 
