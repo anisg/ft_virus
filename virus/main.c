@@ -68,7 +68,7 @@ void change_garbage_code(){
 
 	for (size_t i = 0 ; i < modified_table_len; i++){
 		debug_ext("search -> \n");
-		int xx = edit_ins(((unsigned char *)(&bin_start)) + modified_table[i].off, modified_table[i].len - 5, 5);
+		int xx = edit_ins(((unsigned char *)(&bin_start)) + modified_table[i].off);
 			debug_ext("for ", i, " >> ",xx," \n");
 	}
 	debug_ext("\n");

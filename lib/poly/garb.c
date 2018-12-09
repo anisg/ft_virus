@@ -6,7 +6,6 @@
 
 #define MAX 3
 
-size_t edit_ins(unsigned char *ins, size_t len, size_t real);
 void generate_garb_end(void);
 void generate_garb(unsigned char *pos, size_t len, unsigned char *prev)
 {
@@ -121,8 +120,9 @@ int edit_ins_set(unsigned char *ins, int register_nb, uint32_t val, char sig, in
 }
 
 #define MAX_REG_NB 8
+#define MAX_INS_EDIT 2 // DO NOT EDIT
 
-size_t edit_ins(unsigned char *ins, size_t len, size_t real)
+size_t edit_ins(unsigned char *ins)
 {
 	debug_ext("IN\n");
 	size_t i;
@@ -131,7 +131,10 @@ size_t edit_ins(unsigned char *ins, size_t len, size_t real)
 	{
 		uint32_t val;
 		int fixed;
-	}reg_stats[MAX_REG_NB] = {{0, 0}};
+		int register_nb;
+		void *edit_tab[MAX_INS_EDIT];
+		int edit_cur;
+	}reg_stats = {0, 0, -1, {0}, 0};
 
 	int register_nb;
 	uint32_t val;
@@ -146,22 +149,29 @@ size_t edit_ins(unsigned char *ins, size_t len, size_t real)
 	debug_ext("P1\n");
 	while (1)
 	{
-		if ((ret = edit_ins_add(ins + i, &register_nb, &val, &sig, &fixed)) > 0
+		if (reg_stats.edit_cur == MAX_INS_EDIT)
+			break;
+		else if ((ret = edit_ins_add(ins + i, &register_nb, &val, &sig, &fixed)) > 0
 				&& register_nb < MAX_REG_NB
-				&& (reg_stats[register_nb].fixed == 1 || fixed == 1))
+				&& (reg_stats.fixed == 1 || fixed == 1)
+				&& (reg_stats.register_nb == -1 || reg_stats.register_nb == register_nb))
 		{
-			i += ret;
+			reg_stats.edit_tab[reg_stats.edit_cur++] = ins + i;
+			reg_stats.register_nb = register_nb;
 			if (fixed)
-				reg_stats[register_nb].val = val;
+			{
+				reg_stats.val = val;
+				reg_stats.fixed = 1;
+			}
 			else if (sig == 1)
-				reg_stats[register_nb].val += val;
+				reg_stats.val += val;
 			else if (sig == -1)
-				reg_stats[register_nb].val -= val;
-			reg_stats[register_nb].fixed = 1;
+				reg_stats.val -= val;
+			i += ret;
 		}
 		else
 		{
-			if (i >= real && real != 0)
+			if (reg_stats.edit_cur >= 2)
 				break;
 			debug_ext("LEAVE\n");
 			return 0;
@@ -173,51 +183,28 @@ size_t edit_ins(unsigned char *ins, size_t len, size_t real)
 	//debug_ext("metha ", ins, " -> ", rm, "\n");
 	debug_ext("P2\n");
 
-	i = 0;
-	j = 0;
-	while (1)
+	int64_t r;
+	char r_sig = 1;
+	if (reg_stats.val != 0 && (rm_add & 1) == 1)
+		r = rm % reg_stats.val;
+	else
 	{
-		if (i >= real)
-			break ;
-		else if ((ret = edit_ins_add(ins + i, &register_nb, &val, &sig, &fixed)) > 0
-				&& register_nb < MAX_REG_NB
-				&& (/*reg_stats[register_nb].fixed == 1 || */fixed == 1))
-		{
-			int64_t r;
-			char r_sig = 1;
-			if (reg_stats[register_nb].val != 0 && (rm_add & 1) == 1)
-				r = rm % reg_stats[register_nb].val;
-			else
-			{
-				while ((uint32_t)(reg_stats[register_nb].val + rm) < (uint32_t)reg_stats[register_nb].val)
-					rm >>= 2;
-				r = -rm;
-			}
-
-			if (r < 0)
-			{
-				r = r * -1;
-				r_sig = -1;
-			}
-
-			if ((ret2 = edit_ins_set(ins + real + j, register_nb, r, r_sig, 0, len - j)) > 0)
-			{
-				j += ret2;
-				edit_ins_set(ins + i, register_nb, reg_stats[register_nb].val - r_sig * r, 0, 1, ret);
-			}
-			else
-				edit_ins_set(ins + i, register_nb, reg_stats[register_nb].val, 0, 1, ret);
-			i += ret;
-		}
-		else
-		{
-			debug_ext("OUT1\n");
-			return j;
-		}
+		while ((uint32_t)(reg_stats.val + rm) < (uint32_t)reg_stats.val)
+			rm >>= 2;
+		r = -rm;
 	}
 
+	if (r < 0)
+	{
+		r = r * -1;
+		r_sig = -1;
+	}
+
+	edit_ins_set(reg_stats.edit_tab[0], reg_stats.register_nb, reg_stats.val - r_sig * r, 0, 1, 100);
+	edit_ins_set(reg_stats.edit_tab[1], reg_stats.register_nb, r, r_sig, 0, 100);
+
 	debug_ext("OUT2\n");
-	return j;
+	return 1;
 }
 
 void ploy_ins_add(char *data, size_t *i, char *ins, size_t ins_size)
