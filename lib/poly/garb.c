@@ -200,7 +200,7 @@ size_t edit_ins(unsigned char *ins)
 		r_sig = -1;
 	}
 
-	edit_ins_set(reg_stats.edit_tab[0], reg_stats.register_nb, reg_stats.val - r_sig * r, 0, 1, 100);
+	edit_ins_set(reg_stats.edit_tab[0], reg_stats.register_nb, reg_stats.val - r_sig * r, 0, reg_stats.fixed, 100);
 	edit_ins_set(reg_stats.edit_tab[1], reg_stats.register_nb, r, r_sig, 0, 100);
 
 	debug_ext("OUT2\n");
