@@ -128,14 +128,14 @@ int edit_ins_add(unsigned char *ins, uint64_t *val, char *sig, int *fixed, int *
 		*size = instruction_size;
 		return prefixlen + instruction_size + 1;
 	}
-	//if (*ins == 0x8d && (*(ins + 1) & 0b11000111) == 0x05)
-	//{
-	//	*sig = 0;
-	//	*fixed = 1;
-	//	*val = *(uint32_t*)(ins + 2);
-	//	*size = sizeof(uint32_t);
-	//	return prefixlen + sizeof(uint32_t) + 2;
-	//}
+	if (*ins == 0x8d && (*(ins + 1) & 0b11000111) == 0x05)
+	{
+		*sig = 0;
+		*fixed = 1;
+		*val = *(uint32_t*)(ins + 2);
+		*size = sizeof(uint32_t);
+		return prefixlen + sizeof(uint32_t) + 2;
+	}
 	return 0;
 }
 
@@ -191,7 +191,6 @@ int edit_ins_set(unsigned char *ins, uint64_t val, uint8_t sig)
 	}
 	if (*ins == 0x8d && (*(ins + 1) & 0b11000111) == 0x05)
 	{
-		ft_write(2, "ok ", 3);
 		*(uint32_t*)(ins + 2) = (uint32_t)val;
 		return prefixlen + sizeof(uint32_t) + 2;
 	}
@@ -257,7 +256,12 @@ size_t edit_ins(unsigned char *ins)
 		}
 	}
 
-	uint32_t rm = ft_rand() % (1 << (reg_stats.max * 8));
+	uint32_t rm = ft_rand();
+
+	uint64_t v = 1 << ((uint64_t)reg_stats.max * 8);
+	if (v != 0)
+		rm %= v;
+
 	uint32_t rm_add = ft_rand();
 	//debug_ext("metha ", ins, " -> ", rm, "\n");
 	debug_ext("P2\n");

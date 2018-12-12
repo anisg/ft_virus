@@ -90,7 +90,6 @@ ft_signal
 ft_srand
 ft_waitpid
 ft_write
-ft_write
 ft_xstat
 garbage_table
 garbage_table_len
