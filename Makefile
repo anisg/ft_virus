@@ -97,6 +97,7 @@ fn_list: $(VIRUS)
 $(OBJ_DIR)/%.s: $(OBJ_DIR)/%.gs
 	@cp $< $<.tmp
 	@./others/scripts/add_garbage $< -p 10 -l toto $(shell cat fn_list) || cp $< $@
+	@cp $@ $@.tmp2
 
 $(TABLE_C): $(OBJ_NO_TABLE)
 	@nm $(OBJ_NO_TABLE) | grep .garb_start | wc -l > $(GARBAGE_CF)

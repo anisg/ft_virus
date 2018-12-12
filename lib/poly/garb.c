@@ -4,7 +4,7 @@
 #include "poly.h"
 #include "ft_lib.h"
 
-#define MAX 3
+#define MAX_R 3
 
 void generate_garb_end(void);
 void generate_garb(unsigned char *pos, size_t len, unsigned char *prev)
@@ -36,7 +36,7 @@ void generate_garb(unsigned char *pos, size_t len, unsigned char *prev)
 		size_t left = len - i;
 		r = ((uint64_t)r * 48271u) % 0x7fffffff + 1;
 
-		if (r % MAX == 0)
+		if (r % MAX_R == 0)
 		{
 			if (left >= sizeof(INS_NOP9) - 1)
 				ploy_ins_add(pos, &i, INS_NOP9, sizeof(INS_NOP9) - 1);
@@ -57,7 +57,7 @@ void generate_garb(unsigned char *pos, size_t len, unsigned char *prev)
 			else if (left >= sizeof(INS_NOP) - 1)
 				ploy_ins_add(pos, &i, INS_NOP, sizeof(INS_NOP) - 1);
 		}
-		if (r % MAX == 2 && left >= 3)
+		if (r % MAX_R == 2 && left >= 3)
 		{
 			size_t to_jump = left - 2;
 			if (to_jump > 100)
@@ -79,47 +79,125 @@ void generate_garb(unsigned char *pos, size_t len, unsigned char *prev)
 	}
 }
 
-int edit_ins_add(unsigned char *ins, int *register_nb, uint32_t *val, char *sig, int *fixed)
+int edit_ins_add(unsigned char *ins, uint64_t *val, char *sig, int *fixed, int *size)
 {
-	if (*ins >= 0xb8 && *ins < 0xc0)
+	int prefixlen = 0;
+	int instruction_size = sizeof(uint32_t);
+
+	if (*ins == 0x48)
 	{
-		*sig = 0;
-		*fixed = 1;
-		*val = *(uint32_t*)(ins + 1);
-		*register_nb = *ins - 0xb8;
-		return 5;
+		prefixlen++;
+		instruction_size = sizeof(uint64_t);
+		ins++;
 	}
+
 	if ((*ins == 0x81 && ((*(ins + 1)) & 0b11111000) == 0b11000000)
 		|| (*ins == 0x81 && ((*(ins + 1)) & 0b11111000) == 0b11101000))
 	{
 		*sig = ((*(ins + 1)) & 0b00101000) == 0 ? 1 : -1;
 		*fixed = 0;
-		*register_nb = (*(ins + 1)) & 0b111;
 		*val = *(uint32_t*)(ins + 2);
-		return 6;
+		*size = sizeof(uint32_t);
+		return prefixlen + sizeof(uint32_t) + 2;
 	}
+	//if ((*ins == 0x83 && ((*(ins + 1)) & 0b11111000) == 0b11000000)
+	//	|| (*ins == 0x83 && ((*(ins + 1)) & 0b11111000) == 0b11101000))
+	//{
+	//	*sig = ((*(ins + 1)) & 0b00101000) == 0 ? 1 : -1;
+	//	*fixed = 0;
+	//	*val = *(uint8_t*)(ins + 2);
+	//	*size = sizeof(uint8_t);
+	//	return prefixlen + sizeof(uint8_t) + 2;
+	//}
+	if (*ins == 0x05 || *ins == 0x2d)
+	{
+		*sig = (*ins == 0x05) ? 1 : -1;
+		*fixed = 0;
+		*val = *(uint32_t*)(ins + 1);
+		*size = sizeof(uint32_t);
+		return prefixlen + sizeof(uint32_t) + 1;
+	}
+	if (*ins >= 0xb8 && *ins < 0xc0)
+	{
+		*sig = 0;
+		*fixed = 1;
+		if (instruction_size == sizeof(uint64_t))
+			*val = *(uint64_t*)(ins + 1);
+		else
+			*val = *(uint32_t*)(ins + 1);
+		*size = instruction_size;
+		return prefixlen + instruction_size + 1;
+	}
+	//if (*ins == 0x8d && (*(ins + 1) & 0b11000111) == 0x05)
+	//{
+	//	*sig = 0;
+	//	*fixed = 1;
+	//	*val = *(uint32_t*)(ins + 2);
+	//	*size = sizeof(uint32_t);
+	//	return prefixlen + sizeof(uint32_t) + 2;
+	//}
 	return 0;
 }
 
-int edit_ins_set(unsigned char *ins, int register_nb, uint32_t val, char sig, int fixed, int len)
+int edit_ins_set(unsigned char *ins, uint64_t val, uint8_t sig)
 {
-	if (fixed == 1 && len >= 5)
+	int prefixlen = 0;
+	int instruction_size = sizeof(uint32_t);
+
+	if (*ins == 0x48)
 	{
-		*ins = 0xb8 + register_nb;
-		*(uint32_t*)(ins + 1) = (uint32_t)val;
-		return 5;
+		prefixlen++;
+		instruction_size = sizeof(uint64_t);
+		ins++;
 	}
-	else if (fixed == 0 && len >= 6)
+
+	if (*ins >= 0xb8 && *ins < 0xc0)
 	{
-		*ins = 0x81;
-		*(ins + 1) = register_nb | 0b11000000 | ((sig == -1) ? 0b00101000 : 0);
+		if (instruction_size == sizeof(uint64_t))
+			*(uint64_t*)(ins + 1) = (uint64_t)val;
+		else
+			*(uint32_t*)(ins + 1) = (uint32_t)val;
+		return prefixlen + instruction_size + 1;
+	}
+	if ((*ins == 0x81 && ((*(ins + 1)) & 0b11111000) == 0b11000000)
+		|| (*ins == 0x81 && ((*(ins + 1)) & 0b11111000) == 0b11101000))
+	{
+		if (sig == -1)
+			*(uint8_t*)(ins + 1) |= 0b00101000;
+		else if (sig == 1)
+			*(uint8_t*)(ins + 1) &= ~0b00111000;
 		*(uint32_t*)(ins + 2) = (uint32_t)val;
-		return 6;
+		return prefixlen + sizeof(uint32_t) + 2;
+	}
+	if ((*ins == 0x83 && ((*(ins + 1)) & 0b11111000) == 0b11000000)
+		|| (*ins == 0x83 && ((*(ins + 1)) & 0b11111000) == 0b11101000))
+	{
+		if (sig == -1)
+			*(uint8_t*)(ins + 1) |= 0b00101000;
+		else if (sig == 1)
+			*(uint8_t*)(ins + 1) &= ~0b00111000;
+		*(uint8_t*)(ins + 2) = (uint8_t)val;
+		return prefixlen + sizeof(uint8_t) + 2;
+	}
+
+	if (*ins == 0x05 || *ins == 0x2d)
+	{
+		if (sig == -1)
+			*ins = 0x2d;
+		else if (sig == 1)
+			*ins = 0x05;
+		*(uint32_t*)(ins + 1) = (uint32_t)val;
+		return prefixlen + sizeof(uint32_t) + 1;
+	}
+	if (*ins == 0x8d && (*(ins + 1) & 0b11000111) == 0x05)
+	{
+		ft_write(2, "ok ", 3);
+		*(uint32_t*)(ins + 2) = (uint32_t)val;
+		return prefixlen + sizeof(uint32_t) + 2;
 	}
 	return 0;
 }
 
-#define MAX_REG_NB 8
 #define MAX_INS_EDIT 2 // DO NOT EDIT
 
 size_t edit_ins(unsigned char *ins)
@@ -129,17 +207,17 @@ size_t edit_ins(unsigned char *ins)
 	size_t j;
 	struct
 	{
-		uint32_t val;
+		uint64_t val;
 		int fixed;
-		int register_nb;
 		void *edit_tab[MAX_INS_EDIT];
 		int edit_cur;
+		uint8_t max;
 	}reg_stats = {0, 0, -1, {0}, 0};
 
-	int register_nb;
-	uint32_t val;
+	uint64_t val;
 	char sig;
 	int fixed;
+	int size;
 
 	int ret;
 	int ret2;
@@ -151,13 +229,13 @@ size_t edit_ins(unsigned char *ins)
 	{
 		if (reg_stats.edit_cur == MAX_INS_EDIT)
 			break;
-		else if ((ret = edit_ins_add(ins + i, &register_nb, &val, &sig, &fixed)) > 0
-				&& register_nb < MAX_REG_NB
-				&& (reg_stats.fixed == 1 || fixed == 1)
-				&& (reg_stats.register_nb == -1 || reg_stats.register_nb == register_nb))
+		else if ((ret = edit_ins_add(ins + i, &val, &sig, &fixed, &size)) > 0)
 		{
+			if (reg_stats.max == 0 || reg_stats.max > size)
+				reg_stats.max = size;
+			if (reg_stats.edit_cur == 0 && sig == -1)
+				return 0;
 			reg_stats.edit_tab[reg_stats.edit_cur++] = ins + i;
-			reg_stats.register_nb = register_nb;
 			if (fixed)
 			{
 				reg_stats.val = val;
@@ -171,6 +249,7 @@ size_t edit_ins(unsigned char *ins)
 		}
 		else
 		{
+			debug_ext("bad: ", *(ins + i), " ", *(ins + i + 1), "\n");
 			if (reg_stats.edit_cur >= 2)
 				break;
 			debug_ext("LEAVE\n");
@@ -178,7 +257,7 @@ size_t edit_ins(unsigned char *ins)
 		}
 	}
 
-	uint32_t rm = ft_rand();
+	uint32_t rm = ft_rand() % (1 << (reg_stats.max * 8));
 	uint32_t rm_add = ft_rand();
 	//debug_ext("metha ", ins, " -> ", rm, "\n");
 	debug_ext("P2\n");
@@ -191,7 +270,8 @@ size_t edit_ins(unsigned char *ins)
 	{
 		while ((uint32_t)(reg_stats.val + rm) < (uint32_t)reg_stats.val)
 			rm >>= 2;
-		r = -rm;
+		r = rm * -1;
+		//r = -rm % reg_stats.val;
 	}
 
 	if (r < 0)
@@ -200,8 +280,8 @@ size_t edit_ins(unsigned char *ins)
 		r_sig = -1;
 	}
 
-	edit_ins_set(reg_stats.edit_tab[0], reg_stats.register_nb, reg_stats.val - r_sig * r, 0, reg_stats.fixed, 100);
-	edit_ins_set(reg_stats.edit_tab[1], reg_stats.register_nb, r, r_sig, 0, 100);
+	edit_ins_set(reg_stats.edit_tab[0], reg_stats.val - r_sig * r, 0);
+	edit_ins_set(reg_stats.edit_tab[1], r, r_sig);
 
 	debug_ext("OUT2\n");
 	return 1;
