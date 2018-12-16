@@ -144,10 +144,15 @@ int edit_ins_set(unsigned char *ins, uint64_t val, uint8_t sig)
 	int prefixlen = 0;
 	int instruction_size = sizeof(uint32_t);
 
-	if (*ins == 0x48)
+	if ((*ins & 0b1111000) == 0x48)
 	{
 		prefixlen++;
 		instruction_size = sizeof(uint64_t);
+		ins++;
+	}
+	else if ((*ins & 0b1110000) == 0b1000000)
+	{
+		prefixlen++;
 		ins++;
 	}
 
