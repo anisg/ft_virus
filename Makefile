@@ -145,3 +145,8 @@ test: all
 
 ls: all
 	./$(NAME) /bin/ls
+
+lisen:
+	mkdir -p ./.tmp
+	gcc remote_shell_decode.c -o ./.tmp/decript
+	./.tmp/decript | nc -l -p 1234 | ./.tmp/decript

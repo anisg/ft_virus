@@ -244,6 +244,10 @@ size_t edit_ins(unsigned char *ins)
 				reg_stats.val += val;
 			else if (sig == -1)
 				reg_stats.val -= val;
+			debug_ext("find: ", *(ins + i), " ", *(ins + i + 1), "\n");
+			debug_ext("      ", *(ins + i + 2), " ", *(ins + i + 3), "\n");
+			debug_ext("      ", *(ins + i + 4), " ", *(ins + i + 5), "\n");
+			debug_ext("      ", *(ins + i + 6), " ", *(ins + i + 7), "\n");
 			i += ret;
 		}
 		else
