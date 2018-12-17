@@ -212,6 +212,14 @@ check_infected /tmp/test/ls_two && (printFail "ls_two is infected (from infected
 strings /tmp/test/ls_two | grep ndombre
 printOk
 
+resetDir
+cp /bin/ls /tmp/test/ls_one
+
+echo "1" > /tmp/ok 
+strace $BIN 2>&1 | grep 'DEBUGGING...' | wc -l | diff - /tmp/ok || printFail || fail
+check_infected /tmp/test/ls_one && (printFail || fail)
+
+
 #TODO: check from Pestilence?
 
 rm 'test'

