@@ -14,16 +14,6 @@ void __start *ft_malloc(size_t size)
     return (char*)p + sizeof(size_t);
 }
 
-void __start *ft_malloc_x(size_t size)
-{
-    ssize_t *p = (void*)CALL(SYS_mmap, NULL, sizeof(size_t)+size, PROT_READ|PROT_WRITE,34, -1, 0);
-    if (SYS_HAVE_FAIL(p))
-        return NULL;
-    p[0] = size; //storing the size
-    return (char*)p + sizeof(size_t);
-}
-
-
 #define SA_RESTORER 0x04000000
 #define SA_SIGNAL_NB 128
 
@@ -45,6 +35,7 @@ sys:
 	return (size_t)CALL(SYS_rt_sigaction, signal, &toto, NULL, SA_SIGNAL_NB / 16);
 }
 
+/*
 extern char **environ;
 
 char *ft_getenv(const char * restrict k){
@@ -58,7 +49,7 @@ char *ft_getenv(const char * restrict k){
 		}
 	}
 	return NULL;
-}
+}*/
 
 __start void  *ft_memcpy(void *dest, const void *src, size_t n)
 {

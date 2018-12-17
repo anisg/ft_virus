@@ -213,7 +213,6 @@ String __zone2 decompress(String b){
 		t[i] = (Node){node.v, node.freq, NULL, NULL};
 		size += node.freq;
 	}
-	// TODO check the len
 	//==== huffman ====
 	Node *r = huffmanTree(t, n);
 	if (!r) return string(NULL,0);

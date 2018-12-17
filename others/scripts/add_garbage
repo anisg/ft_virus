@@ -68,7 +68,7 @@ if len(zones) == 0:
 if args.statfile != None:
 	x=int(fget(args.statfile).strip())
 	x += total
-	print("add %d" % total)
+	#print("add %d" % total)
 	fput(args.statfile, str(x))
 
 kinds=dict(
@@ -176,4 +176,4 @@ for z in zones:
 pre, ext = os.path.splitext(args.file)
 f = pre + ".s"
 fput(f, '\n'.join(lines))
-print("Success! added garbage ({} lines) to \"{}\"".format(off, f))
+#print("Success! added garbage ({} lines) to \"{}\"".format(off, f))

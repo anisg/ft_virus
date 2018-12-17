@@ -97,6 +97,7 @@ fn_list: $(VIRUS)
 
 $(OBJ_DIR)/%.s: $(OBJ_DIR)/%.gs
 	@cp $< $<.tmp
+	@echo add_garbage $@
 	@./others/scripts/add_garbage $< -p 10 -l toto $(shell cat fn_list) -sf .tmp/total.tmp || cp $< $@
 	@cp $@ $@.tmp2
 

