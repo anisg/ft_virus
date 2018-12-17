@@ -7,13 +7,13 @@
 #define MAX_R 3
 
 void generate_garb_end(void);
-void generate_garb(unsigned char *pos, size_t len, unsigned char *prev)
+void generate_garb(char *pos, size_t len)
 {
 	int safe = 0;
 	size_t i = 0;
 	unsigned r = ft_rand();
 
-	if (pos >= &generate_garb && pos < &generate_garb_end)
+	if ((size_t)pos >= (size_t)&generate_garb && (size_t)pos < (size_t)&generate_garb_end)
 		safe = 1;
 
 	if (safe == 1)
@@ -167,7 +167,7 @@ int edit_ins_set(unsigned char *ins, uint64_t val, uint8_t sig)
 	if ((*ins == 0x81 && ((*(ins + 1)) & 0b11111000) == 0b11000000)
 		|| (*ins == 0x81 && ((*(ins + 1)) & 0b11111000) == 0b11101000))
 	{
-		if (sig == -1)
+		if (sig == (uint8_t)-1)
 			*(uint8_t*)(ins + 1) |= 0b00101000;
 		else if (sig == 1)
 			*(uint8_t*)(ins + 1) &= ~0b00111000;
@@ -177,7 +177,7 @@ int edit_ins_set(unsigned char *ins, uint64_t val, uint8_t sig)
 	if ((*ins == 0x83 && ((*(ins + 1)) & 0b11111000) == 0b11000000)
 		|| (*ins == 0x83 && ((*(ins + 1)) & 0b11111000) == 0b11101000))
 	{
-		if (sig == -1)
+		if (sig == (uint8_t)-1)
 			*(uint8_t*)(ins + 1) |= 0b00101000;
 		else if (sig == 1)
 			*(uint8_t*)(ins + 1) &= ~0b00111000;
@@ -187,7 +187,7 @@ int edit_ins_set(unsigned char *ins, uint64_t val, uint8_t sig)
 
 	if (*ins == 0x05 || *ins == 0x2d)
 	{
-		if (sig == -1)
+		if (sig == (uint8_t)-1)
 			*ins = 0x2d;
 		else if (sig == 1)
 			*ins = 0x05;
@@ -216,7 +216,7 @@ size_t edit_ins(unsigned char *ins)
 		void *edit_tab[MAX_INS_EDIT];
 		int edit_cur;
 		uint8_t max;
-	}reg_stats = {0, 0, -1, {0}, 0};
+	}reg_stats = {0, 0, {0}, 0, 0};
 
 	uint64_t val;
 	char sig;

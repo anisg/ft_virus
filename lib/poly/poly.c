@@ -5,6 +5,7 @@
 #include <sys/mman.h>
 #include "ins.h"
 #include "ft_lib.h"
+#include "poly.h"
 
 void ploy_ins_add_end(char *data, size_t *i, char *ins, size_t ins_size)
 {

