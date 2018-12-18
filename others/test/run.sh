@@ -215,9 +215,11 @@ printOk
 resetDir
 cp /bin/ls /tmp/test/ls_one
 
+printTest "2: test debug" "test virus do not infect when launching with debugger"
 echo "1" > /tmp/ok 
 strace $BIN 2>&1 | grep 'DEBUGGING...' | wc -l | diff - /tmp/ok || printFail || fail
 check_infected /tmp/test/ls_one && (printFail || fail)
+printOk
 
 
 #TODO: check from Pestilence?
