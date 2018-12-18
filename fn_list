@@ -65,6 +65,7 @@ ft_close
 ft_close
 ft_close
 ft_close
+ft_close
 ft_execve
 ft_exit
 ft_exit
@@ -81,12 +82,15 @@ ft_memcpy
 ft_open
 ft_open
 ft_open
+ft_open
 ft_ptrace
 ft_rand
 ft_read
 ft_read
+ft_read
 ft_signal
 ft_srand
+ft_true_rand
 ft_waitpid
 ft_write
 ft_write

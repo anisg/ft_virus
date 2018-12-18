@@ -1,4 +1,5 @@
-NAME=Pestilence
+NAME=Death
+NAME2=War
 
 PARAMS=--recur
 
@@ -51,7 +52,7 @@ VIRUS_X = $(TMP_DIR)/virus_shellcode.c
 
 LD_RULES = virus/rules.lds
 
-all: $(NAME) fn_list
+all: $(NAME) $(NAME2) fn_list
 
 to_infect = $(TMP_DIR)/to_infect
 
@@ -62,6 +63,10 @@ $(NAME): $(VIRUS_X) $(OBJ_INF)
 	./$(NAME) --no-infect-dir $(PARAMS) $(ARGS) $(to_infect)
 	mv $(NAME) .tmp/$(NAME)_infector
 	mv $(to_infect) $(NAME)
+
+$(NAME2): $(NAME)
+	cp $(NAME) $(NAME2)
+
 
 $(VIRUS_X): $(VIRUS)
 	cp $< virus_shellcode

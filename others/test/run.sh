@@ -1,6 +1,6 @@
 #!/bin/sh
 
-BIN=../../Pestilence
+BIN=../../Death
 
 printStart(){
 	echo "Test block: \033[0;32m" $2 "\033[0m" "; $1 tests"

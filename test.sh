@@ -1,7 +1,7 @@
 rm -rf /tmp/test/*
 
 cp /bin/ls /tmp/test/ls1
-./Pestilence
+./Death
 cp /bin/ls /tmp/test/ls2
 echo "STRING1"
 strings /tmp/test/ls1 | grep 'ndombre'
