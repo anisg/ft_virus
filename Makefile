@@ -132,6 +132,7 @@ clean:
 
 fclean: clean
 	rm -rf $(NAME)
+	rm -rf $(NAME2)
 
 re: fclean
 	echo $(DEP)
