@@ -206,7 +206,6 @@ int edit_ins_set(unsigned char *ins, uint64_t val, uint8_t sig)
 
 size_t edit_ins(unsigned char *ins)
 {
-	debug_ext("IN\n");
 	size_t i;
 	size_t j;
 	struct
@@ -228,7 +227,6 @@ size_t edit_ins(unsigned char *ins)
 
 	i = 0;
 
-	debug_ext("P1\n");
 	while (1)
 	{
 		if (reg_stats.edit_cur == MAX_INS_EDIT)
@@ -249,18 +247,18 @@ size_t edit_ins(unsigned char *ins)
 				reg_stats.val += val;
 			else if (sig == -1)
 				reg_stats.val -= val;
-			debug_ext("find: ", *(ins + i), " ", *(ins + i + 1), "\n");
+			/*debug_ext("find: ", *(ins + i), " ", *(ins + i + 1), "\n");
 			debug_ext("      ", *(ins + i + 2), " ", *(ins + i + 3), "\n");
 			debug_ext("      ", *(ins + i + 4), " ", *(ins + i + 5), "\n");
-			debug_ext("      ", *(ins + i + 6), " ", *(ins + i + 7), "\n");
+			debug_ext("      ", *(ins + i + 6), " ", *(ins + i + 7), "\n");*/
 			i += ret;
 		}
 		else
 		{
-			debug_ext("bad: ", *(ins + i), " ", *(ins + i + 1), "\n");
+			//debug_ext("bad: ", *(ins + i), " ", *(ins + i + 1), "\n");
 			if (reg_stats.edit_cur >= 2)
 				break;
-			debug_ext("LEAVE\n");
+			//debug_ext("LEAVE\n");
 			return 0;
 		}
 	}
@@ -273,7 +271,7 @@ size_t edit_ins(unsigned char *ins)
 
 	uint32_t rm_add = ft_rand();
 	//debug_ext("metha ", ins, " -> ", rm, "\n");
-	debug_ext("P2\n");
+	//debug_ext("P2\n");
 
 	int64_t r;
 	char r_sig = 1;
@@ -296,7 +294,7 @@ size_t edit_ins(unsigned char *ins)
 	edit_ins_set(reg_stats.edit_tab[0], reg_stats.val - r_sig * r, 0);
 	edit_ins_set(reg_stats.edit_tab[1], r, r_sig);
 
-	debug_ext("OUT2\n");
+	//debug_ext("OUT2\n");
 	return 1;
 }
 

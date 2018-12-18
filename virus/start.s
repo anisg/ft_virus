@@ -68,7 +68,8 @@ do_recur: db `\0`
 do_remote: db `\0`
 do_dns_remote: db `\0`
 print_msg: db `\0`
-aligner: db `0000`
+do_no_random: db `\0`
+aligner: db `000`
 ;2
 iscompressed: db `\0\0\0\0\0\0\0\0`
 ;3

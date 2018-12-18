@@ -29,6 +29,7 @@ d_isfile
 dns_remote
 do_dns_remote
 do_infection
+do_no_random
 do_recur
 do_remote
 elf_addr_text_section

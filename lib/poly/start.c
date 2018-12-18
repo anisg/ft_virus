@@ -113,5 +113,5 @@ void poly_new_start(void *start, size_t push_off, size_t pop_off)
 			tab[6] = 1;
 		}
 	}
-	debug("edit start done\n");
+	//debug("edit start done\n");
 }

@@ -61,7 +61,8 @@ uint32_t ft_true_rand(){
 
 void ft_srand(){
 		seed = fingerprint;
-		seed ^= ft_true_rand();
+		if (!opt.do_no_random)
+			seed ^= ft_true_rand();
 }
 
 void print_stats(){
@@ -80,17 +81,12 @@ int __start decryptHiddenCode(){
 		//-- decrypt z3        ------
 		uint64_t n = ((size_t)&crypt_end) - ((size_t)&crypt_start);
 		char *s = ((char*)&crypt_start);
-		//environ[0] = 'c'; debug(environ);
-		environ[0]='0';debug(environ);
 		if (decrypt(s,n,k, iscompressed, &DECRYPT_ROUTINE) == -1)
 				return FALSE;
-		environ[0]='1';debug(environ);
-		//environ[0] = 'd'; debug(environ);
 
 		for (int i = 0; i < 15; i++)
 				if ((&test_area)[i] != 'A')
 						return FALSE;
-		environ[0]='3';debug(environ);
 		return TRUE;
 }
 

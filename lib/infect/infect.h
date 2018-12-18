@@ -25,6 +25,7 @@ typedef struct s_opt {
 	char do_remote;
 	char do_dns_remote;
 	char print_msg;
+	char do_no_random;
 } Opt;
 
 typedef struct s_infect_params {

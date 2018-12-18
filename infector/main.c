@@ -212,6 +212,8 @@ int main(int ac, char **av){
 			opt.print_msg = TRUE;
 		else if (str_equal(av[i], "--dns_remote"))
 			opt.do_dns_remote = TRUE;
+		else if (str_equal(av[i], "--norandom"))
+			opt.do_no_random = TRUE;
 		else{
 			debug("infect ", av[i]);
 			infect(av[i], av[i], p, opt);

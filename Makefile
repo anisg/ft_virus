@@ -1,7 +1,7 @@
 NAME=Death
 NAME2=War
 
-PARAMS=--recur
+PARAMS=--recur #--norandom
 
 DEBUG=0
 DEBUG_EXT=0
