@@ -4,7 +4,7 @@ The goal of this project is to infect an ELF binary and make the infected binary
 To make the life of virus analysts a little bite harder, the virus is encrypted and change itself to prevent the use of fingerprint to find it and the infection is not run if a debugger is attached.
 The virus can also execute a string in a TXT DNS record as an easy way to create a back door. The remote connection is crypt using symmetric hard coded key (I know, this is not secure, but better than noting).
 
-## run it
+## Run our virus
 
 > make && ./Death
 
